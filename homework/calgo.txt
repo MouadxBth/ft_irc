@@ -1,0 +1,17 @@
++the project components will be represented/split into 3 different classes:
+ +the Server Class:
+	contains member variables and member functions to faciliate the mangement of clients and channels of the server such as:
+		+member functions to:
+			-works as the client-handler.
+			-handle new connections from the client and maintain them.
+			-register and de-register clients.
+		+member variables to store:
+			-maps to store client classes.
+			-list of banned ips.
+			-channels.
+	and much more...
+ +the Client Class:
+	will basically contain any metadata related to the client as outlined in the IRC protocol specification.
+		<...>
+ +the Channel Class:
+ 	<...>

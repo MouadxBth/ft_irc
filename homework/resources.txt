@@ -1,0 +1,10 @@
+- All you need about network programming:
+	https://beej.us/guide/bgnet/html/
+	https://www.geeksforgeeks.org/socket-programming-cc/ (brief explanation as a start)
+
+- RFCs:
+	https://www.irchelp.org/protocol/rfc/
+	https://datatracker.ietf.org/doc/html/rfc2812
+
+	https://en.wikipedia.org/wiki/List_of_Internet_Relay_Chat_commands
+	

@@ -1,0 +1,7 @@
+.vscode
+*.dep
+*.o
+obj/
+dep/
+ircserv
+old/*
