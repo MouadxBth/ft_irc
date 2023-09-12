@@ -20,6 +20,14 @@
 # include "User.hpp"
 # include "utils.hpp"
 
+typedef struct s_data
+{
+    std::string prefix;
+    std::string command;
+    std::string arguments;
+    std::string trail;
+} Data;
+
 class Server
 {
 	private:
@@ -29,14 +37,30 @@ class Server
 		
 		std::map<int, User *>		_users;
 		std::vector<Channel *>	_channels;
+		std::vector<pollfd>		_sockets;
 
 		sockaddr_in 			_address;
 		socklen_t				_addressSize;
 		pollfd					_listener;
 
-		pollfd handleUserConnection();
-		void handleUserDisconnect(pollfd& connectionInfo);
-		void handleUserData(pollfd& connectionInfo);
+		bool					_enabled;
+
+		void    removeSocket(pollfd& socket);
+
+		void	handleUserConnection();
+		
+		void	handleUserDisconnect(const pollfd& connectionInfo);
+		
+		std::string readUserInput(pollfd& connectionInfo);
+		
+		std::vector<std::string> handleUserInput(User *user, std::string &input);
+		
+		Data parseUserInput(std::string& input);
+		
+		std::vector<Data> parseUserData(std::vector<std::string>& data);
+
+		bool	handleUserData(pollfd& connectionInfo);
+
 	
 	public:
 		Server();
@@ -57,9 +81,9 @@ class Server
 
 		void configure();
 
-		void removeUser(int fd);
-
 		void enable();
+
+		void disable();
 
 		//void	startServer();
 };

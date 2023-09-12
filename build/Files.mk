@@ -6,7 +6,7 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/12 23:45:12 by mbouthai          #+#    #+#              #
-#    Updated: 2023/08/27 08:41:21 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/11 18:38:14 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ SRCS_DIR	:= srcs
 #COLOR_SRCS	= color_utils.c color.c
 #COLOR_SRCS	:= $(addprefix $(COLOR_DIR)/,$(COLOR_SRCS))
 
-SOURCES	= User.cpp Channel.cpp utils.cpp Server.cpp main.cpp \
+SOURCES	= User.cpp Channel.cpp utils.cpp Server.cpp ServerUser.cpp main.cpp \
 	#$(COLOR_SRCS) \
 	
 

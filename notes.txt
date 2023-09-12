@@ -1,0 +1,10 @@
+// "Line 1\nLine 2\r\nBetween\r\nLine 3"
+
+// "Line 1"
+// "Line 2\r"
+
+// "Between\r"
+
+// "Line 3" will be left as a partial message
+
+// in total, we have 2 commands, and a partial command

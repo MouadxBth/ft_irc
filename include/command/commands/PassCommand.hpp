@@ -1,28 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Command.hpp                                        :+:      :+:    :+:   */
+/*   PassCommand.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/19 11:13:56 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/08/19 11:15:46 by mbouthai         ###   ########.fr       */
+/*   Created: 2023/09/12 09:55:56 by mbouthai          #+#    #+#             */
+/*   Updated: 2023/09/12 09:57:20 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <string>
+#pragma once
 
-class Command
+# include "Command.hpp"
+
+class PassCommand : public Command
 {
 
-private:
-    std::string name;
-    std::string description;
-    size_t  code;
-
 public:
-    Command();
-    ~Command();
-    Command(const Command& instance);
-    Command& operator=(const Command& instance);
+    PassCommand();
+    ~PassCommand();
+    PassCommand(const PassCommand& instance);
+    PassCommand& operator=(const PassCommand& instance);
+
+    void executeCommand(User *user, Data &data);
 };

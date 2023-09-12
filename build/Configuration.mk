@@ -25,9 +25,9 @@ endef
 export PROJECT_HEADER
 
 CXX	:= c++
-CPPFLAGS	:= -Wall -Werror -Wextra -std=c++98 -I$(HEADERS_DIR)/ #-fsanitize=address
+CPPFLAGS	:= -Wall -Werror -Wextra -std=c++98 -I$(HEADERS_DIR)/ -fsanitize=address
 
-LDFLAGS	:= #-fsanitize=address
+LDFLAGS	:= -fsanitize=address
 
 CLEAN_DIR	:= rm -fd
 

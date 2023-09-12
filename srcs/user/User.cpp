@@ -2,7 +2,8 @@
 
 User::User()
 	: _authenticated(false), 
-	_operator(false)
+	_operator(false),
+	_state(User::STAGE_ZERO)
 {}
 
 User::~User() {}
@@ -80,6 +81,11 @@ const sockaddr_in&    User::getAddress() const
 	return (_address);
 }
 
+const User::State&	User::getState() const
+{
+	return (_state);
+}
+
 void   User::setUsername(const std::string& username)
 {
 	this->_username = username;
@@ -127,6 +133,38 @@ void    User::setUserSocket(const pollfd& socket)
 void	User::setAddress(const sockaddr_in& address)
 {
 	this->_address = address;
+}
+
+void	User::setState(User::State state)
+{
+	this->_state = state;
+}
+
+void	User::sendMessage(const std::string& message) const
+{
+	if (getUserSocket().fd >= 0)
+		send(getUserSocket().fd, message.c_str(), message.size(), 0);
+}
+
+void	User::incrementState()
+{
+	switch (_state) {
+		case User::STAGE_ZERO:
+			_state = STAGE_ONE;
+			break;
+		case User::STAGE_ONE:
+			_state = STAGE_TWO;
+			break;
+		case User::STAGE_TWO:
+			_state = STAGE_THREE;
+			break;
+		case User::STAGE_THREE:
+			_state = STAGE_ZERO;
+			break;
+		default:
+			_state = STAGE_ZERO;
+			break;
+	}
 }
 
 static void	addressToString(std::ostream& outputSteam, const sockaddr_in& address)

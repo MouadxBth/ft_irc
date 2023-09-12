@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cstdlib>
 #include "../include/Server.hpp"
+#include <csignal>
+
+Server *server;
 
 static bool isNumber(char *str)
 {
@@ -21,9 +24,18 @@ static int validatePort(int port)
 	return (port > 1024 && port < 65537);
 }
 
+void signalHandler(int signum) {
+    if (server)
+        server->disable();
+    
+    std::exit(signum);
+}
+
 int main(int argc, char **argv)
 {
     int port;
+
+    signal(SIGINT, signalHandler);
 
     if (argc != 3)
         return (std::cerr << "[Error]: Invalid usage!\n"
@@ -44,9 +56,12 @@ int main(int argc, char **argv)
             << std::endl,
             EXIT_FAILURE);
 
-    Server	server(static_cast<size_t>(port), argv[2]);
+    Server	instance(static_cast<size_t>(port), argv[2]);
 
-    server.enable();
+    server = &instance;
+
+    server->configure();
+    server->enable();
     //server.startServer();
     return (0);
 }
