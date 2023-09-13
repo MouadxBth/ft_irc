@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 12:04:38 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/13 19:08:51 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/13 19:51:45 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,14 @@ void    CommandManager::executeCommand(User *user, Data &data)
     if (!user)
         return ;
     
-    std::string nickname = user->getNickname().empty() 
-        ? std::string("User " + user->getUserSocket().fd) 
+    std::string nickname;
+    std::ostringstream oss;
+
+    oss << "User ";
+    oss << user->getUserSocket().fd;
+    
+    nickname = user->getNickname().empty() 
+        ? oss.str()
         : user->getNickname();
 
     std::map<std::string, Command *>::iterator it = _registeredCommands.find(data.command);

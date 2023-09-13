@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/13 18:57:52 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/13 19:51:25 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,14 @@ PassCommand& PassCommand::operator=(const PassCommand& instance)
 
 void PassCommand::executeCommand(User *user, Data &data)
 {   
-    std::string nickname = user->getNickname().empty() 
-        ? std::string("User " + user->getUserSocket().fd) 
+    std::string nickname;
+    std::ostringstream oss;
+
+    oss << "User ";
+    oss << user->getUserSocket().fd;
+    
+    nickname = user->getNickname().empty() 
+        ? oss.str()
         : user->getNickname();
     
     if (!getServer())
