@@ -36,7 +36,7 @@ size_t Channel::getMaximumCapacity() const
 	return (this->_maximumCapacity);
 }
 
-const Channel::Users& Channel::getUsers() const
+const std::map<std::string, std::pair<User *, bool> >& Channel::getUsers() const
 {
 	return (this->_users);
 }

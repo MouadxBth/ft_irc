@@ -9,13 +9,11 @@
 class Channel
 {
     private:
-        typedef typename std::map<std::string, std::pair<User *, bool> > Users;
-
         std::string                         _name;
         std::string                         _topic;
         std::string                         _password;
         size_t                              _maximumCapacity;
-        Users                               _users;
+        std::map<std::string, std::pair<User *, bool> >                               _users;
         bool                                _inviteOnly;
         bool                                _private;
         bool                                _topicOperator;
@@ -31,7 +29,7 @@ class Channel
         const std::string&                    getPassword() const;
         
         size_t                          getMaximumCapacity() const;
-        const Users&                    getUsers() const;
+        const std::map<std::string, std::pair<User *, bool> >&                    getUsers() const;
         
         bool                            isPrivate() const;
         bool                            isInviteOnly() const;
