@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:24:57 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/13 19:08:13 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/13 21:09:25 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,8 +151,16 @@ std::string Server::readUserInput(pollfd& connectionInfo)
 		result.append(buffer, readData);
 
 	std::cout << result << std::endl;
+	printAscis(result);
 
 	return (result);
+}
+
+void removeCharacter(std::string& str, char target) {
+    size_t pos = 0;
+    while ((pos = str.find(target, pos)) != std::string::npos) {
+        str.erase(pos, 1);  // Erase 1 character at position 'pos'
+    }
 }
 
 std::vector<std::string> Server::handleUserInput(User *user, std::string &input)
@@ -191,6 +199,8 @@ std::vector<std::string> Server::handleUserInput(User *user, std::string &input)
 		}
 
 		holder.erase(holder.end() - 1);
+
+		removeCharacter(holder, char(4));
 
 		data.push_back(holder);
 
