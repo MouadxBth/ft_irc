@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 21:52:17 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/12 10:34:51 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/13 19:00:21 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,9 @@ Command::~Command()
 Command::Command(const Command& instance)
 :   _name(instance._name),
     _description(instance._description),
-    _code(instance._code), 
-    _authRequired(instance._authRequired)
+    _maxArguments(instance._maxArguments), 
+    _authRequired(instance._authRequired),
+    _requireTrail(instance._requireTrail)
 {}
 
 Command& Command::operator=(const Command& instance)
@@ -31,37 +32,28 @@ Command& Command::operator=(const Command& instance)
     {
         _name = instance._name;
         _description = instance._description;
-        _code = instance._code;
-        _authRequired = instance._authRequired;    
+        _maxArguments = instance._maxArguments;
+        _authRequired = instance._authRequired;
+        _requireTrail = instance._requireTrail;
     }
     return *this;
 }
 
-Command::Command(const std::string& name, const std::string& description, size_t code, bool authRequired)
+Command::Command(const std::string& name, const std::string& description, int maxArguments, bool authRequired, bool trail)
     : _name(name),
     _description(description),
-    _code(code),
-    _authRequired(authRequired)
+    _maxArguments(maxArguments),
+    _authRequired(authRequired),
+    _requireTrail(trail)
 {}
 
-void    Command::execute(User *user, Data &data)
+void    printAsci(std::string& str)
 {
-    if (!user)
-        return ;
-    
-    if (!isKnownCommand(data.command))
+    for (size_t index = 0; index < str.size(); index++)
     {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(user->getNickname(), data.command));
-        return ;
+        std::cout << ((int)str[index]) << " ";
     }
-    
-    if (!user->isAuthenticated() && _authRequired)
-    {
-        user->sendMessage(ERR_NOT_REGISTERED(user->getNickname()));
-        return ;
-    }
-
-    executeCommand(user, data);
+    std::cout << std::endl;
 }
 
 const std::string&  Command::getName() const
@@ -74,9 +66,9 @@ const std::string&  Command::getDescription() const
     return (this->_description);
 }
 
-size_t  Command::getCode() const
+int  Command::getMaxArguments() const
 {
-    return (this->_code);
+    return (this->_maxArguments);
 }
 
 bool  Command::isAuthRequired() const
@@ -84,6 +76,15 @@ bool  Command::isAuthRequired() const
     return (this->_authRequired);
 }
 
+bool Command::requiresTrail() const
+{
+    return (this->_requireTrail);
+}
+
+Server  *Command::getServer() const
+{
+    return (_server);
+}
 
 void    Command::setName(const std::string& name)
 {
@@ -95,12 +96,22 @@ void    Command::setDescription(const std::string& description)
     _description = description;
 }
 
-void    Command::setCode(size_t code)
+void    Command::setMaxArguments(int maxArguments)
 {
-    _code = code;
+    _maxArguments = maxArguments;
 }
 
 void    Command::setAuthRequired(bool auth)
 {
     _authRequired = auth;
+}
+
+void    Command::setRequireTrail(bool trail)
+{
+    _requireTrail = trail;
+}
+
+void    Command::setServer(Server *server)
+{
+    _server = server;
 }

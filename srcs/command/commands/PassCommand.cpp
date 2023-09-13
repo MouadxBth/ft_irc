@@ -6,14 +6,16 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/12 10:40:11 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/13 18:57:52 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PassCommand.hpp"
 
+//ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
+
 PassCommand::PassCommand()
-    : Command("PASS", "let's you pass n sht", 0, true)
+    : Command("PASS", "let's you pass n sht", 1, false, false)
 {}
 
 PassCommand::~PassCommand()
@@ -33,17 +35,38 @@ PassCommand& PassCommand::operator=(const PassCommand& instance)
 
 
 void PassCommand::executeCommand(User *user, Data &data)
-{
-    if (user->isAuthenticated() || user->getState() == User::STAGE_THREE)
+{   
+    std::string nickname = user->getNickname().empty() 
+        ? std::string("User " + user->getUserSocket().fd) 
+        : user->getNickname();
+    
+    if (!getServer())
+        return ;
+        
+    if (user->isAuthenticated())
     {
-        user->sendMessage(ERR_ALREADY_REGISTERED(user->getNickname()));
+        user->sendMessage(ERR_ALREADY_REGISTERED(nickname));
         return ;
     }
-    // check password
-    user->incrementState();
 
-    if (user->getState() == User::STAGE_THREE)
+    if (data.arguments.empty())
     {
-        // welcome
+        user->sendMessage(ERR_NEED_MORE_PARAMS(nickname, data.command));
+        return ;
     }
+
+    if (data.arguments.size() > 1 || !data.trail.empty())
+    {
+        user->sendMessage(ERR_UNKNOWN_COMMAND(data.command, data.command));
+        return ;
+    }
+    
+    // check password
+    if (getServer()->getPassword() != data.arguments[0])
+    {
+        //user->sendMessage(ERR_PASSWD_MISMATCH(nickname));
+        return ;
+    }
+
+    user->setUsedPassword(true);
 }

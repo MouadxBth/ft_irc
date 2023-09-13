@@ -6,7 +6,7 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/12 23:26:34 by mbouthai          #+#    #+#              #
-#    Updated: 2023/08/19 11:22:10 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/12 15:46:56 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,12 +30,12 @@ $(NAME): $(OBJECTS)
 
 $(OBJS_DIR):
 	$(call colorize,$(GREEN),Creating Objects Directory...)
-	-mkdir $@
-	-mkdir $(DIRS)
+	-mkdir -p $@
+	-mkdir -p $(DIRS)
 
 $(DEPS_DIR):
 	$(call colorize,$(GREEN),Creating Dependencies Directory...)
-	-mkdir $@
+	-mkdir -p $@
 
 compile:
 	$(call colorize,$(GREEN),Compiling...)

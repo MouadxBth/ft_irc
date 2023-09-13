@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <strings.h>
 
 std::string currentTimestamp(void)
 {
@@ -55,7 +56,38 @@ bool isKnownCommand(std::string command)
         || command == "LIST"
         || command == "TOPIC"
         || command == "MODE"
-        || command == "BOT")
+        || command == "BOT"
+        || command == "INFO")
         return (true);
     return (false);
+}
+
+std::string trim(const std::string& str)
+{
+    if (str.length() < 2)
+        return (str);
+    size_t start = 0;
+    size_t end = str.length() - 1;
+
+    while (start <= end && std::isspace(str[start])) 
+        start++;
+
+    while (end >= start && std::isspace(str[end]))
+        end--;
+
+    return (str.substr(start, end - start + 1));
+}
+
+std::vector<std::string> split(std::string& input, char delimiter)
+{
+	std::vector<std::string> result;
+	std::stringstream ss(input);
+	std::string temp;
+
+	while (std::getline(ss, temp, delimiter))
+	{
+		result.push_back(temp);
+		temp.clear();
+	}
+	return (result);
 }

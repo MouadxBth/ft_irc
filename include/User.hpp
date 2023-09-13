@@ -7,14 +7,6 @@
 
 class User
 {
-    public:
-    enum State {
-        STAGE_ZERO,
-        STAGE_ONE,
-        STAGE_TWO,
-        STAGE_THREE
-    };
-
     private:
         std::string     _username;
         std::string     _fullname;
@@ -28,7 +20,7 @@ class User
 	    pollfd		    _userSocket;
         sockaddr_in     _address;
 
-        State             _state;
+        bool             _usedPassword;
 
     public:
 
@@ -50,7 +42,7 @@ class User
         const pollfd&          getUserSocket() const;
         const sockaddr_in&     getAddress() const;
 
-        const User::State&      getState() const;
+        bool      hasUsedPassword() const;
 
         void    setUsername(const std::string& username);
         void    setNickname(const std::string& nickname);
@@ -64,11 +56,9 @@ class User
         void    setUserSocket(const pollfd& user_fd);
         void    setAddress(const sockaddr_in& address);
 
-        void    setState(User::State state);
+        void    setUsedPassword(bool b);
 
         void    sendMessage(const std::string &message) const;
-
-        void    incrementState();
 
 };
 

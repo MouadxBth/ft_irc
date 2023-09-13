@@ -6,18 +6,16 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:24:57 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/11 22:02:43 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/13 19:08:13 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/Server.hpp"
-#include <../include/utils.hpp>
-#include <sys/socket.h>
-#include <poll.h>
-#include <iostream>
-#include <cstdlib>
-#include <fcntl.h>
 #include <cerrno>
+#include <cstring>
+
+#include "Server.hpp"
+#include "CommandManager.hpp"
+#include "utils.hpp"
 
 void    Server::removeSocket(pollfd& socket)
 {
@@ -116,22 +114,43 @@ void Server::handleUserDisconnect(const pollfd& connectionInfo)
 	}
 }
 
+// Line 1\n Line2\r\n Line 3\n
+// Line 1
+// Line 2
+
+// Line 3
+
+void    printAscis(const std::string& str)
+{
+    for (size_t index = 0; index < str.size(); index++)
+    {
+        std::cout << ((int)str[index]) << " ";
+    }
+    std::cout << std::endl;
+}
+
 std::string Server::readUserInput(pollfd& connectionInfo)
 {
+	const int SIZE = 4096;
 	int		readData;
-	char    buffer[4096];
+	char    buffer[SIZE];
+	std::string result;
 	
-	memset(buffer,'\0', 4096);
+	memset(buffer,'\0', SIZE);
 	
-	// set recv on non blocking mode
-	readData = recv(connectionInfo.fd, buffer, 4096, 0);
+	readData = recv(connectionInfo.fd, buffer, SIZE - 1, 0);
 	
-	std::string result(buffer);
-
 	if (readData < 0)
+	{
 		return (std::cerr << "Error : Failed to receive data from a socket descriptor!\n"
 			<< strerror(errno)
-			<< std::endl, result);	// std::exit(EXIT_FAILURE); or just return
+			<< std::endl, result);
+	}
+	
+	if (readData)
+		result.append(buffer, readData);
+
+	std::cout << result << std::endl;
 
 	return (result);
 }
@@ -139,89 +158,180 @@ std::string Server::readUserInput(pollfd& connectionInfo)
 std::vector<std::string> Server::handleUserInput(User *user, std::string &input)
 {
 	std::vector<std::string> data;
-	std::stringstream ss(input);
-	std::string holder;
+	std::istringstream ss(input);
 	
-
+	std::string holder, temp;
+	std::istringstream holderStream;
+	
+	// 65 32 65
+	// 65 13 65
+	// 65 32 65 13 65
+	// 
 	while(std::getline(ss, holder) && !holder.empty())
 	{
+		// newline was not found (should be impossible but nevertheless)
+		if (ss.eof())
+		{
+			holder = user->getPartialMessage() + holder;
+			user->setPartialMessage(holder);
+			continue ;
+		}
+
+		// set holder to holder + partial message
 		if (!user->getPartialMessage().empty())
 		{
 			holder = user->getPartialMessage() + holder;
 			user->setPartialMessage("");
 		}
 		
-		if (*(holder.end() - 1) != '\r')
+		if (holder.find('\r') == std::string::npos)
 		{
-			holder += "\n";
 			user->setPartialMessage(holder);
 			continue;
 		}
 
 		holder.erase(holder.end() - 1);
+
 		data.push_back(holder);
+
 	}
+
+	std::cout << "Data size: " << data.size() << std::endl;
+
 	return (data);
 }
 
-Data Server::parseUserInput(std::string& input)
+bool	validateInput(std::string& input)
 {
-	Data data;
-    std::stringstream ss(input);
+	if (input.empty())
+	{
+		std::cout << "Inv due to empty input" << std::endl;
+		return (false);
+	}
 
-    if (input[0] == ':')
-        ss >> data.prefix;
-    
-    ss >> data.command;
+	bool flag = std::isspace(input[0]);
 
-    std::string temp;
+	for (size_t index = 0; index < input.size(); index++)
+	{
+		if (std::isspace(input[index]))
+		{
+			if (flag)
+			{
+				std::cout << "Inv due to space at start" << std::endl;
+				return (false) ;
+			}
+			flag = true;
+		}
+		else if (input[index] == ':' 
+			&& index + 1 < input.size() 
+			&& std::isspace(input[index + 1]))
+		{
+			std::cout << "Inv due to space directly after : " << std::endl;
+			return (false) ;
+		}
+		else
+			flag = false;
+	}
 
-    while ((ss >> temp) && temp[0] != ':')
-    {
-        data.arguments += temp;
-        temp.clear();
-    }
-
-    if (temp[0] == ':')
-    {
-        temp.clear();
-        std::getline(ss, temp);
-        data.trail += temp;
-    }
-    return (data);
+	return (true);
 }
 
 void printData(Data &data)
 {
-	std::cout << "Prefix: " << data.prefix << " " << data.prefix.size()
-		<< "\nCommand: " << data.command << " " << data.command.size()
-		<< "\nArguments: " << data.arguments << " " << data.arguments.size()
-		<< "\nTrail: " << data.trail << " " << data.trail.size() << std::endl;
+	std::cout << "=>Command:" << "\n\tPrefix: " << data.prefix << " " << data.prefix.size()
+		<< "\n\tCommand: " << data.command << " " << data.command.size()
+		<< "\n\tArguments: " << data.arguments.size()
+		<< "\n\tTrail: " << data.trail << " " << data.trail.size() << std::endl;
 }
 
-std::vector<Data> Server::parseUserData(std::vector<std::string>& data)
+Data Server::parseUserInput(User *user, std::string& input)
 {
-	std::vector<Data> result;
+	std::vector<std::string> initializer;
+	
+	Data data = {
+		.prefix = "",
+		.command = "",
+		.arguments = initializer,
+		.trail = "",
+		.simultaneousNickname = std::make_pair(false, user),
+		.valid = validateInput(input)
+	};
 
+	if (input.empty())
+		return (data);
+
+	size_t index = 0;
+	size_t position = input.find_first_of(' ');
+	
+	if (input[0] == ':')
+	{
+		data.command = input.substr(1, position);
+		index = position + 1;
+	}
+
+	bool command = true;
+	std::string arguments;
+
+	for (; index < input.size(); index++)
+	{
+		// trail
+		if (input[index] == ':')
+		{
+			while (++index < input.size())
+				data.trail += input[index];
+			break ;
+		}
+		if (input[index] == ' ' && command)
+		{
+			command = false;
+			continue;
+		}
+		if (command)
+			data.command += input[index];
+		else
+			arguments += input[index];
+	}
+
+	arguments = trim(arguments);
+	data.arguments = split(arguments, ' ');
+    return (data);
+}
+
+// nick one <--
+// nick two <-- 
+// nick one <-- same
+// nick one <-- same
+// nick one <-- same
+
+std::vector<Data> Server::parseUserData(User *user, std::vector<std::string>& data)
+{
+	std::vector<Data> result, nicknames;
+	
 	for (std::vector<std::string>::iterator it = data.begin(); it < data.end(); it++)
-		result.push_back(parseUserInput(*it));
+		result.push_back(parseUserInput(user, *it));
 
 	for (std::vector<Data>::iterator it = result.begin(); it < result.end(); it++)
-		printData(*it);
-	return (result);
-}
-
-/*
-void execute(User *user, std::vector<Data>& data)
-{
-	for (std::vector<Data>::const_iterator it = data.begin(); it != data.end(); it++)
 	{
-		if (!isKnownCommand(it->command))
+		if (it->command == "NICK")
+			nicknames.push_back(*it);
+		printData(*it);
+	}
+
+	for (std::vector<Data>::iterator it = nicknames.begin(); it < nicknames.end(); it++)
+	{
+		for (std::vector<Data>::iterator second = nicknames.begin(); second < nicknames.end(); second++)
 		{
-			
+			if (it != second 
+				&& it->arguments == second->arguments
+				&& !it->simultaneousNickname.first)
+			{
+				second->simultaneousNickname = std::make_pair(true, it->simultaneousNickname.second);
+			}
 		}
 	}
-}*/
+
+	return (result);
+}
 
 bool Server::handleUserData(pollfd& connectionInfo)
 {
@@ -244,6 +354,11 @@ bool Server::handleUserData(pollfd& connectionInfo)
 	std::vector<std::string> dataInput = handleUserInput(user, input);
 
 	// handle user input
-	std::vector<Data> data = parseUserData(dataInput);
+	std::vector<Data> data = parseUserData(user, dataInput);
+
+	std::cout << "Commands: " << data.size() << std::endl;
+
+	for (std::vector<Data>::iterator it = data.begin(); it != data.end(); it++)
+		_commandManager->executeCommand(user, *it);
     return (result);
 }

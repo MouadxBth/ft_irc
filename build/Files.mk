@@ -6,13 +6,13 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/12 23:45:12 by mbouthai          #+#    #+#              #
-#    Updated: 2023/09/11 18:38:14 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/12 15:48:18 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Headers/Includes
 
-HEADERS_DIR	:= include
+HEADERS_DIR	:= include include/command include/command/collection
 
 #HEADERS	=
 #HEADERS	:= $(addprefix $(HEADERS_DIR)/,$(HEADERS))
@@ -21,12 +21,35 @@ HEADERS_DIR	:= include
 
 SRCS_DIR	:= srcs
 
-#COLOR_DIR	:= color
-#COLOR_SRCS	= color_utils.c color.c
-#COLOR_SRCS	:= $(addprefix $(COLOR_DIR)/,$(COLOR_SRCS))
+CHANNEL_DIR	:= channel
+CHANNEL_SRCS	= Channel.cpp
+CHANNEL_SRCS	:= $(addprefix $(CHANNEL_DIR)/,$(CHANNEL_SRCS))
 
-SOURCES	= User.cpp Channel.cpp utils.cpp Server.cpp ServerUser.cpp main.cpp \
-	#$(COLOR_SRCS) \
+COMMAND_DIR	:= command
+COMMANDS_DIR	:= commands
+COMMANDS_SRCS	= NickCommand.cpp PassCommand.cpp UserCommand.cpp
+
+COMMAND_SRCS	= $(addprefix $(COMMANDS_DIR)/,$(COMMANDS_SRCS)) Command.cpp CommandManager.cpp
+COMMAND_SRCS	:= $(addprefix $(COMMAND_DIR)/,$(COMMAND_SRCS))
+
+SERVER_DIR	:= server
+SERVER_SRCS	= ServerUser.cpp Server.cpp
+SERVER_SRCS	:= $(addprefix $(SERVER_DIR)/,$(SERVER_SRCS))
+
+USER_DIR	:= user
+USER_SRCS	= User.cpp
+USER_SRCS	:= $(addprefix $(USER_DIR)/,$(USER_SRCS))
+
+UTILS_DIR	:= utilities
+UTILS_SRCS	= utils.cpp
+UTILS_SRCS	:= $(addprefix $(UTILS_DIR)/,$(UTILS_SRCS))
+
+SOURCES	= main.cpp \
+	$(SERVER_SRCS) \
+	$(CHANNEL_SRCS) \
+	$(USER_SRCS) \
+	$(UTILS_SRCS) \
+	$(COMMAND_SRCS) 
 	
 
 SOURCES	:= $(addprefix $(SRCS_DIR)/,$(SOURCES))
@@ -42,5 +65,11 @@ OBJECTS	:= $(patsubst $(SRCS_DIR)/%,$(OBJS_DIR)/%.o,$(SOURCES))
 DEPS_DIR	= dep
 DEPENDENCIES	:= $(patsubst %,%.d,$(addprefix $(DEPS_DIR)/,$(notdir $(SOURCES))))
 
-DIRS	= #$(COLOR_DIR) 
+DIRS	= $(SERVER_DIR) \
+	$(CHANNEL_DIR) \
+	$(USER_DIR) \
+	$(UTILS_DIR) \
+	$(COMMAND_DIR)/$(COMMANDS_DIR) \
+	$(COMMAND_DIR) \
+
 DIRS	:= $(addprefix $(OBJS_DIR)/,$(DIRS))

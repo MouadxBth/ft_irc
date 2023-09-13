@@ -1,10 +1,11 @@
-#include "../include/Server.hpp"
-#include <sys/socket.h>
-#include <poll.h>
-#include <iostream>
-#include <cstdlib>
-#include <fcntl.h>
 #include <cerrno>
+#include <cstring>
+
+#include "Server.hpp"
+#include "CommandManager.hpp"
+#include "PassCommand.hpp"
+#include "UserCommand.hpp"
+#include "NickCommand.hpp"
 
 Server::Server()
 	:_port(6667),
@@ -88,9 +89,29 @@ std::vector<Channel *>&    Server::getChannels()
     return (this->_channels);
 }
 
+std::vector<std::string>&	Server::getReservedNicknames()
+{
+	return (this->_reservedNicknames);
+}
+
+std::vector<std::string>&	Server::getRestrictedNicknames()
+{
+	return (this->_restrictedNicknames);
+}
+
 const User *Server::getUser(int fd) const
 {
 	return (this->_users.find(fd)->second);
+}
+
+const User *Server::getUser(const std::string& nickname)
+{
+	for (std::map<int, User *>::const_iterator it = _users.begin(); it != _users.end(); it++)
+	{
+		if (it->second && it->second->getNickname() == nickname)
+			return (it->second);
+	}
+	return (NULL);
 }
 
 void	Server::configure(void)
@@ -135,6 +156,15 @@ void	Server::configure(void)
 	}
 
 	_sockets.push_back(_listener);
+
+	_commandManager = new CommandManager();
+
+	_commandManager->setServer(this);
+
+	_commandManager->registerCommands(new PassCommand(),
+		new NickCommand(),
+		new UserCommand(),
+		NULL);
 }
 
 
@@ -166,10 +196,12 @@ void Server::enable()
 		{
 			if (_enabled && it->revents & POLLIN)
 			{
+				//std::cout << "Receiving user data..." << std::endl;
 				it = (!handleUserData(*it)) ? _sockets.erase(it) : it + 1;
 			}
 			else if (_enabled && it->revents & POLLHUP)
 			{
+				//std::cout << "User disconnected..." << std::endl;
 				handleUserDisconnect(*it);
 				it = _sockets.erase(it);
 			}

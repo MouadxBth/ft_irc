@@ -1,7 +1,8 @@
 #include <iostream>
 #include <cstdlib>
-#include "../include/Server.hpp"
 #include <csignal>
+
+#include "Server.hpp"
 
 Server *server;
 

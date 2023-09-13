@@ -4,6 +4,7 @@
 # include <sstream>
 # include <vector>
 # include <map>
+
 #include <cstdlib>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -13,19 +14,24 @@
 #include <sys/select.h>
 #include <vector>
 #include <poll.h>
-# include <string.h>
 #include <iostream>
 #include <arpa/inet.h>
+
 # include "Channel.hpp"
 # include "User.hpp"
 # include "utils.hpp"
+
+class CommandManager;
+class Command;
 
 typedef struct s_data
 {
     std::string prefix;
     std::string command;
-    std::string arguments;
+    std::vector<std::string> arguments;
     std::string trail;
+	std::pair<bool, User *> simultaneousNickname;
+	bool valid;
 } Data;
 
 class Server
@@ -39,11 +45,16 @@ class Server
 		std::vector<Channel *>	_channels;
 		std::vector<pollfd>		_sockets;
 
+		std::vector<std::string> _reservedNicknames;
+		std::vector<std::string> _restrictedNicknames;
+
 		sockaddr_in 			_address;
 		socklen_t				_addressSize;
 		pollfd					_listener;
 
 		bool					_enabled;
+
+		CommandManager			*_commandManager;
 
 		void    removeSocket(pollfd& socket);
 
@@ -55,9 +66,9 @@ class Server
 		
 		std::vector<std::string> handleUserInput(User *user, std::string &input);
 		
-		Data parseUserInput(std::string& input);
+		Data parseUserInput(User *user, std::string& input);
 		
-		std::vector<Data> parseUserData(std::vector<std::string>& data);
+		std::vector<Data> parseUserData(User *user, std::vector<std::string>& data);
 
 		bool	handleUserData(pollfd& connectionInfo);
 
@@ -77,7 +88,11 @@ class Server
 		std::map<int, User *>&		getUsers();
 		std::vector<Channel *>&		getChannels();
 
+		std::vector<std::string>&	getReservedNicknames();
+		std::vector<std::string>&	getRestrictedNicknames();
+
 		const User *getUser(int fd) const;
+		const User *getUser(const std::string& nickname);
 
 		void configure();
 
@@ -85,5 +100,4 @@ class Server
 
 		void disable();
 
-		//void	startServer();
 };

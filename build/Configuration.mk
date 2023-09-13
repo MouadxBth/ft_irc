@@ -6,7 +6,7 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/13 00:47:20 by mbouthai          #+#    #+#              #
-#    Updated: 2023/07/19 02:29:06 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/12 17:56:32 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ endef
 export PROJECT_HEADER
 
 CXX	:= c++
-CPPFLAGS	:= -Wall -Werror -Wextra -std=c++98 -I$(HEADERS_DIR)/ -fsanitize=address
+CPPFLAGS	:= -Wall -Werror -Wextra -std=c++98 $(addprefix -I,$(HEADERS_DIR)) -fsanitize=address
 
 LDFLAGS	:= -fsanitize=address
 

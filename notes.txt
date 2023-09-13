@@ -8,3 +8,39 @@
 // "Line 3" will be left as a partial message
 
 // in total, we have 2 commands, and a partial command
+
+
+std::string Server::readUserInput(pollfd& connectionInfo)
+{
+	const int SIZE = 4;
+	int		readData, total = 0;
+	char    buffer[SIZE];
+	std::string result;
+	
+	
+	// set recv on non blocking mode
+	while (true)
+	{
+		readData = recv(connectionInfo.fd, buffer, SIZE - 1, 0);
+		if (readData < 0)
+		{
+			return (std::cerr << "Error : Failed to receive data from a socket descriptor!\n"
+				<< strerror(errno)
+				<< std::endl, result);
+		}
+		if (!readData)
+			break ;
+			
+		result.append(buffer, readData);
+		total += readData;
+		memset(buffer,'\0', SIZE);
+
+		if (readData < SIZE)
+			break ;
+	}
+
+	std::cout << "READ: " << total << " " << result << std::endl;
+	printAscis(result);
+
+	return (result);
+}
