@@ -17,22 +17,13 @@
 #include <iostream>
 #include <arpa/inet.h>
 
+# include "CommandData.hpp"
 # include "Channel.hpp"
-# include "User.hpp"
 # include "utils.hpp"
 
 class CommandManager;
 class Command;
-
-typedef struct s_data
-{
-    std::string prefix;
-    std::string command;
-    std::vector<std::string> arguments;
-    std::string trail;
-	std::pair<bool, User *> simultaneousNickname;
-	bool valid;
-} Data;
+class User;
 
 class Server
 {
@@ -72,6 +63,10 @@ class Server
 
 		bool	handleUserData(pollfd& connectionInfo);
 
+		void	handleNicknameCollision();
+
+		void	handleCommands();
+
 	
 	public:
 		Server();
@@ -93,6 +88,8 @@ class Server
 
 		const User *getUser(int fd) const;
 		const User *getUser(const std::string& nickname);
+
+		Channel *getChannel(const std::string& name);
 
 		void configure();
 

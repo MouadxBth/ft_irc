@@ -2,10 +2,16 @@
 #include <cstring>
 
 #include "Server.hpp"
+#include "User.hpp"
 #include "CommandManager.hpp"
-#include "PassCommand.hpp"
-#include "UserCommand.hpp"
-#include "NickCommand.hpp"
+
+# include "PassCommand.hpp"
+# include "UserCommand.hpp"
+# include "NickCommand.hpp"
+# include "PrivMsgCommand.hpp"
+# include "InviteCommand.hpp"
+# include "JoinCommand.hpp"
+# include "TopicCommand.hpp"
 
 Server::Server()
 	:_port(6667),
@@ -114,6 +120,16 @@ const User *Server::getUser(const std::string& nickname)
 	return (NULL);
 }
 
+Channel *Server::getChannel(const std::string& name)
+{
+	for (std::vector<Channel *>::const_iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		if (*it && (*it)->getName() == name)
+			return (*it);
+	}
+	return (NULL);
+}
+
 void	Server::configure(void)
 {
     // Creation socket for the server and check it's status 
@@ -164,9 +180,61 @@ void	Server::configure(void)
 	_commandManager->registerCommands(new PassCommand(),
 		new NickCommand(),
 		new UserCommand(),
+		new PrivMsg(),
+		new InviteCommand(),
+		new JoinCommand(),
+		new TopicCommand(),
 		NULL);
 }
 
+void	Server::handleNicknameCollision()
+{
+	std::vector<Data> nicknames;
+
+	for (std::map<int, User*>::const_iterator it = _users.begin(); it != _users.end(); it++)
+	{
+		if (!it->second)
+			continue;
+
+		for (std::vector<Data>::const_iterator sit = it->second->getParsedData().begin();
+			sit != it->second->getParsedData().end();
+			sit++)
+		{
+			if (sit->command == "NICK")
+				nicknames.push_back(*sit);
+		}
+	}
+	
+	for (std::vector<Data>::iterator it = nicknames.begin(); it < nicknames.end(); it++)
+	{
+		for (std::vector<Data>::iterator second = nicknames.begin(); second < nicknames.end(); second++)
+		{
+			if (it != second 
+				&& it->arguments[0] == second->arguments[0]
+				&& !it->simultaneousNickname.first)
+			{
+				second->simultaneousNickname = std::make_pair(true, it->simultaneousNickname.second);
+			}
+		}
+	}
+
+}
+
+void	Server::handleCommands()
+{
+	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); it++)
+		{
+			if (!it->second)
+				continue;
+
+			for (std::vector<Data>::iterator sit = it->second->getParsedData().begin();
+				sit != it->second->getParsedData().end();
+				sit++)
+				_commandManager->executeCommand(it->second, *sit);
+
+			it->second->getParsedData().clear();
+		}
+}
 
 void Server::enable()
 {
@@ -203,11 +271,16 @@ void Server::enable()
 			{
 				//std::cout << "User disconnected..." << std::endl;
 				handleUserDisconnect(*it);
+				_users.erase(it->fd);
 				it = _sockets.erase(it);
 			}
 			else
 				it++;
 		}
+
+		handleNicknameCollision();
+		handleCommands();
+		
         _sockets[0].revents = 0;
 	}
 }
@@ -226,6 +299,14 @@ void Server::disable()
 
 		it->second->sendMessage(message);
 		handleUserDisconnect(it->second->getUserSocket());
+	}
+
+	for (std::map<std::string, Command *>::const_iterator it = _commandManager->getRegisteredCommands().begin();
+		it != _commandManager->getRegisteredCommands().end();
+		it++)
+	{
+		if (it->second)
+			delete it->second;
 	}
 
 	_users.clear();

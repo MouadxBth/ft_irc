@@ -1,4 +1,5 @@
 #include "User.hpp"
+#include <vector>
 
 User::User()
 	: _authenticated(false), 
@@ -61,6 +62,11 @@ const std::string&    User::getPartialMessage() const
 	return (this->_partialMessage);
 }
 
+const std::string&	User::getAwayMessage() const
+{
+	return (this->_awayMessage);
+}
+
 bool            User::isAuthenticated() const
 {
 	return (this->_authenticated);
@@ -69,6 +75,11 @@ bool            User::isAuthenticated() const
 bool            User::isOperator() const
 {
 	return (this->_operator);
+}
+
+bool            User::isAway() const
+{
+	return (this->_away);
 }
 
 const pollfd&    User::getUserSocket() const
@@ -84,6 +95,11 @@ const sockaddr_in&    User::getAddress() const
 bool	User::hasUsedPassword() const
 {
 	return (_usedPassword);
+}
+
+std::vector<Data>& User::getParsedData()
+{
+	return (_parsedData);
 }
 
 void   User::setUsername(const std::string& username)
@@ -120,6 +136,12 @@ void    User::setOperator(bool _operator)
 {
 	this->_operator = _operator;
 }
+
+void    User::setAway(bool _operator)
+{
+	this->_away = _operator;
+}
+
 void    User::setPartialMessage(const std::string& partialMessage)
 {
 	this->_partialMessage = partialMessage;
@@ -140,8 +162,20 @@ void	User::setUsedPassword(bool b)
 	this->_usedPassword = b;
 }
 
-void	User::sendMessage(const std::string& message) const
+void	User::setParsedData(std::vector<Data>& parsedData)
 {
+	this->_parsedData = parsedData;
+}
+
+void	User::sendMessage(const std::string& input) const
+{
+	std::string message;
+
+	message += input;
+
+	if (input[input.size() - 2] != '\r' && input[input.size() - 1] != '\n')
+		message += "\r\n";
+
 	if (getUserSocket().fd >= 0)
 		send(getUserSocket().fd, message.c_str(), message.size(), 0);
 }

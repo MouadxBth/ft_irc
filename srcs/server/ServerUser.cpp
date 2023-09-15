@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:24:57 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/13 21:09:25 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/15 13:42:06 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,9 +89,10 @@ void Server::handleUserDisconnect(const pollfd& connectionInfo)
 
     if (user)
     {
-        std::cout << "User: [" << connectionInfo.fd << "] " 
-            << user->getUsername() 
-            << " has disconnected" 
+        std::cout << "User: [" << connectionInfo.fd << "] ";
+		if (!user->getUsername().empty())
+            std::cout << user->getUsername() << " ";
+        std::cout << "has disconnected" 
             << std::endl;
     }
     else
@@ -100,7 +101,6 @@ void Server::handleUserDisconnect(const pollfd& connectionInfo)
     }
 
 	close(connectionInfo.fd);
-	_users.erase(connectionInfo.fd);
 
 	if (user)
 	{
@@ -264,7 +264,8 @@ Data Server::parseUserInput(User *user, std::string& input)
 		.arguments = initializer,
 		.trail = "",
 		.simultaneousNickname = std::make_pair(false, user),
-		.valid = validateInput(input)
+		.valid = validateInput(input),
+		.trailPresent = false
 	};
 
 	if (input.empty())
@@ -287,6 +288,7 @@ Data Server::parseUserInput(User *user, std::string& input)
 		// trail
 		if (input[index] == ':')
 		{
+			data.trailPresent = true;
 			while (++index < input.size())
 				data.trail += input[index];
 			break ;
@@ -315,30 +317,11 @@ Data Server::parseUserInput(User *user, std::string& input)
 
 std::vector<Data> Server::parseUserData(User *user, std::vector<std::string>& data)
 {
-	std::vector<Data> result, nicknames;
+	std::vector<Data> result;
 	
 	for (std::vector<std::string>::iterator it = data.begin(); it < data.end(); it++)
 		result.push_back(parseUserInput(user, *it));
-
-	for (std::vector<Data>::iterator it = result.begin(); it < result.end(); it++)
-	{
-		if (it->command == "NICK")
-			nicknames.push_back(*it);
-		printData(*it);
-	}
-
-	for (std::vector<Data>::iterator it = nicknames.begin(); it < nicknames.end(); it++)
-	{
-		for (std::vector<Data>::iterator second = nicknames.begin(); second < nicknames.end(); second++)
-		{
-			if (it != second 
-				&& it->arguments == second->arguments
-				&& !it->simultaneousNickname.first)
-			{
-				second->simultaneousNickname = std::make_pair(true, it->simultaneousNickname.second);
-			}
-		}
-	}
+	
 
 	return (result);
 }
@@ -359,6 +342,7 @@ bool Server::handleUserData(pollfd& connectionInfo)
     {
         result = false;
 		handleUserDisconnect(connectionInfo);
+		_users.erase(connectionInfo.fd);
     }
 
 	std::vector<std::string> dataInput = handleUserInput(user, input);
@@ -366,9 +350,11 @@ bool Server::handleUserData(pollfd& connectionInfo)
 	// handle user input
 	std::vector<Data> data = parseUserData(user, dataInput);
 
+	if (data.size())
+		user->setParsedData(data);
+
 	std::cout << "Commands: " << data.size() << std::endl;
 
-	for (std::vector<Data>::iterator it = data.begin(); it != data.end(); it++)
-		_commandManager->executeCommand(user, *it);
+	
     return (result);
 }

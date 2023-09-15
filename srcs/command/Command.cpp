@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 21:52:17 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/13 19:00:21 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/15 12:29:30 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ bool Command::requiresTrail() const
     return (this->_requireTrail);
 }
 
-Server  *Command::getServer() const
+Server  *Command::getServer()
 {
     return (_server);
 }

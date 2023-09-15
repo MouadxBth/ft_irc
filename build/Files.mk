@@ -6,7 +6,7 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/12 23:45:12 by mbouthai          #+#    #+#              #
-#    Updated: 2023/09/12 15:48:18 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/15 14:27:01 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,10 @@ CHANNEL_SRCS	:= $(addprefix $(CHANNEL_DIR)/,$(CHANNEL_SRCS))
 
 COMMAND_DIR	:= command
 COMMANDS_DIR	:= commands
-COMMANDS_SRCS	= NickCommand.cpp PassCommand.cpp UserCommand.cpp
+COMMANDS_SRCS	= NickCommand.cpp PassCommand.cpp \
+	UserCommand.cpp PrivMsg.cpp \
+	InviteCommand.cpp JoinCommand.cpp \
+	TopicCommand.cpp
 
 COMMAND_SRCS	= $(addprefix $(COMMANDS_DIR)/,$(COMMANDS_SRCS)) Command.cpp CommandManager.cpp
 COMMAND_SRCS	:= $(addprefix $(COMMAND_DIR)/,$(COMMAND_SRCS))
