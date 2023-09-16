@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:24:57 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/15 13:42:06 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/16 16:51:41 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,7 +250,16 @@ void printData(Data &data)
 {
 	std::cout << "=>Command:" << "\n\tPrefix: " << data.prefix << " " << data.prefix.size()
 		<< "\n\tCommand: " << data.command << " " << data.command.size()
-		<< "\n\tArguments: " << data.arguments.size()
+		<< "\n\tArguments: ";
+	
+	for (std::vector<std::string>::iterator it = data.arguments.begin();
+		it != data.arguments.end();
+		it++)
+	{
+		std::cout << *it << " ";
+	}
+	
+	std::cout << "\n\tArgument Size: " << data.arguments.size()
 		<< "\n\tTrail: " << data.trail << " " << data.trail.size() << std::endl;
 }
 
@@ -321,6 +330,11 @@ std::vector<Data> Server::parseUserData(User *user, std::vector<std::string>& da
 	
 	for (std::vector<std::string>::iterator it = data.begin(); it < data.end(); it++)
 		result.push_back(parseUserInput(user, *it));
+
+	for (std::vector<Data>::iterator it = result.begin(); it != result.end(); it++)
+	{
+		printData(*it);
+	}
 	
 
 	return (result);
@@ -357,4 +371,20 @@ bool Server::handleUserData(pollfd& connectionInfo)
 
 	
     return (result);
+}
+
+void	Server::cleanChannels()
+{
+	Channel *target;
+	for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); )
+	{
+		if (!(*it)->getUsers().size())
+		{
+			target = *it;
+			it = _channels.erase(it);
+			delete target;
+		}
+		else
+			it++;
+	}
 }

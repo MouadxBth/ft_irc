@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/15 17:12:08 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/16 15:23:46 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,13 +40,13 @@ bool    verify(User *user, Channel *channel, std::string& name)
     if (!channel)
     {
         user->sendMessage(ERR_NO_SUCH_CHANNEL(user->getNickname(), name));
-        return ;
+        return (false);
     }
 
     if (!channel->containsUser(user->getNickname()))
     {
         user->sendMessage(ERR_NOT_ON_CHANNEL(user->getNickname(), channel->getName()));
-        return ;
+        return (false);
     }
     
     std::pair<User *, Modes> channelUser = channel->getUser(user->getNickname());
@@ -54,8 +54,10 @@ bool    verify(User *user, Channel *channel, std::string& name)
     if (!channelUser.second.channelOperator)
     {
         user->sendMessage(ERR_CHAN_O_PRIVS_NEEDED(user->getNickname(), channel->getName()));
-        return ;
+        return (false);
     }   
+
+    return (true);
 }
 
 void KickCommand::executeCommand(User *user, Data &data)
@@ -96,6 +98,9 @@ void KickCommand::executeCommand(User *user, Data &data)
                 user->sendMessage(ERR_USER_NOT_IN_CHANNEL(user->getNickname(), *it, channelTarget->getName()));
                 continue ;
             }
+            if (user->getNickname() == (*it))
+                continue ;
+                
             message = ":" + user->getNickname() + "!" 
                 + user->getUsername() + "@" 
                 + user->getHostname() + " " 
@@ -125,6 +130,9 @@ void KickCommand::executeCommand(User *user, Data &data)
             user->sendMessage(ERR_USER_NOT_IN_CHANNEL(user->getNickname(), users[index], channels[index]));
             continue ;
         }
+
+        if (user->getNickname() == users[index])
+                continue ;
 
         message = ":" + user->getNickname() + "!" 
                 + user->getUsername() + "@" 

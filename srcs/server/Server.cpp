@@ -12,6 +12,8 @@
 # include "InviteCommand.hpp"
 # include "JoinCommand.hpp"
 # include "TopicCommand.hpp"
+# include "KickCommand.hpp"
+# include "PartCommand.hpp"
 
 Server::Server()
 	:_port(6667),
@@ -130,6 +132,11 @@ Channel *Server::getChannel(const std::string& name)
 	return (NULL);
 }
 
+CommandManager *Server::getCommandManager() const
+{
+	return (_commandManager);
+}
+
 void	Server::configure(void)
 {
     // Creation socket for the server and check it's status 
@@ -184,6 +191,8 @@ void	Server::configure(void)
 		new InviteCommand(),
 		new JoinCommand(),
 		new TopicCommand(),
+		new KickCommand(),
+		new PartCommand(),
 		NULL);
 }
 
@@ -309,8 +318,10 @@ void Server::disable()
 			delete it->second;
 	}
 
+
 	_users.clear();
 	_sockets.clear();
 	
+	cleanChannels();
 	close(_listener.fd);
 }

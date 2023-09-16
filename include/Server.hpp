@@ -91,6 +91,10 @@ class Server
 
 		Channel *getChannel(const std::string& name);
 
+		CommandManager *getCommandManager() const;
+
+		void	cleanChannels();
+
 		void configure();
 
 		void enable();

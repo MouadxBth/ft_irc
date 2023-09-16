@@ -99,6 +99,8 @@ class Channel
 
         bool isInvited(const std::string& nickname) const;
 
+        void    removeInvite(const std::string& nickname);
+
         void broadcast(const std::string& nickname, std::string& message) const;
 
         void announce(std::string& message) const;

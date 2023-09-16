@@ -6,11 +6,12 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/15 16:18:08 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/16 16:57:22 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "JoinCommand.hpp"
+#include "CommandManager.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_BANNEDFROMCHAN
 //           ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
@@ -57,6 +58,23 @@ std::map<std::string, std::string> getElements(std::vector<std::string>& channel
 	return (elements);
 }
 
+void printDatas(Data &data)
+{
+	std::cout << "=>Command:" << "\n\tPrefix: " << data.prefix << " " << data.prefix.size()
+		<< "\n\tCommand: " << data.command << " " << data.command.size()
+		<< "\n\tArguments: ";
+	
+	for (std::vector<std::string>::iterator it = data.arguments.begin();
+		it != data.arguments.end();
+		it++)
+	{
+		std::cout << *it << " ";
+	}
+	
+	std::cout << "\n\tArgument Size: " << data.arguments.size()
+		<< "\n\tTrail: " << data.trail << " " << data.trail.size() << std::endl;
+}
+
 void JoinCommand::executeCommand(User *user, Data &data)
 {   
     if (!getServer())
@@ -80,12 +98,44 @@ void JoinCommand::executeCommand(User *user, Data &data)
             user->sendMessage(ERR_UNKNOWN_COMMAND(data.command, data.command));
         else
         {
+            std::vector<std::string> empty;
+    
+            std::pair<bool, User *> sim = std::make_pair(false, user);
+
+            Data partData = {
+                .prefix = "",
+                .command = "PART",
+                .arguments = empty,
+                .trail = "",
+                .simultaneousNickname = sim,
+                .valid = true,
+                .trailPresent = false
+            };
+
+            std::vector<Data> collection;
+            
             for (std::vector<Channel *>::const_iterator it = getServer()->getChannels().begin();
                 it != getServer()->getChannels().end();
                 it++)
             {
-                (*it)->removeUser(user->getNickname());
+                if (!(*it) 
+                    || !(*it)->containsUser(user->getNickname()))
+                    continue;
+                
+                partData.arguments.clear();
+                partData.arguments.push_back((*it)->getName());
+
+                printDatas(partData);
+
+                collection.push_back(partData);  
             }
+
+            for (std::vector<Data>::iterator it = collection.begin(); it != collection.end(); it++)
+            {
+                getServer()->getCommandManager()->executeCommand(user,  *it);
+            }
+
+            getServer()->cleanChannels();
         }
         return ;
     }
@@ -168,6 +218,9 @@ void JoinCommand::executeCommand(User *user, Data &data)
             user->sendMessage(ERR_TOO_MANY_CHANNELS(target->getName()));
             continue;
         }
+
+        if (target->isInviteOnly())
+            target->removeInvite(user->getNickname());
         
         target->addUser(user, false, false);
         //temporary

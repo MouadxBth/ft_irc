@@ -215,9 +215,17 @@ void Channel::inviteUser(const std::string& nickname)
 	this->_inviteList.insert(nickname);
 }
 
+void Channel::removeInvite(const std::string& nickname)
+{
+	_inviteList.erase(nickname);
+}
+
 void Channel::broadcast(const std::string& nickname, std::string& input) const
 {
-	std::string message = input + "\r\n";
+	std::string message = input;
+
+	if (message[message.size() - 2] != '\r' && message[message.size() - 1] != '\n')
+		message = input + "\r\n";
 
 	for (std::map<std::string, std::pair<User *, Modes> >::const_iterator it = getUsers().begin();
 		it != this->_users.end();
@@ -228,8 +236,13 @@ void Channel::broadcast(const std::string& nickname, std::string& input) const
 	}
 }
 
-void Channel::announce(std::string& message) const
+void Channel::announce(std::string& input) const
 {
+	std::string message = input;
+
+	if (message[message.size() - 2] != '\r' && message[message.size() - 1] != '\n')
+		message = input + "\r\n";
+	
 	for (std::map<std::string, std::pair<User *, Modes> >::const_iterator it = getUsers().begin();
 		it != this->_users.end();
 		it++)
