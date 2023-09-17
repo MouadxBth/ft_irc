@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/13 18:57:32 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/17 15:55:38 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,13 +121,6 @@ void NickCommand::executeCommand(User *user, Data &data)
     }
 
     // changing to same nickname simultaneously
-    if (data.simultaneousNickname.first && data.simultaneousNickname.second)
-    {
-        user->sendMessage(ERR_NICK_COLLISION(data.arguments[0],
-            data.simultaneousNickname.second->getNickname(),
-            data.simultaneousNickname.second->getHostname()));
-        return ;
-    }
 
     // changing to reserved nickname
     if (isNicknameReserved(data.arguments[0], getServer()->getReservedNicknames()))

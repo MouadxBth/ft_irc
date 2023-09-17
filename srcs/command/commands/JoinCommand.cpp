@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/16 16:57:22 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/17 16:04:34 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,15 +99,12 @@ void JoinCommand::executeCommand(User *user, Data &data)
         else
         {
             std::vector<std::string> empty;
-    
-            std::pair<bool, User *> sim = std::make_pair(false, user);
 
             Data partData = {
                 .prefix = "",
                 .command = "PART",
                 .arguments = empty,
                 .trail = "",
-                .simultaneousNickname = sim,
                 .valid = true,
                 .trailPresent = false
             };
@@ -125,7 +122,7 @@ void JoinCommand::executeCommand(User *user, Data &data)
                 partData.arguments.clear();
                 partData.arguments.push_back((*it)->getName());
 
-                printDatas(partData);
+                //printDatas(partData);
 
                 collection.push_back(partData);  
             }

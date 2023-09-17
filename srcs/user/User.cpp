@@ -4,7 +4,8 @@
 User::User()
 	: _authenticated(false), 
 	_operator(false),
-	_usedPassword(false)
+	_usedPassword(false),
+	_away(false)
 {}
 
 User::~User() {}
@@ -97,11 +98,6 @@ bool	User::hasUsedPassword() const
 	return (_usedPassword);
 }
 
-std::vector<Data>& User::getParsedData()
-{
-	return (_parsedData);
-}
-
 void   User::setUsername(const std::string& username)
 {
 	this->_username = username;
@@ -162,10 +158,6 @@ void	User::setUsedPassword(bool b)
 	this->_usedPassword = b;
 }
 
-void	User::setParsedData(std::vector<Data>& parsedData)
-{
-	this->_parsedData = parsedData;
-}
 
 void	User::sendMessage(const std::string& input) const
 {

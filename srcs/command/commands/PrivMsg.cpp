@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/15 15:06:53 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/17 16:13:36 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,8 @@ void PrivMsg::executeCommand(User *user, Data &data)
 
         if (userTarget)
         {
+            if (userTarget->getNickname() == user->getNickname())
+                continue ;
             userTarget->sendMessage(message);
             if (userTarget->isAway())
                 user->sendMessage(RPL_AWAY(userTarget->getNickname(), userTarget->getAwayMessage()));

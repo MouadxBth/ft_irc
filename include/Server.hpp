@@ -57,9 +57,9 @@ class Server
 		
 		std::vector<std::string> handleUserInput(User *user, std::string &input);
 		
-		Data parseUserInput(User *user, std::string& input);
+		Data parseUserInput(std::string& input);
 		
-		std::vector<Data> parseUserData(User *user, std::vector<std::string>& data);
+		std::vector<Data> parseUserData(std::vector<std::string>& data);
 
 		bool	handleUserData(pollfd& connectionInfo);
 

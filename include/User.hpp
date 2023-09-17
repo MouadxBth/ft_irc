@@ -25,8 +25,6 @@ class User
 
         bool             _usedPassword;
 
-        std::vector<Data> _parsedData;
-
     public:
 
         User();
@@ -49,8 +47,6 @@ class User
         const pollfd&          getUserSocket() const;
         const sockaddr_in&     getAddress() const;
 
-        std::vector<Data>& getParsedData();
-
         bool      hasUsedPassword() const;
 
         void    setUsername(const std::string& username);
@@ -67,8 +63,6 @@ class User
         void    setAddress(const sockaddr_in& address);
 
         void    setUsedPassword(bool b);
-
-        void    setParsedData(std::vector<Data>& data);
 
         void    sendMessage(const std::string &message) const;
 

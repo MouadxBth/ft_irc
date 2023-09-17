@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/13 19:16:28 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/17 16:06:01 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,5 +74,7 @@ void UserCommand::executeCommand(User *user, Data &data)
 
     user->sendMessage(RPL_WELCOME(user->getNickname()));
 
-    std::cout << *user << std::endl;
+    std::cout << "User: " << user->getNickname() << " has joined" << std::endl;
+
+    //std::cout << *user << std::endl;
 }

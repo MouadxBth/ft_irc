@@ -196,55 +196,6 @@ void	Server::configure(void)
 		NULL);
 }
 
-void	Server::handleNicknameCollision()
-{
-	std::vector<Data> nicknames;
-
-	for (std::map<int, User*>::const_iterator it = _users.begin(); it != _users.end(); it++)
-	{
-		if (!it->second)
-			continue;
-
-		for (std::vector<Data>::const_iterator sit = it->second->getParsedData().begin();
-			sit != it->second->getParsedData().end();
-			sit++)
-		{
-			if (sit->command == "NICK")
-				nicknames.push_back(*sit);
-		}
-	}
-	
-	for (std::vector<Data>::iterator it = nicknames.begin(); it < nicknames.end(); it++)
-	{
-		for (std::vector<Data>::iterator second = nicknames.begin(); second < nicknames.end(); second++)
-		{
-			if (it != second 
-				&& it->arguments[0] == second->arguments[0]
-				&& !it->simultaneousNickname.first)
-			{
-				second->simultaneousNickname = std::make_pair(true, it->simultaneousNickname.second);
-			}
-		}
-	}
-
-}
-
-void	Server::handleCommands()
-{
-	for (std::map<int, User*>::iterator it = _users.begin(); it != _users.end(); it++)
-		{
-			if (!it->second)
-				continue;
-
-			for (std::vector<Data>::iterator sit = it->second->getParsedData().begin();
-				sit != it->second->getParsedData().end();
-				sit++)
-				_commandManager->executeCommand(it->second, *sit);
-
-			it->second->getParsedData().clear();
-		}
-}
-
 void Server::enable()
 {
 	std::cout << currentTimestamp() << " Starting server..." << std::endl;
@@ -286,9 +237,6 @@ void Server::enable()
 			else
 				it++;
 		}
-
-		handleNicknameCollision();
-		handleCommands();
 		
         _sockets[0].revents = 0;
 	}

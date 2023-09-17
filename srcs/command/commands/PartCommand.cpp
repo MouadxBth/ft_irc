@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/16 16:59:48 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/16 18:56:41 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,12 @@ void PartCommand::executeCommand(User *user, Data &data)
 {   
     if (!getServer())
         return ;
+    
+    if (data.arguments.empty())
+    {
+        user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
+        return ;
+    }
 
     if (data.arguments.size() > 2 || (data.arguments.size() == 2 && data.trailPresent))
     {

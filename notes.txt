@@ -44,3 +44,155 @@ std::string Server::readUserInput(pollfd& connectionInfo)
 
 	return (result);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/******************************************************************************
+
+Welcome to GDB Online.
+GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
+C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
+Code, Compile, Run and Debug online from anywhere in world.
+
+*******************************************************************************/
+#include <iostream>
+#include <vector>
+#include <sstream>
+
+using namespace std;
+
+bool takesParam(int c)
+{
+	return (c == 'k' || c == 'o' || c == 'l');
+}
+
+std::vector<std::string> split(std::string& input, char delimiter)
+{
+	std::vector<std::string> result;
+	std::stringstream ss(input);
+	std::string temp;
+
+	while (std::getline(ss, temp, delimiter))
+	{
+		result.push_back(temp);
+		temp.clear();
+	}
+	return (result);
+}
+
+typedef struct s_mode
+{
+	char mode;
+	bool add;
+	std::string param;
+}	Mode;
+
+void transform(std::vector<std::string>& args)
+{
+	std::vector<Mode> result;
+
+	bool takesb;
+	
+	for (size_t index = 0; index < args.size(); )
+	{
+	    if (args[index][0] != '+' && args[index][0] != '-')
+	    {
+	        index++;
+	        continue ;
+	    }
+		if (args[index].size() == 2)
+		{
+			Mode mode;
+
+			mode.mode = args[index][1];
+			mode.add = args[index][0] == '+';
+			
+			if (takesParam(args[index][1]))
+			{
+				if (index + 1 >= args.size())
+					return ;
+				if (args[index + 1].find_first_of(',') != std::string::npos)
+				    return ;
+				mode.param = args[index + 1];
+				index++;
+			}
+			result.push_back(mode);
+		}
+
+		
+		else if (args[index].size() > 2)
+		{
+			std::vector<std::string> moreArgs;
+			int takes = 0;
+			bool skip = true;
+            
+            // no args passed
+			if (index + 1 < args.size() && (args[index + 1][0] != '+' || args[index + 1][0] != '-'))
+			{
+			    std::cout << "No args" << std::endl;
+			    moreArgs = split(args[index + 1], ',');
+			    skip = false;
+			}
+			for (size_t j = 1; j < args[index].size(); j++)
+			{
+			    if (takesParam(args[index][j]))
+			        takes++;
+			}
+			
+			if (takes > moreArgs.size() || moreArgs.size() > takes)
+			{
+			    return ;
+			}
+
+            // for each char in that string
+			for (size_t j = 1, temp = 0; j < args[index].size(); j++)
+			{
+				Mode riz;
+
+				riz.mode = args[index][j];
+				riz.add = args[index][0] == '+';
+				
+				if (takesParam(args[index][j]))
+					riz.param = moreArgs[temp++];
+				
+				result.push_back(riz);
+			}
+			if (skip)
+			    index++;
+			index++;
+		}
+	}
+	
+	for (size_t index = 0; index < result.size(); index++)
+	{
+	    std::cout << "Mode: " << result[index].mode
+	        << "\nAdd: " << result[index].add
+	        << "\nParam: " << result[index].param << std::endl;
+	}
+}
+
+int main()
+{
+    
+    std::vector<std::string> test;
+    
+    test.push_back("+k");
+    
+    //test.push_back("+ko");
+    test.push_back("pass");
+    
+    transform(test);
+    
+    cout<<"Hello World";
+
+    return 0;
+}

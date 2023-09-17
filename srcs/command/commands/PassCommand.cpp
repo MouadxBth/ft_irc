@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/13 19:51:25 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/17 16:01:03 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ void PassCommand::executeCommand(User *user, Data &data)
     // check password
     if (getServer()->getPassword() != data.arguments[0])
     {
-        //user->sendMessage(ERR_PASSWD_MISMATCH(nickname));
+        user->sendMessage(ERR_PASSWD_MISMATCH(nickname));
         return ;
     }
 

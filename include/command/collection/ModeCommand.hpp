@@ -1,28 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   CommandData.hpp                                    :+:      :+:    :+:   */
+/*   ModeCommand.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/14 21:54:18 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/17 15:54:35 by mbouthai         ###   ########.fr       */
+/*   Created: 2023/09/12 09:55:56 by mbouthai          #+#    #+#             */
+/*   Updated: 2023/09/16 18:41:51 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <string>
-#include <vector>
+# include "Command.hpp"
 
-class User;
-
-typedef struct s_data
+class ModeCommand : public Command
 {
-    std::string prefix;
-    std::string command;
-    std::vector<std::string> arguments;
-    std::string trail;
-	bool valid;
-    bool trailPresent;
-} Data;
+
+public:
+    ModeCommand();
+    ~ModeCommand();
+    ModeCommand(const ModeCommand& instance);
+    ModeCommand& operator=(const ModeCommand& instance);
+
+    void executeCommand(User *user, Data &data);
+};

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 18:24:57 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/16 16:51:41 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/17 16:06:54 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void Server::handleUserConnection()
 		return ;
 	}
 
-	std::cout << "===> A User has joined the server! <===" << std::endl;
+	//std::cout << "===> A User has connected to the server! <===" << std::endl;
 	// set the newUserSocket to the non-blocking mode
 	if (fcntl(newUserSocket, F_SETFL, O_NONBLOCK) < 0)
 	{
@@ -76,7 +76,7 @@ void Server::handleUserConnection()
 	// add it to the Users map
 	_users[newUserFd.fd] = newUser;
 
-	std::cout << "\nNew user: " << *newUser << "\n" << std::endl;
+	//std::cout << "\nNew user: " << *newUser << "\n" << std::endl;
 
     _sockets.push_back(newUserFd);
 }
@@ -150,8 +150,8 @@ std::string Server::readUserInput(pollfd& connectionInfo)
 	if (readData)
 		result.append(buffer, readData);
 
-	std::cout << result << std::endl;
-	printAscis(result);
+	//std::cout << result << std::endl;
+	//printAscis(result);
 
 	return (result);
 }
@@ -205,9 +205,6 @@ std::vector<std::string> Server::handleUserInput(User *user, std::string &input)
 		data.push_back(holder);
 
 	}
-
-	std::cout << "Data size: " << data.size() << std::endl;
-
 	return (data);
 }
 
@@ -263,7 +260,7 @@ void printData(Data &data)
 		<< "\n\tTrail: " << data.trail << " " << data.trail.size() << std::endl;
 }
 
-Data Server::parseUserInput(User *user, std::string& input)
+Data Server::parseUserInput(std::string& input)
 {
 	std::vector<std::string> initializer;
 	
@@ -272,7 +269,6 @@ Data Server::parseUserInput(User *user, std::string& input)
 		.command = "",
 		.arguments = initializer,
 		.trail = "",
-		.simultaneousNickname = std::make_pair(false, user),
 		.valid = validateInput(input),
 		.trailPresent = false
 	};
@@ -324,17 +320,17 @@ Data Server::parseUserInput(User *user, std::string& input)
 // nick one <-- same
 // nick one <-- same
 
-std::vector<Data> Server::parseUserData(User *user, std::vector<std::string>& data)
+std::vector<Data> Server::parseUserData(std::vector<std::string>& data)
 {
 	std::vector<Data> result;
 	
 	for (std::vector<std::string>::iterator it = data.begin(); it < data.end(); it++)
-		result.push_back(parseUserInput(user, *it));
+		result.push_back(parseUserInput(*it));
 
-	for (std::vector<Data>::iterator it = result.begin(); it != result.end(); it++)
+	/*for (std::vector<Data>::iterator it = result.begin(); it != result.end(); it++)
 	{
 		printData(*it);
-	}
+	}*/
 	
 
 	return (result);
@@ -362,12 +358,12 @@ bool Server::handleUserData(pollfd& connectionInfo)
 	std::vector<std::string> dataInput = handleUserInput(user, input);
 
 	// handle user input
-	std::vector<Data> data = parseUserData(user, dataInput);
+	std::vector<Data> data = parseUserData(dataInput);
 
-	if (data.size())
-		user->setParsedData(data);
-
-	std::cout << "Commands: " << data.size() << std::endl;
+	for (std::vector<Data>::iterator it = data.begin();
+				it != data.end();
+				it++)
+				_commandManager->executeCommand(user, *it);
 
 	
     return (result);
