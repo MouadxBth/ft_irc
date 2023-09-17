@@ -4,8 +4,8 @@
 User::User()
 	: _authenticated(false), 
 	_operator(false),
-	_usedPassword(false),
-	_away(false)
+	_away(false),
+	_usedPassword(false)
 {}
 
 User::~User() {}
