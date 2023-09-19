@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 03:55:11 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 16:35:34 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,13 @@ void UserCommand::executeCommand(User *user, Data &data)
     
     if (user->isAuthenticated())
     {
-        user->sendMessage(ERR_ALREADY_REGISTERED(user->getNickname()));
+        user->sendMessage(ERR_ALREADYREGISTERED(user->getNickname()));
         return ;
     }
 
     if (data.arguments.empty() || data.arguments.size() < 3)
     {
-        user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
+        user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), data.command));
         return ;
     }
     

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 12:04:38 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 13:39:46 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 17:19:19 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 # include "QuitCommand.hpp"
 # include "MotdCommand.hpp"
 # include "NamesCommand.hpp"
+# include "NoticeCommand.hpp"
 
 CommandManager *CommandManager::_instance = NULL;
 
@@ -73,13 +74,9 @@ void    CommandManager::executeCommand(User *user, Data &data)
         return ;
     
     std::string nickname;
-    std::ostringstream oss;
-
-    oss << "User ";
-    oss << user->getUserSocket().fd;
     
     nickname = user->getNickname().empty() 
-        ? oss.str()
+        ? "*"
         : user->getNickname();
 
     std::map<std::string, Command *>::iterator it = _registeredCommands.find(data.command);
@@ -99,13 +96,13 @@ void    CommandManager::executeCommand(User *user, Data &data)
     
     if (!user->isAuthenticated() && it->second->isAuthRequired())
     {
-        user->sendMessage(ERR_NOT_REGISTERED(nickname));
+        user->sendMessage(ERR_NOTREGISTERED(nickname));
         return ;
     }
 
     if (data.arguments.size() > 15 || (data.trail.empty() && it->second->requiresTrail()))
     {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(nickname, data.command));
+        user->sendMessage(ERR_UNKNOWNCOMMAND(nickname, data.command));
         return ;
     }
 
@@ -174,6 +171,7 @@ CommandManager *CommandManager::getInstance()
             new QuitCommand(),
             new MotdCommand(),
             new NamesCommand(),
+            new NoticeCommand(),
             NULL);
     }
     return (_instance);

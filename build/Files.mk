@@ -6,7 +6,7 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/12 23:45:12 by mbouthai          #+#    #+#              #
-#    Updated: 2023/09/19 13:43:05 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/19 17:20:49 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,8 @@ COMMANDS_SRCS	= NickCommand.cpp PassCommand.cpp \
 	InviteCommand.cpp JoinCommand.cpp \
 	TopicCommand.cpp KickCommand.cpp \
 	PartCommand.cpp QuitCommand.cpp \
-	MotdCommand.cpp NamesCommand.cpp
+	MotdCommand.cpp NamesCommand.cpp \
+	NoticeCommand.cpp
 
 COMMAND_SRCS	= $(addprefix $(COMMANDS_DIR)/,$(COMMANDS_SRCS)) Command.cpp CommandManager.cpp
 COMMAND_SRCS	:= $(addprefix $(COMMAND_DIR)/,$(COMMAND_SRCS))

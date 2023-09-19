@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 02:06:21 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 16:34:21 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void TopicCommand::executeCommand(User *user, Data &data)
 {   
     if (data.arguments.empty())
     {
-        user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
+        user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), data.command));
         return ;
     }
 
@@ -49,22 +49,25 @@ void TopicCommand::executeCommand(User *user, Data &data)
     
     if (!target->containsUser(user->getNickname()))
     {
-        user->sendMessage(ERR_NOT_ON_CHANNEL(user->getNickname(), data.arguments[0]));
+        user->sendMessage(ERR_NOTONCHANNEL(user->getNickname(), data.arguments[0]));
         return ;
     }
 
     if (data.arguments.size() == 1 && !data.trailPresent)
     {
         if (target->getTopic().empty())
-            user->sendMessage(RPL_NOTOPIC(data.arguments[0]));
+            user->sendMessage(RPL_NOTOPIC(user->getNickname(), data.arguments[0]));
         else
-            user->sendMessage(RPL_TOPIC(data.arguments[0], target->getTopic()));
+            user->sendMessage(RPL_TOPIC(user->getNickname(),
+                data.arguments[0],
+                target->getTopic()));
         return ;
     }
 
-    if (!target->getUser(user->getNickname()).second.channelOperator)
+    if (target->isTopicSettableByChannelOperatorOnly()
+        && !target->getUser(user->getNickname()).second.channelOperator)
     {
-        user->sendMessage(ERR_CHAN_O_PRIVS_NEEDED(user->getNickname(), data.arguments[0]));
+        user->sendMessage(ERR_CHANOPRIVSNEEDED(user->getNickname(), data.arguments[0]));
         return ;
     }
 

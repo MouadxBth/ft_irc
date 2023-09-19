@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 02:02:02 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 17:21:20 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,13 @@ void PrivMsg::executeCommand(User *user, Data &data)
 {   
     if (data.arguments.empty())
     {
-        user->sendMessage(ERR_NORECIPIENT(data.command));
+        user->sendMessage(ERR_NORECIPIENT(user->getNickname(), data.command));
         return ;
     }
 
     if (data.arguments.size() == 1 && data.trail.empty())
     {
-        user->sendMessage(ERR_NOTEXTTOSEND);
+        user->sendMessage(ERR_NOTEXTTOSEND(user->getNickname()));
         return ;
     }
 
@@ -59,12 +59,7 @@ void PrivMsg::executeCommand(User *user, Data &data)
         return ;
     }
 
-    std::string message = ":" + user->getNickname() + "!" 
-        + user->getUsername() + "@" 
-        + user->getHostname() + " " 
-        + data.command + " " + data.arguments[0] + " :";
-    
-    message += data.arguments.size() == 1 ? data.trail : data.arguments[1];
+    std::string message;
     
     for (std::vector<std::string>::const_iterator it = recipients.begin();
         it != recipients.end();
@@ -72,10 +67,15 @@ void PrivMsg::executeCommand(User *user, Data &data)
     {
         const User *userTarget = Server::getInstance()->getAuthenticatedUser(*it);
 
+        message = ":" + user->getNickname() + "!" 
+                + user->getUsername() + "@" 
+                + user->getHostname() + " " 
+                + data.command + " ";
+
         if (userTarget)
         {
-            if (userTarget->getNickname() == user->getNickname())
-                continue ;
+            message += userTarget->getNickname() + " :";
+            message += data.arguments.size() == 1 ? data.trail : data.arguments[1];
                 
             userTarget->sendMessage(message);
             
@@ -100,10 +100,13 @@ void PrivMsg::executeCommand(User *user, Data &data)
                     && !channelUser.second.voice 
                     && channelTarget->isModerated()))
             {
-                user->sendMessage(ERR_CANNOT_SEND_TO_CHAN(user->getNickname(),
+                user->sendMessage(ERR_CANNOTSENDTOCHAN(user->getNickname(),
                     channelTarget->getName()));
                 continue;
             }
+
+            message += channelTarget->getName() + " :";
+            message += data.arguments.size() == 1 ? data.trail : data.arguments[1];
             
             channelTarget->broadcast(user->getNickname(), message);
         }

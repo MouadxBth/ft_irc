@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 01:07:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 04:23:09 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 17:20:20 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,10 +56,13 @@ std::string obtain_hostname(sockaddr_in user_addr)
 
 bool isKnownCommand(std::string command)
 {
+        /*|| command == "PING"
+        || command == "LIST"
+        || command == "BOT"
+        || command == "INFO"*/
     if (command == "PASS"
         || command == "NICK"
         || command == "USER"
-        || command == "PING"
         || command == "JOIN"
         || command == "INVITE"
         || command == "PART"
@@ -69,11 +72,8 @@ bool isKnownCommand(std::string command)
         || command == "MOTD"
         || command == "KICK"
         || command == "NAMES"
-        || command == "LIST"
         || command == "TOPIC"
-        || command == "MODE"
-        || command == "BOT"
-        || command == "INFO")
+        || command == "MODE")
         return (true);
     return (false);
 }

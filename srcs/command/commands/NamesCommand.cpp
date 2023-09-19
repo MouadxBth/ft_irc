@@ -47,7 +47,11 @@ void NamesCommand::executeCommand(User *user, Data &data)
             current = Server::getInstance()->getChannel(*it);
 
             if (!current)
+            {
+                user->sendMessage(RPL_ENDOFNAMES(user->getNickname(),
+                    *it));
                 continue;
+            }
             
             user->sendMessage(RPL_NAMREPLY(user->getNickname(),
                 current->getName(),
@@ -64,7 +68,11 @@ void NamesCommand::executeCommand(User *user, Data &data)
             it++)
     {
         if (!it->second)
+        {
+            user->sendMessage(RPL_ENDOFNAMES(user->getNickname(),
+                it->first));
             continue;
+        }
         
         user->sendMessage(RPL_NAMREPLY(user->getNickname(),
             it->first,

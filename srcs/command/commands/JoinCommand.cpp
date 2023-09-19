@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 14:49:44 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 15:57:19 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void JoinCommand::executeCommand(User *user, Data &data)
 {   
     if (data.arguments.empty())
     {
-        user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
+        user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), data.command));
         return ;
     }
 
@@ -82,22 +82,25 @@ void JoinCommand::executeCommand(User *user, Data &data)
     if (data.arguments.size() == 2)
         passwords = split(data.arguments[1], ',');
 
-    if (channels.size() > 3)
-    {
-        user->sendMessage(ERR_TOOMANYTARGETS(data.arguments[0],
-            "ERR_TOOMANYTARGETS",
-            "Reduce the number of channels please."));
-        return ;
-    }
 
     std::map<std::string, std::string> elements = getElements(channels, passwords);
 
     Data namesData;
 
+    int current = 0;
+
     for (std::map<std::string, std::string>::const_iterator it = elements.begin();
         it != elements.end();
         it++)
     {
+        if (current > 3)
+        {
+            user->sendMessage(ERR_TOOMANYTARGETS(user->getNickname(),
+                it->first,
+                "Reduce the number of channels please, skipping targets..."));
+            return ;
+        }
+        
         Channel *target = Server::getInstance()->getChannel(it->first);
 
         if (!target)
@@ -122,28 +125,31 @@ void JoinCommand::executeCommand(User *user, Data &data)
             namesData.arguments.push_back(newChannel->getName());
 
             CommandManager::getInstance()->executeCommand(user, namesData);
+            current++;
             continue ;
         }
+        
         if (target->containsUser(user->getNickname()))
             continue ;
+        
         if (target->isUserBanned(user->getNickname()))
         {
-            user->sendMessage(ERR_BANNED_FROM_CHAN(target->getName()));
+            user->sendMessage(ERR_BANNEDFROMCHAN(user->getNickname(), target->getName()));
             continue;
         }
         if (target->isInviteOnly() && !target->isInvited(user->getNickname()))
         {
-            user->sendMessage(ERR_INVITE_ONLY_CHAN(target->getName()));
+            user->sendMessage(ERR_INVITEONLYCHAN(user->getNickname(), target->getName()));
             continue;
         }
         if (target->isChannelKeySet() && target->getPassword() != it->second)
         {
-            user->sendMessage(ERR_BAD_CHANNEL_KEY(target->getName()));
+            user->sendMessage(ERR_BADCHANNELKEY(user->getNickname(), target->getName()));
             continue;
         }
         if (user->getJoinedChannelsCount() > 10)
         {
-            user->sendMessage(ERR_TOO_MANY_CHANNELS(target->getName()));
+            user->sendMessage(ERR_TOOMANYCHANNELS(user->getNickname(), target->getName()));
             continue;
         }
 
@@ -157,13 +163,15 @@ void JoinCommand::executeCommand(User *user, Data &data)
         std::string message = ":" + user->getNickname() + "!" 
                 + user->getUsername() + "@" 
                 + user->getHostname() + " " 
-                + data.command + " " + data.arguments[0];
+                + data.command + " " + target->getName();
         
         target->announce(message);
         
         namesData = emptyCommandData();
         namesData.command = "NAMES";
         namesData.arguments.push_back(target->getName());
+
+        current++;
 
         CommandManager::getInstance()->executeCommand(user, namesData);
         //temporary

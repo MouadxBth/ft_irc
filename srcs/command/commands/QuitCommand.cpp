@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 14:42:02 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 16:56:36 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,14 @@ void QuitCommand::executeCommand(User *user, Data &data)
     std::string reply = ":" + user->getNickname() + "!" 
                 + user->getUsername() + "@" 
                 + user->getHostname() + " " 
-                + data.command;
+                + data.command + " :" + data.command + ": ";
     
     if (data.arguments.size())
-        reply += " :" + data.arguments[0];
+        reply += data.arguments[0];
     else if (data.trailPresent)
-        reply += " :" + data.trail;
+        reply += data.trail;
+    else
+        reply += user->getNickname();
 
     for (std::map<std::string, Channel *>::const_iterator it = Server::getInstance()->getChannels().begin();
         it != Server::getInstance()->getChannels().end();
@@ -55,6 +57,22 @@ void QuitCommand::executeCommand(User *user, Data &data)
         if (!it->second->getUsers().size())
             Server::getInstance()->removeChannel(it->first);
     }
+
+    std::string message = "ERROR :Closing Link: ";
+    
+    message += user->getHostname();
+    message += " (Quit: ";
+
+    if (data.arguments.size())
+        message += data.arguments[0];
+    else if (data.trailPresent)
+        message += data.trail;
+    else
+        message += user->getNickname().empty() ? "*" : user->getNickname();
+
+    message += ")";
+
+    user->sendMessage(message);
 
     close(user->getUserSocket().fd);
 

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 01:44:27 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 16:40:52 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,20 +38,23 @@ NickCommand& NickCommand::operator=(const NickCommand& instance)
 }
 
 void NickCommand::executeCommand(User *user, Data &data)
-{ 
+{
+    std::string nickname = user->getNickname().empty() ? "*" : user->getNickname();
+
+    
     if (!user->hasUsedPassword())
         return ;
 
     if (data.arguments.empty())
     {
-        user->sendMessage(ERR_NO_NICKNAME_GIVEN);
+        user->sendMessage(ERR_NONICKNAMEGIVEN(nickname));
         return ;
     }
     
     // invalid nickname
     if (!isValidIRCNickname(data.arguments[0]))
     {
-        user->sendMessage(ERR_ERRONEUS_NICKNAME(data.arguments[0]));
+        user->sendMessage(ERR_ERRONEUSNICKNAME(nickname, data.arguments[0]));
         return ;
     }
 
@@ -60,21 +63,21 @@ void NickCommand::executeCommand(User *user, Data &data)
     // already used nickname
     if (target && target->getUserSocket().fd != user->getUserSocket().fd)
     {
-        user->sendMessage(ERR_NICKNAME_INUSE(data.arguments[0]));
+        user->sendMessage(ERR_NICKNAMEINUSE(nickname, data.arguments[0]));
         return ;
     }
 
     // changing to reserved nickname
     if (containsString(Server::getInstance()->getReservedNicknames(), data.arguments[0]))
     {
-        user->sendMessage(ERR_UNAVAIL_RESOURCE(data.arguments[0]));
+        user->sendMessage(ERR_UNAVAILRESOURCE(nickname, data.arguments[0]));
         return ;
     }
 
     // restricted nickname
     if (containsString(Server::getInstance()->getRestrictedNicknames(), data.arguments[0]))
     {
-        user->sendMessage(ERR_RESTRICTED);
+        user->sendMessage(ERR_RESTRICTED(nickname));
         return ;
     }
     

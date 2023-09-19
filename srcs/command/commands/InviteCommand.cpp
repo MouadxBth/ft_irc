@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 02:09:42 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 15:50:35 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void InviteCommand::executeCommand(User *user, Data &data)
 {   
     if (data.arguments.empty())
     {
-        user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
+        user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), data.command));
         return ;
     }
 
@@ -59,7 +59,7 @@ void InviteCommand::executeCommand(User *user, Data &data)
     
     if (!channelTarget->containsUser(user->getNickname()))
     {
-        user->sendMessage(ERR_NOT_ON_CHANNEL(user->getNickname(), data.arguments[1]));
+        user->sendMessage(ERR_NOTONCHANNEL(user->getNickname(), data.arguments[1]));
         return ;
     }
 
@@ -72,7 +72,7 @@ void InviteCommand::executeCommand(User *user, Data &data)
     if (channelTarget->isInviteOnly() 
         && !channelTarget->getUser(user->getNickname()).second.channelOperator)
     {
-        user->sendMessage(ERR_CHAN_O_PRIVS_NEEDED(user->getNickname(), data.arguments[0]));
+        user->sendMessage(ERR_CHANOPRIVSNEEDED(user->getNickname(), data.arguments[0]));
         return ;
     }
 
@@ -88,6 +88,8 @@ void InviteCommand::executeCommand(User *user, Data &data)
     if (userTarget->isAway())
         user->sendMessage(RPL_AWAY(userTarget->getNickname(), userTarget->getAwayMessage()));
     
-    user->sendMessage(RPL_INVITING(data.arguments[1], data.arguments[0]));
+    user->sendMessage(RPL_INVITING(data.arguments[1],
+        userTarget->getNickname(),
+        channelTarget->getName()));
 
 }

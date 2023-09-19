@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:42:14 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 14:34:18 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 16:53:54 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ void Server::enable()
 			{
 				//std::cout << "User disconnected..." << std::endl;
 				handleUserDisconnection(*it);
-				it = _sockets.erase(it);
+				//it = _sockets.erase(it);
 			}
 			else
 				it++;
