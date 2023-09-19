@@ -3,31 +3,15 @@
 #include <csignal>
 
 #include "Server.hpp"
+#include "Utilities.hpp"
 
 Server *server;
 
-static bool isNumber(char *str)
-{
-    int index;
-
-    index = -1;
-    while (str[++index])
-        if (!(str[index] >= '0' && str[index] <= '9'))
-            return (false);
-    if (!index)
-        return (false);
-    return (true);
-}
-
-static int validatePort(int port)
-{
-    // should think about limiting it to 6665 - 6667
-	return (port > 1024 && port < 65537);
-}
-
 void signalHandler(int signum) {
     if (server)
-        server->disable();
+    {
+        delete server;
+    }
     
     std::exit(signum);
 }
@@ -57,12 +41,9 @@ int main(int argc, char **argv)
             << std::endl,
             EXIT_FAILURE);
 
-    Server	instance(static_cast<size_t>(port), argv[2]);
+    std::string password(argv[2]);
 
-    server = &instance;
-
-    server->configure();
+    server = Server::createInstance(static_cast<size_t>(port), password);
     server->enable();
-    //server.startServer();
     return (0);
 }

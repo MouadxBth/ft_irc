@@ -5,7 +5,8 @@ User::User()
 	: _authenticated(false), 
 	_operator(false),
 	_away(false),
-	_usedPassword(false)
+	_usedPassword(false),
+	_joinedChannelsCount(0)
 {}
 
 User::~User() {}
@@ -29,6 +30,7 @@ User& User::operator=(const User& instance)
 		setAddress(instance.getAddress());
 		setAuthenticated(instance.isAuthenticated());
 		setOperator(instance.isOperator());
+		setJoinedChannelsCount(instance.getJoinedChannelsCount());
 	}
 	return (*this);
 }
@@ -98,6 +100,11 @@ bool	User::hasUsedPassword() const
 	return (_usedPassword);
 }
 
+int	User::getJoinedChannelsCount() const
+{
+	return (_joinedChannelsCount);
+}
+
 void   User::setUsername(const std::string& username)
 {
 	this->_username = username;
@@ -156,6 +163,11 @@ void	User::setAddress(const sockaddr_in& address)
 void	User::setUsedPassword(bool b)
 {
 	this->_usedPassword = b;
+}
+
+void	User::setJoinedChannelsCount(int a)
+{
+	this->_joinedChannelsCount = a;
 }
 
 

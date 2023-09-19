@@ -6,17 +6,17 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/16 18:56:41 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 14:43:37 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PartCommand.hpp"
+#include "Server.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_NOSUCHCHANNEL
 //           ERR_NOTONCHANNEL
 
-PartCommand::PartCommand()
-    : Command("PART", "let's you pass n sht", -1, true, false)
+PartCommand::PartCommand() : Command("PART", true, false)
 {}
 
 PartCommand::~PartCommand()
@@ -37,18 +37,9 @@ PartCommand& PartCommand::operator=(const PartCommand& instance)
 
 void PartCommand::executeCommand(User *user, Data &data)
 {   
-    if (!getServer())
-        return ;
-    
     if (data.arguments.empty())
     {
         user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
-        return ;
-    }
-
-    if (data.arguments.size() > 2 || (data.arguments.size() == 2 && data.trailPresent))
-    {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(data.command, data.command));
         return ;
     }
 
@@ -58,7 +49,7 @@ void PartCommand::executeCommand(User *user, Data &data)
     
     for (std::vector<std::string>::const_iterator it = channels.begin(); it != channels.end(); it++)
     {
-        Channel *target = getServer()->getChannel(*it);
+        Channel *target = Server::getInstance()->getChannel(*it);
 
         if (!target)
         {
@@ -84,6 +75,10 @@ void PartCommand::executeCommand(User *user, Data &data)
             message += user->getNickname();
 
         target->removeUser(user->getNickname());
+        if (!target->getUsers().size())
+            Server::getInstance()->removeChannel(target->getName());
+        
+        user->setJoinedChannelsCount(user->getJoinedChannelsCount() - 1);
 
         user->sendMessage(message);
 
@@ -91,5 +86,5 @@ void PartCommand::executeCommand(User *user, Data &data)
             target->announce(message);
     }
 
-    getServer()->cleanChannels();
+    Server::getInstance()->cleanChannels();
 }

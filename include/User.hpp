@@ -4,7 +4,6 @@
 # include <string>
 # include <poll.h>
 # include <netinet/in.h>
-# include "CommandData.hpp"
 
 class User
 {
@@ -24,6 +23,7 @@ class User
         sockaddr_in     _address;
 
         bool             _usedPassword;
+        int              _joinedChannelsCount;
 
     public:
 
@@ -49,6 +49,8 @@ class User
 
         bool      hasUsedPassword() const;
 
+        int         getJoinedChannelsCount() const;
+
         void    setUsername(const std::string& username);
         void    setNickname(const std::string& nickname);
         void    setFullname(const std::string& fullname);
@@ -63,6 +65,8 @@ class User
         void    setAddress(const sockaddr_in& address);
 
         void    setUsedPassword(bool b);
+
+        void    setJoinedChannelsCount(int count);
 
         void    sendMessage(const std::string &message) const;
 

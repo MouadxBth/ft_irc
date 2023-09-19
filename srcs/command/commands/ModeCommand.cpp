@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/17 00:14:22 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/18 11:59:10 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,9 +111,6 @@ std::vector<Mode> transform(std::vector<std::string>& args)
 
 void ModeCommand::executeCommand(User *user, Data &data)
 {   
-    if (!getServer())
-        return ;
-
     if (data.arguments.empty())
     {
         user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));

@@ -6,18 +6,18 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/16 15:23:46 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 02:10:47 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "KickCommand.hpp"
+#include "Server.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_NOSUCHCHANNEL
 //           ERR_BADCHANMASK                 ERR_CHANOPRIVSNEEDED
 //           ERR_USERNOTINCHANNEL            ERR_NOTONCHANNEL
 
-KickCommand::KickCommand()
-    : Command("KICK", "let's you pass n sht", 2, true, false)
+KickCommand::KickCommand() : Command("KICK", true, false)
 {}
 
 KickCommand::~KickCommand()
@@ -62,9 +62,6 @@ bool    verify(User *user, Channel *channel, std::string& name)
 
 void KickCommand::executeCommand(User *user, Data &data)
 {   
-    if (!getServer())
-        return ;
-
     if (data.arguments.empty())
     {
         user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
@@ -76,7 +73,6 @@ void KickCommand::executeCommand(User *user, Data &data)
 
     if (channels.size() > users.size())
     {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(data.command, data.command));
         return ;
     }
     
@@ -86,7 +82,7 @@ void KickCommand::executeCommand(User *user, Data &data)
 
     if (channels.size() == 1)
     {
-        Channel *channelTarget = getServer()->getChannel(channels[0]);
+        Channel *channelTarget = Server::getInstance()->getChannel(channels[0]);
 
         if (!verify(user, channelTarget, channels[0]))
             return ;
@@ -120,7 +116,7 @@ void KickCommand::executeCommand(User *user, Data &data)
 
     for (size_t index = 0; index < channels.size() && index < users.size(); index++)
     {
-        Channel *channelTarget = getServer()->getChannel(channels[index]);
+        Channel *channelTarget = Server::getInstance()->getChannel(channels[index]);
 
         if (!verify(user, channelTarget, channels[index]))
             continue ;

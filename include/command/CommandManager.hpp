@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 12:00:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/16 15:54:01 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 00:33:14 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class CommandManager
 {
 
 private:
-    Server  *_server;
+    static CommandManager  *_instance;
     std::map<std::string, Command *> _registeredCommands;
 
 public:
@@ -32,8 +32,6 @@ public:
 
     const std::map<std::string, Command *>& getRegisteredCommands() const;
 
-    void    setServer(Server *server);
-
     void    registerCommand(Command *command);
 
     void    registerCommands(Command *command, ...);
@@ -43,5 +41,9 @@ public:
     void    unregisterCommands(std::string *command, ...);
 
     void    executeCommand(User *user, Data &data);
+
+    void    cleanUp();
+
+    static CommandManager *getInstance();
 
 };

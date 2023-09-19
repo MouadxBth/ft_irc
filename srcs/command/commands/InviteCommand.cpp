@@ -6,11 +6,12 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/15 14:23:49 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 02:09:42 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "InviteCommand.hpp"
+#include "Server.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_NOSUCHNICK
 //           ERR_NOTONCHANNEL                ERR_USERONCHANNEL
@@ -18,7 +19,7 @@
 //           RPL_INVITING                    RPL_AWAY
 
 InviteCommand::InviteCommand()
-    : Command("INVITE", "let's you pass n sht", 2, true, false)
+    : Command("INVITE", true, false)
 {}
 
 InviteCommand::~InviteCommand()
@@ -30,31 +31,20 @@ InviteCommand::InviteCommand(const InviteCommand& instance) : Command(instance)
 InviteCommand& InviteCommand::operator=(const InviteCommand& instance)
 {
     if (this != &instance)
-    {
         Command::operator=(instance);
-    }
     return *this;
 }
 
 
 void InviteCommand::executeCommand(User *user, Data &data)
 {   
-    if (!getServer())
-        return ;
-
     if (data.arguments.empty())
     {
         user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
         return ;
     }
 
-    if (data.arguments.size() > 2 || data.trailPresent)
-    {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(data.command, data.command));
-        return ;
-    }
-
-    const User *userTarget = getServer()->getUser(data.arguments[0]);
+    const User *userTarget = Server::getInstance()->getAuthenticatedUser(data.arguments[0]);
     
     if (!userTarget)
     {
@@ -62,7 +52,7 @@ void InviteCommand::executeCommand(User *user, Data &data)
         return ;
     }
     
-    Channel *channelTarget = getServer()->getChannel(data.arguments[1]);
+    Channel *channelTarget = Server::getInstance()->getChannel(data.arguments[1]);
 
     if (!channelTarget)
         return ;

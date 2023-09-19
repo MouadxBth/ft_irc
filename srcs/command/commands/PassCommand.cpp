@@ -6,16 +6,18 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/17 16:01:03 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 01:44:20 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sstream>
+
 #include "PassCommand.hpp"
+#include "Server.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
 
-PassCommand::PassCommand()
-    : Command("PASS", "let's you pass n sht", 1, false, false)
+PassCommand::PassCommand() : Command("PASS", false, false)
 {}
 
 PassCommand::~PassCommand()
@@ -33,44 +35,28 @@ PassCommand& PassCommand::operator=(const PassCommand& instance)
     return *this;
 }
 
-
 void PassCommand::executeCommand(User *user, Data &data)
-{   
-    std::string nickname;
-    std::ostringstream oss;
+{  
+    std::ostringstream oss("User ");
 
-    oss << "User ";
     oss << user->getUserSocket().fd;
-    
-    nickname = user->getNickname().empty() 
-        ? oss.str()
-        : user->getNickname();
-    
-    if (!getServer())
-        return ;
         
     if (user->isAuthenticated())
     {
-        user->sendMessage(ERR_ALREADY_REGISTERED(nickname));
+        user->sendMessage(ERR_ALREADY_REGISTERED(user->getNickname()));
         return ;
     }
 
     if (data.arguments.empty())
     {
-        user->sendMessage(ERR_NEED_MORE_PARAMS(nickname, data.command));
-        return ;
-    }
-
-    if (data.arguments.size() > 1 || !data.trail.empty())
-    {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(data.command, data.command));
+        user->sendMessage(ERR_NEED_MORE_PARAMS(oss.str(), data.command));
         return ;
     }
     
     // check password
-    if (getServer()->getPassword() != data.arguments[0])
+    if (Server::getInstance()->getPassword() != data.arguments[0])
     {
-        user->sendMessage(ERR_PASSWD_MISMATCH(nickname));
+        user->sendMessage(ERR_PASSWD_MISMATCH(oss.str()));
         return ;
     }
 

@@ -6,18 +6,18 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/15 14:37:54 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 02:06:21 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "TopicCommand.hpp"
+#include "Server.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_NOTONCHANNEL
 //           RPL_NOTOPIC                     RPL_TOPIC
 //           ERR_CHANOPRIVSNEEDED            ERR_NOCHANMODES
 
-TopicCommand::TopicCommand()
-    : Command("TOPIC", "let's you pass n sht", -1, true, false)
+TopicCommand::TopicCommand() : Command("TOPIC", true, false)
 {}
 
 TopicCommand::~TopicCommand()
@@ -29,31 +29,20 @@ TopicCommand::TopicCommand(const TopicCommand& instance) : Command(instance)
 TopicCommand& TopicCommand::operator=(const TopicCommand& instance)
 {
     if (this != &instance)
-    {
         Command::operator=(instance);
-    }
     return *this;
 }
 
 
 void TopicCommand::executeCommand(User *user, Data &data)
 {   
-    if (!getServer())
-        return ;
-        
     if (data.arguments.empty())
     {
         user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
         return ;
     }
 
-    if (data.arguments.size() > 2 || (data.arguments.size() == 2 && data.trailPresent))
-    {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(data.command, data.command));
-        return ;
-    }
-
-    Channel *target = getServer()->getChannel(data.arguments[0]);
+    Channel *target = Server::getInstance()->getChannel(data.arguments[0]);
     
     if (!target)
         return ;
@@ -96,6 +85,8 @@ void TopicCommand::executeCommand(User *user, Data &data)
         topic = data.trail;
         message += ":" + data.trail;
     }
+
+    target->setTopic(topic);
     
-    target->broadcast(user->getNickname(), message);
+    target->announce(message);
 }

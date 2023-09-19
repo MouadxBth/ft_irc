@@ -6,12 +6,12 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/17 16:13:36 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 02:02:02 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PrivMsgCommand.hpp"
-#include <algorithm>
+#include "Utilities.hpp"
 
 //ERR_NORECIPIENT D                 ERR_NOTEXTTOSEND D
 //           ERR_CANNOTSENDTOCHAN D           ERR_NOTOPLEVEL
@@ -19,8 +19,7 @@
 //           ERR_NOSUCHNICK D
 //           RPL_AWAY D
 
-PrivMsg::PrivMsg()
-    : Command("PRIVMSG", "let's you pass n sht", -1, true, false)
+PrivMsg::PrivMsg() : Command("PRIVMSG", true, false)
 {}
 
 PrivMsg::~PrivMsg()
@@ -32,18 +31,12 @@ PrivMsg::PrivMsg(const PrivMsg& instance) : Command(instance)
 PrivMsg& PrivMsg::operator=(const PrivMsg& instance)
 {
     if (this != &instance)
-    {
         Command::operator=(instance);
-    }
     return *this;
 }
 
 void PrivMsg::executeCommand(User *user, Data &data)
 {   
-    // shouldn't happen
-    if (!getServer())
-        return ;
-        
     if (data.arguments.empty())
     {
         user->sendMessage(ERR_NORECIPIENT(data.command));
@@ -56,19 +49,13 @@ void PrivMsg::executeCommand(User *user, Data &data)
         return ;
     }
 
-    if (data.arguments.size() > 1 && !data.trail.empty())
-    {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(user->getNickname(), data.command));
-        return ;
-    }
-
     std::vector<std::string> recipients = split(data.arguments[0], ',');
 
     if (recipients.size() > 3)
     {
         user->sendMessage(ERR_TOOMANYTARGETS(data.arguments[0],
             "ERR_TOOMANYTARGETS",
-            "Slow down there hotshot, reduce them targets and try again"));
+            "Bruv, are u okay?, reduce them targets and try again"));
         return ;
     }
 
@@ -78,23 +65,26 @@ void PrivMsg::executeCommand(User *user, Data &data)
         + data.command + " " + data.arguments[0] + " :";
     
     message += data.arguments.size() == 1 ? data.trail : data.arguments[1];
-
     
-    for (std::vector<std::string>::const_iterator it = recipients.begin(); it != recipients.end(); it++)
+    for (std::vector<std::string>::const_iterator it = recipients.begin();
+        it != recipients.end();
+        it++)
     {
-        const User *userTarget = getServer()->getUser(*it);
+        const User *userTarget = Server::getInstance()->getAuthenticatedUser(*it);
 
         if (userTarget)
         {
             if (userTarget->getNickname() == user->getNickname())
                 continue ;
+                
             userTarget->sendMessage(message);
+            
             if (userTarget->isAway())
                 user->sendMessage(RPL_AWAY(userTarget->getNickname(), userTarget->getAwayMessage()));
         }
         else
         {
-            const Channel *channelTarget = getServer()->getChannel(*it);
+            const Channel *channelTarget = Server::getInstance()->getChannel(*it);
 
             if (!channelTarget)
             {

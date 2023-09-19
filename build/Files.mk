@@ -6,7 +6,7 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/12 23:45:12 by mbouthai          #+#    #+#              #
-#    Updated: 2023/09/16 16:09:54 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/19 13:43:05 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,13 +31,15 @@ COMMANDS_SRCS	= NickCommand.cpp PassCommand.cpp \
 	UserCommand.cpp PrivMsg.cpp \
 	InviteCommand.cpp JoinCommand.cpp \
 	TopicCommand.cpp KickCommand.cpp \
-	PartCommand.cpp
+	PartCommand.cpp QuitCommand.cpp \
+	MotdCommand.cpp NamesCommand.cpp
 
 COMMAND_SRCS	= $(addprefix $(COMMANDS_DIR)/,$(COMMANDS_SRCS)) Command.cpp CommandManager.cpp
 COMMAND_SRCS	:= $(addprefix $(COMMAND_DIR)/,$(COMMAND_SRCS))
 
 SERVER_DIR	:= server
-SERVER_SRCS	= ServerUser.cpp Server.cpp
+SERVER_SRCS	= Server.cpp ServerConfiguration.cpp ServerManagement.cpp \
+	ServerConnection.cpp ServerHandler.cpp 
 SERVER_SRCS	:= $(addprefix $(SERVER_DIR)/,$(SERVER_SRCS))
 
 USER_DIR	:= user
@@ -45,7 +47,7 @@ USER_SRCS	= User.cpp
 USER_SRCS	:= $(addprefix $(USER_DIR)/,$(USER_SRCS))
 
 UTILS_DIR	:= utilities
-UTILS_SRCS	= utils.cpp
+UTILS_SRCS	= Utilities.cpp
 UTILS_SRCS	:= $(addprefix $(UTILS_DIR)/,$(UTILS_SRCS))
 
 SOURCES	= main.cpp \

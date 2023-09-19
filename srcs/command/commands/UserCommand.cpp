@@ -6,18 +6,20 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/17 16:06:01 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 03:55:11 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "UserCommand.hpp"
+#include "Server.hpp"
+#include "CommandManager.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
 //USER guest 0 * :Ronnie Reagan 
 //USER guest 8 * :Ronnie Reagan <-- invis
 
 UserCommand::UserCommand()
-    : Command("USER", "let's you pass n sht", -1, false, false)
+    : Command("USER", false, false)
 {}
 
 UserCommand::~UserCommand()
@@ -37,14 +39,11 @@ UserCommand& UserCommand::operator=(const UserCommand& instance)
 
 
 void UserCommand::executeCommand(User *user, Data &data)
-{   
+{
     // user hasn't used nick command yet
     if (user->getNickname().empty())
         return ;
     
-    if (!getServer())
-        return ;
-        
     if (user->isAuthenticated())
     {
         user->sendMessage(ERR_ALREADY_REGISTERED(user->getNickname()));
@@ -54,12 +53,6 @@ void UserCommand::executeCommand(User *user, Data &data)
     if (data.arguments.empty() || data.arguments.size() < 3)
     {
         user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
-        return ;
-    }
-
-    if (data.arguments.size() > 3 && !data.trail.empty())
-    {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(user->getNickname(), data.command));
         return ;
     }
     
@@ -72,9 +65,33 @@ void UserCommand::executeCommand(User *user, Data &data)
 
     user->setAuthenticated(true);
 
-    user->sendMessage(RPL_WELCOME(user->getNickname()));
+    user->sendMessage(RPL_WELCOME(user->getNickname(),
+        user->getUsername(),
+        user->getHostname()));
+    
+    user->sendMessage(RPL_YOURHOST(user->getNickname(),
+        Server::getInstance()->getName(),
+        Server::getInstance()->getVersion()));
 
-    std::cout << "User: " << user->getNickname() << " has joined" << std::endl;
+    user->sendMessage(RPL_CREATED(user->getNickname(),
+        Server::getInstance()->getCreationDate()));
+
+    user->sendMessage(RPL_MYINFO(user->getNickname(),
+        Server::getInstance()->getName(),
+        Server::getInstance()->getVersion(),
+        Server::getInstance()->getUserModes(),
+        Server::getInstance()->getChannelModes()));
+
+    Data motdData = emptyCommandData();
+
+    motdData.command = "MOTD";
+
+    CommandManager::getInstance()->executeCommand(user, motdData);
+
+    Server::getInstance()->getConnectedUsers().erase(user->getUserSocket().fd);
+    Server::getInstance()->getAuthenticatedUsers()[user->getNickname()] = user;
+
+    //std::cout << "User: " << user->getNickname() << " has joined" << std::endl;
 
     //std::cout << *user << std::endl;
 }

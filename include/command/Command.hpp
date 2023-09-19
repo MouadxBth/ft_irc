@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/19 11:13:56 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/15 12:29:43 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 01:24:56 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,49 +14,42 @@
 
 #include <string>
 
-#include "Server.hpp"
 #include "User.hpp"
-#include "utils.hpp"
+#include "CommandData.hpp"
+#include "CommandReplies.hpp"
 
 class Command
 {
 
 private:
     std::string _name;
-    std::string _description;
-    int  _maxArguments;
-    bool    _authRequired;
-    bool    _requireTrail;
-    Server  *_server;
+    
+    bool        _authRequired;
+    bool        _requireTrail;
 
-public:
     Command();
-    virtual ~Command();
-    Command(const Command& instance);
-    Command& operator=(const Command& instance);
 
+protected:
+    Command(const Command& instance);
     Command(const std::string& name,
-        const std::string& description,
-        int maxArgs,
         bool authRequired,
         bool trail);
+    
+
+public:
+    virtual ~Command();
+    Command& operator=(const Command& instance);
 
     virtual void executeCommand(User *user, Data &data) = 0;
 
     const std::string&  getName() const;
-    const std::string&  getDescription() const;
-    int  getMaxArguments() const;
-    bool  isAuthRequired() const;
-    bool    requiresTrail() const;
     
-    Server  *getServer();
+    bool                isAuthRequired() const;
+    bool                requiresTrail() const;
     
+
     void    setName(const std::string& name);
-    void    setDescription(const std::string& description);
-    void    setMaxArguments(int maxArguments);
+
     void    setAuthRequired(bool auth);
-
     void    setRequireTrail(bool trail);
-
-    void    setServer(Server *server);
 };

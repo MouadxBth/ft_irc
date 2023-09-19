@@ -6,12 +6,28 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 12:04:38 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/16 16:02:50 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 13:39:46 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CommandManager.hpp"
 #include "Command.hpp"
+#include "CommandReplies.hpp"
+
+# include "PassCommand.hpp"
+# include "UserCommand.hpp"
+# include "NickCommand.hpp"
+# include "PrivMsgCommand.hpp"
+# include "InviteCommand.hpp"
+# include "JoinCommand.hpp"
+# include "TopicCommand.hpp"
+# include "KickCommand.hpp"
+# include "PartCommand.hpp"
+# include "QuitCommand.hpp"
+# include "MotdCommand.hpp"
+# include "NamesCommand.hpp"
+
+CommandManager *CommandManager::_instance = NULL;
 
 CommandManager::CommandManager()
 {}
@@ -40,9 +56,7 @@ void    CommandManager::registerCommand(Command *command)
     if (!command 
     || command->getName().empty())
         return ;
-    if (!_server)
-        return ;
-    command->setServer(_server);
+        
     _registeredCommands[command->getName()] = command;
 }
 
@@ -72,12 +86,14 @@ void    CommandManager::executeCommand(User *user, Data &data)
     
     if ((it == _registeredCommands.end() 
         || !it->second)
-        || !isKnownCommand(data.command)
-        || !data.valid)
+        || !isKnownCommand(data.command))
     {
-        if (!data.valid)
-            std::cout << "INVALID COMMAND" << std::endl;
-        user->sendMessage(ERR_UNKNOWN_COMMAND(nickname, data.command));
+        user->sendMessage(ERR_UNKNOWNCOMMAND(nickname, data.command));
+        return ;
+    }
+
+    if (!data.valid)
+    {
         return ;
     }
     
@@ -88,13 +104,6 @@ void    CommandManager::executeCommand(User *user, Data &data)
     }
 
     if (data.arguments.size() > 15 || (data.trail.empty() && it->second->requiresTrail()))
-    {
-        user->sendMessage(ERR_UNKNOWN_COMMAND(nickname, data.command));
-        return ;
-    }
-
-    if (it->second->getMaxArguments() >= 0 && 
-        data.arguments.size() != static_cast<size_t>(it->second->getMaxArguments()))
     {
         user->sendMessage(ERR_UNKNOWN_COMMAND(nickname, data.command));
         return ;
@@ -136,7 +145,36 @@ void    CommandManager::unregisterCommands(std::string *command, ...)
     va_end(args);
 }
 
-void    CommandManager::setServer(Server *server)
+void    CommandManager::cleanUp()
 {
-    _server = server;
+    for (std::map<std::string, Command *>::const_iterator it = _registeredCommands.begin();
+		it != _registeredCommands.end();
+		it++)
+	{
+		if (it->second)
+			delete it->second;
+	}
+}
+
+CommandManager *CommandManager::getInstance()
+{
+    if (!_instance)
+    {
+        _instance = new CommandManager();
+        
+        _instance->registerCommands(new PassCommand(),
+            new NickCommand(),
+            new UserCommand(),
+            new PrivMsg(),
+            new InviteCommand(),
+            new JoinCommand(),
+            new TopicCommand(),
+            new KickCommand(),
+            new PartCommand(),
+            new QuitCommand(),
+            new MotdCommand(),
+            new NamesCommand(),
+            NULL);
+    }
+    return (_instance);
 }

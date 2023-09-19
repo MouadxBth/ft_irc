@@ -19,7 +19,7 @@
 
 # include "CommandData.hpp"
 # include "Channel.hpp"
-# include "utils.hpp"
+# include "Utilities.hpp"
 
 class CommandManager;
 class Command;
@@ -28,13 +28,26 @@ class User;
 class Server
 {
 	private:
+		static Server 					*_instance;
+
 		const size_t			_port;
 		const std::string		_password;
 		const std::string		_name;
+		const std::string		_version;
+		const std::string		_creationDate;
+		const std::string		_userModes;
+		const std::string		_channelModes;
 		
-		std::map<int, User *>		_users;
-		std::vector<Channel *>	_channels;
+		const std::vector<std::string>		_motd;
+		
+		std::map<int, User *>				_connectedUsers;
+		std::map<std::string, User *>		_authenticatedUsers;
+		std::map<std::string, Channel *>	_channels;
+		
 		std::vector<pollfd>		_sockets;
+		std::vector<pollfd>		_socketsToBeRemoved;
+
+		std::vector<std::string>	_channelsToBeRemoved;
 
 		std::vector<std::string> _reservedNicknames;
 		std::vector<std::string> _restrictedNicknames;
@@ -45,29 +58,12 @@ class Server
 
 		bool					_enabled;
 
-		CommandManager			*_commandManager;
-
-		void    removeSocket(pollfd& socket);
+	protected:
 
 		void	handleUserConnection();
-		
-		void	handleUserDisconnect(const pollfd& connectionInfo);
-		
-		std::string readUserInput(pollfd& connectionInfo);
-		
-		std::vector<std::string> handleUserInput(User *user, std::string &input);
-		
-		Data parseUserInput(std::string& input);
-		
-		std::vector<Data> parseUserData(std::vector<std::string>& data);
-
+		void	handleUserDisconnection(const pollfd& connectionInfo);
 		bool	handleUserData(pollfd& connectionInfo);
 
-		void	handleNicknameCollision();
-
-		void	handleCommands();
-
-	
 	public:
 		Server();
 		~Server();
@@ -76,22 +72,36 @@ class Server
 		
 		Server(const size_t port, const std::string password);
 		
-		const std::string&			getName() const;
+		size_t						getPort() const;
 		const std::string&			getPassword() const;
-		size_t				getPort() const;
+		const std::string&			getName() const;
+		const std::string&			getVersion() const;
+		const std::string&			getCreationDate() const;
+		const std::string&			getUserModes() const;
+		const std::string&			getChannelModes() const;
+		
+		const std::vector<std::string>&			getMotd() const;
 
-		std::map<int, User *>&		getUsers();
-		std::vector<Channel *>&		getChannels();
+
+		std::map<int, User *>&					getConnectedUsers();
+		std::map<std::string, User *>&			getAuthenticatedUsers();
+		std::map<std::string, Channel *>&		getChannels();
 
 		std::vector<std::string>&	getReservedNicknames();
 		std::vector<std::string>&	getRestrictedNicknames();
 
-		const User *getUser(int fd) const;
-		const User *getUser(const std::string& nickname);
+		User						*getConnectedUser(int fd);
+		
+		User						*getAuthenticatedUser(const std::string& nickname);
+		User						*getAuthenticatedUser(int fd);
+		
+		User						*getUser(int fd);
+		
+		Channel						*getChannel(const std::string& name);
 
-		Channel *getChannel(const std::string& name);
+		void	removeUser(User *user);
 
-		CommandManager *getCommandManager() const;
+		void	removeChannel(const std::string& name);
 
 		void	cleanChannels();
 
@@ -100,5 +110,9 @@ class Server
 		void enable();
 
 		void disable();
+
+		static Server* getInstance();
+
+		static Server* createInstance(size_t port, std::string& password);
 
 };

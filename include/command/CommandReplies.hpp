@@ -1,6 +1,16 @@
-#include <iostream>
-#include <ctime>
-#include "Server.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   CommandReplies.hpp                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/18 19:50:02 by mbouthai          #+#    #+#             */
+/*   Updated: 2023/09/19 13:18:15 by mbouthai         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#pragma once
 
 //ERROR REPLIES
 #define ERR_UNKNOWN_COMMAND(source, command)				"421 " + source + " " + command + " :Unknown command"
@@ -40,9 +50,32 @@
 
 
 // NUMERIC REPLIES
-#define RPL_WELCOME(source)						"001 " + source + " :Welcome " + source + " to the ft_irc network"
-#define RPL_NAMREPLY(source, channel, users)	"353 " + source + " = " + channel + " :" + users + ""
-#define RPL_ENDOFNAMES(source, channel)			"366 " + source + " " + channel + " :End of /NAMES list."
+#define RPL_WELCOME(nick, user, host)	"001 " + nick + " :Welcome to the Internet Relay Network " + nick + "!" + user + "@" + host
+#define RPL_YOURHOST(nick, servername, version)   "002 " + nick + " :Your host is " + servername + ", running version " + version
+#define RPL_CREATED(nick, date) "003 " + nick + " :This server was created " + date
+#define RPL_MYINFO(nick, servername, version, userModes, channelModes) "004 " + nick + " " + servername + " " + version + " " + userModes + " " + channelModes
+#define RPL_AWAY(nick, message)	"301 " + nick + " :" + message
+
+#define RPL_MOTDSTART(nick, server) "375 " + nick + " :- " + server + " Message of the day - "
+#define RPL_MOTD(nick, text) "372 " + nick + " :- " + text
+#define RPL_ENDOFMOTD(nick) "376 " + nick + " :End of MOTD command"
+
+
+#define RPL_NAMREPLY(nick, channel, list) "353 " + nick + " = " + channel + " :" + list
+#define RPL_ENDOFNAMES(nick, channel) "366 " + nick + " " + channel + " :End of /NAMES list"
+
+#define ERR_UNKNOWNCOMMAND(nick, command) "421 " + nick + " " + command + " :Unknown command"
+#define ERR_NOTREGISTERED(nick) "451 " + nick + " :You have not registered"
+
+#define ERR_NOMOTD(nick) "422 " + nick + " :MOTD File is missing"
+
+#define DUMMY(nick) "000 " + nick + " :"
+
+
+
+// ====
+//#define RPL_NAMREPLY(source, channel, users)	"353 " + source + " = " + channel + " :" + users + ""
+//#define RPL_ENDOFNAMES(source, channel)			"366 " + source + " " + channel + " :End of /NAMES list."
 
 #define RPL_NOTOPIC(channel)					"331 " + channel + " :No topic is set"
 #define RPL_TOPIC(channel, topic)					"332 " + channel + " :" + topic
@@ -57,14 +90,4 @@
 #define RPL_KICK(source, channel, target, reason)	":" + source + " KICK " + channel + " " + target + " :" + reason
 #define RPL_MODE(source, channel, modes, args)		":" + source + " MODE " + channel + " " + modes + " " + args
 
-#define RPL_AWAY(nick, message)					"301 " + nick + " :" + message
 #define RPL_INVITING(channel, nick)					"341 " + channel + " " + nick
-
-
-std::string currentTimestamp(void);
-std::string obtain_hostname(sockaddr_in user_addr);
-
-bool isKnownCommand(std::string command);
-
-std::vector<std::string> split(std::string& input, char delimiter);
-std::string trim(const std::string& str);
