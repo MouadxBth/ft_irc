@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 12:04:38 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 17:19:19 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 01:09:11 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # include "MotdCommand.hpp"
 # include "NamesCommand.hpp"
 # include "NoticeCommand.hpp"
+# include "ModeCommand.hpp"
 
 CommandManager *CommandManager::_instance = NULL;
 
@@ -172,6 +173,7 @@ CommandManager *CommandManager::getInstance()
             new MotdCommand(),
             new NamesCommand(),
             new NoticeCommand(),
+            new ModeCommand(),
             NULL);
     }
     return (_instance);

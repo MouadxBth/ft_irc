@@ -79,6 +79,8 @@ class Channel
         
         const std::pair<User *, Modes>& getUser(const std::string& nickname) const;
 
+        std::string getModes() const;
+
         void addUser(User *user, bool isOperator, bool hasVoice);
         void removeUser(const std::string& nickname);
         
@@ -106,6 +108,7 @@ class Channel
         void announce(std::string& message) const;
 
         void announce(std::vector<std::string>& messages) const;
+
 };
 
 std::ostream&	operator<<(std::ostream& outputStream, const Channel& channel);

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 15:50:35 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/19 22:24:04 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,5 +91,8 @@ void InviteCommand::executeCommand(User *user, Data &data)
     user->sendMessage(RPL_INVITING(data.arguments[1],
         userTarget->getNickname(),
         channelTarget->getName()));
+
+    // :atw.hu.eu.dal.net NOTICE @#new :mouad invited nguy into channel #new
+    
 
 }

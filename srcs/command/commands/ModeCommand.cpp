@@ -6,14 +6,18 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/18 11:59:10 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 01:28:43 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ModeCommand.hpp"
+#include "Server.hpp"
+#include "Utilities.hpp"
 
 //			ERR_NEEDMOREPARAMS              ERR_KEYSET
+
 //          ERR_NOCHANMODES                 ERR_CHANOPRIVSNEEDED
+
 //          ERR_USERNOTINCHANNEL            ERR_UNKNOWNMODE
 
 //          RPL_CHANNELMODEIS
@@ -22,8 +26,7 @@
 //          RPL_INVITELIST                  RPL_ENDOFINVITELIST
 //          RPL_UNIQOPIS
 
-ModeCommand::ModeCommand()
-    : Command("MODE", "let's you pass n sht", -1, true, false)
+ModeCommand::ModeCommand() : Command("MODE", true, false)
 {}
 
 ModeCommand::~ModeCommand()
@@ -41,136 +44,188 @@ ModeCommand& ModeCommand::operator=(const ModeCommand& instance)
     return *this;
 }
 
-bool takesParam(int c)
-{
-	return (c == 't' || c == 'k' || c == 'o' || c == 'l');
-}
-
-typedef struct s_mode
-{
-	int mode;
-	bool add;
-	std::string param;
-}	Mode;
-
-std::vector<Mode> transform(std::vector<std::string>& args)
-{
-	std::vector<Mode> result;
-
-	bool takesb;
-	
-	for (size_t index = 0; index < args.size(); index++)
-	{
-		if (args[index].size() == 2)
-		{
-			Mode mode;
-
-			mode.mode = args[index][1];
-			mode.add = args[index][0] == '+';
-			
-			if (takesParam(args[index][1]))
-			{
-				if (index + 1 >= args.size())
-					return ;
-				mode.param = args[index + 1];
-			}
-			result.push_back(mode);
-		}
-
-		
-		if (args[index].size() > 2)
-		{
-			std::vector<std::string> moreArgs;
-			int takes = 0;
-
-			if (index + 1 >= args.size())
-				return ;
-
-			moreArgs = split(args[index + 1], ',');
-
-			for (size_t j = 1, temp = 0; j < args[index].size(); j++)
-			{
-				takesb = takesParam(args[index][j]);
-				if (takesb)
-					takes++;
-				if (takes > moreArgs.size())
-					return ;
-				
-				Mode riz;
-
-				riz.mode = args[index][j];
-				riz.add = args[index][0] == '+';
-				
-				if (takesb)
-					riz.param = moreArgs[temp++];
-			}
-			index++;
-		}
-	}
-}
-
 void ModeCommand::executeCommand(User *user, Data &data)
 {   
     if (data.arguments.empty())
     {
-        user->sendMessage(ERR_NEED_MORE_PARAMS(user->getNickname(), data.command));
+        user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), data.command));
         return ;
     }
+
+	std::string message;
+	
+	Channel *channel = Server::getInstance()->getChannel(data.arguments[0]);
+	
+	if (!channel)
+		return ;
 
 	// query channel modes
 	if (data.arguments.size() == 1)
 	{
+		user->sendMessage(RPL_CHANNELMODEIS(user->getNickname(),
+			channel->getName(),
+			channel->getModes()));
 		return ;
 	}
 
-	std::vector<std::string> modifications;
+	std::vector<ChannelMode> modes = parseModeArguments(data.arguments);
 
-	for (size_t index = 1; index < data.arguments.size(); index++)
+	if (!modes.size())
+		return ;
+
+	if (!channel->getUser(user->getNickname()).second.channelOperator)
 	{
-		if (data.arguments[index][0] != '+' && data.arguments[index][0] != '-')
-		{
-			return ;
-		}
-
-		
-		
-		if (data.arguments[index][0] == '+' || data.arguments[index][0] == '-')
-		{
-			if (data.arguments[index].size() == 2)
-			{
-				if (takesParam(data.arguments[index][1]))
-				{
-					if ()
-				}
-			}	
-		}
+		user->sendMessage(ERR_CHANOPRIVSNEEDED(user->getNickname(), channel->getName()));
+		return ;
 	}
 
-	for (std::vector<std::string>::const_iterator it = data.arguments.begin();
-		it != data.arguments.end();
+	std::pair<User *, Modes> channelUser;
+	size_t value;
+	std::string modeMessage;
+
+	for (std::vector<ChannelMode>::const_iterator it = modes.begin();
+		it != modes.end();
 		it++)
 	{
-		if ((*it)[0] == '+' || (*it)[0] == '-')
-			
+		message = ":" + user->getNickname() + "!" 
+                + user->getUsername() + "@" 
+                + user->getHostname() + " " 
+                + data.command + " " + data.arguments[0] + " ";
+				
+		switch (it->mode)
+		{
+			case 'i':
+				if (it->add && channel->isInviteOnly())
+				{
+					user->sendMessage(ERR_KEYSET(user->getNickname(), channel->getName()));
+					break ;
+				}
+				
+				message += it->add ? "+i" : "-i";
+
+				channel->announce(message);
+				channel->setInviteOnly(it->add);
+				break ;
+				
+			case 't':
+				if (it->add && channel->isTopicSettableByChannelOperatorOnly())
+				{
+					user->sendMessage(ERR_KEYSET(user->getNickname(), channel->getName()));
+					break ;
+				}
+
+				message += it->add ? "+t" : "-t";
+
+				channel->announce(message);
+				channel->setTopicSettableByChannelOperatorOnly(it->add);
+				break ;
+				
+			case 'k':
+				if (it->add && channel->isChannelKeySet())
+				{
+					user->sendMessage(ERR_KEYSET(user->getNickname(), channel->getName()));
+					break ;
+				}
+				
+				if (it->add && it->parameter.empty())
+				{
+					message = data.command + " +k";
+					
+					user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), message));
+					break ;
+				}
+					
+				if (it->add)
+					channel->setPassword(it->parameter);
+				
+				channel->setChannelKey(it->add);
+
+				message += it->add ? "+k" : "-k";
+
+				if (!it->parameter.empty())
+					message += " " + it->parameter;
+
+				channel->announce(message);
+				break ;
+				
+			case 'o':
+				if (it->parameter.empty())
+				{
+					message = data.command + " ";
+					message += it->add ? "+o" : "-o";
+					
+					user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), message));
+					break ;
+				}
+				
+				channelUser = channel->getUser(it->parameter);
+				
+				if (!channelUser.first)
+				{
+					user->sendMessage(ERR_NOTONCHANNEL(user->getNickname(), channel->getName()));
+					break ;
+				}
+
+				if ((it->add && channelUser.second.channelOperator)
+					|| (!it->add && !channelUser.second.channelOperator))
+				{
+					user->sendMessage(ERR_KEYSET(user->getNickname(), channel->getName()));
+					break ;
+				}
+				
+				channelUser.second.channelOperator = it->add;
+
+				message += it->add ? "+o " : "-o ";
+				message += it->parameter;
+
+				channel->announce(message);
+				break ;
+				
+			case 'l':
+				if (it->add && channel->isUserLimitSet())
+				{
+					user->sendMessage(ERR_KEYSET(user->getNickname(), channel->getName()));
+					break ;
+				}
+				
+				if (!it->add)
+				{
+					channel->setUserLimit(false);
+
+					message += "-l";
+					channel->announce(message);
+					break ;
+				}
+
+				if (it->add && it->parameter.empty())
+				{
+					message = data.command + " ";
+					message += "+l";
+					user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), message));
+					break ;
+				}
+
+				if (!isNumber(it->parameter.c_str()))
+				{
+					break ;
+				}
+				
+				value = getNumber(it->parameter);
+				
+				channel->setUserLimit(it->add);
+				channel->setMaximumCapacity(value);
+
+				message += "+o ";
+				message += it->parameter;
+
+				channel->announce(message);
+				break ;
+				
+			default:
+				modeMessage += it->mode;
+				user->sendMessage(ERR_UNKNOWNMODE(user->getNickname(), modeMessage, channel->getName()));
+				break ;
+		}
 	}
-
-	// no + or - found
-	if (data.arguments[1][0] != '+' || data.arguments[1][0] != '-')
-	{
-		return ;
-	}
-
-	// used only + or -
-	if (data.arguments[1].size() == 1)
-	{
-		return ;
-	}
-
-	// tkol
-	bool add = data.arguments[1][0] == '+';
-
-	for (size_t index = 1; index < data.arguments)
-	
-    
 	
 }

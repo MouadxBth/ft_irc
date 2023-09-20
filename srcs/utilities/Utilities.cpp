@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 01:07:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 17:20:20 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 01:20:11 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <fstream>
 
+#include "Server.hpp"
 #include "Utilities.hpp"
 
 std::string currentTimestamp(void)
@@ -154,7 +155,7 @@ void printData(Data &data)
 		<< "\n\tTrail: " << data.trail << " " << data.trail.size() << std::endl;
 }
 
-bool isNumber(char *str)
+bool isNumber(const char *str)
 {
     int index;
 
@@ -165,6 +166,19 @@ bool isNumber(char *str)
     if (!index)
         return (false);
     return (true);
+}
+
+size_t getNumber(const std::string& str)
+{
+    std::istringstream iss(str);
+    long long result;
+
+    iss >> result;
+
+    if (!iss || iss.fail() || !iss.eof() || result < 0)
+        return (0);
+    
+    return (static_cast<size_t>(result));
 }
 
 int validatePort(int port)
@@ -289,4 +303,160 @@ std::vector<std::string> generateMotd()
         result.push_back(line);
 
     return (result);
+}
+
+bool wildcardMatch(const char* pattern, const char* text)
+{
+    if (*pattern == '\0')
+        return (true);
+    
+    while (*text)
+    {
+        if (*pattern == *text || *pattern == '?')
+        {
+            ++pattern;
+            ++text;
+        }
+        else if (*pattern == '*')
+        {
+            pattern++;
+
+            // Handle special cases
+            if (*pattern == '\0')
+            {
+                // If '*' is the last character in pattern, it matches the rest of 'text'.
+                return (true);
+            }
+            else if (*pattern == '*')
+            {
+                // If there are consecutive '*', merge them into one
+                while (*pattern == '*')
+                    ++pattern;
+
+                // Try each possible position in text
+                while (*text)
+                {
+                    if (wildcardMatch(pattern, text))
+                        return (true);
+                    ++text;
+                }
+                return false;
+            }
+            else
+            {
+                // Normal '*' behavior, match any number of characters
+                while (*text)
+                {
+                    if (wildcardMatch(pattern, text))
+                        return (true);
+                    ++text;
+                }
+                return (false);
+            }
+        }
+        else
+        {
+            return (false);
+        }
+    }
+
+    // Check if there are any remaining '*' in the pattern
+    while (*pattern == '*')
+        ++pattern;
+
+    return (*pattern == '\0');
+}
+
+bool takesParam(int c)
+{
+	return (c == 'k' || c == 'o' || c == 'l');
+}
+
+std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
+{
+	std::vector<ChannelMode> result;
+	std::vector<ChannelMode> empty;
+	
+	for (size_t index = 1; index < args.size();)
+	{
+		if (args[index][0] != '+' && args[index][0] != '-')
+		{
+			return (empty);
+		}
+			
+		if (args[index].size() == 2)
+		{
+			ChannelMode current;
+
+			current.add = args[index][0] == '+';
+			current.mode = args[index][1];
+			
+			if (takesParam(current.mode))
+			{
+				if (index + 1 >= args.size())
+				{
+					return (empty);
+				}
+				current.parameter = args[index + 1];
+				index++;
+			}
+			result.push_back(current);
+			index++;
+		}
+		
+		else if (args[index].size() > 2)
+		{
+			size_t takes = 0;
+
+			for (size_t j = 1; j < args[index].size(); j++)
+			{
+				if (takesParam(args[index][j]))
+					takes++;
+			}
+			
+			if (!takes)
+			{
+				for (size_t j = 1; j < args[index].size(); j++)
+				{
+					ChannelMode riz;
+
+					riz.add = args[index][0] == '+';
+					riz.mode = args[index][j];
+					result.push_back(riz);
+				}
+				index++;
+				continue ;
+			}
+			
+			std::vector<std::string> moreArgs;
+			
+			if (index + 1 >= args.size())
+			{
+				return (empty);
+			}
+			
+			moreArgs = split(args[index + 1], ',');
+
+			if (moreArgs.size() != takes)
+			{
+				return (empty);
+			}
+
+			for (size_t j = 1, temp = 0; j < args[index].size(); j++)
+			{
+				ChannelMode riz;
+
+				riz.add = args[index][0] == '+';
+				riz.mode = args[index][j];
+				
+				if (takesParam(args[index][j]))
+					riz.parameter = moreArgs[temp++];
+				
+				result.push_back(riz);
+			}
+			index += 2;
+		}
+	}
+
+	return (result);
 }

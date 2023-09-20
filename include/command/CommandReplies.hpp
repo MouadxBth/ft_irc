@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 19:50:02 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 16:03:45 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 00:51:01 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,15 @@
 #define ERR_ALREADYREGISTERED(nick)							"462 " + nick + " :You may not reregister"
 #define ERR_PASSWDMISMATCH(nick)							"464 " + nick + " :Password incorrect"
 
+#define ERR_KEYSET(nick, channel)							"464 " + nick + " " + channel + " :Channel key already set"
+
 #define ERR_TOOMANYTARGETS(nick, target, abortMsg) 			"407 " + nick + " " + target + " :Too many targets. " + abortMsg
 
 #define ERR_CHANNELISFULL(nick, channel)					"471 " + nick + " " + channel + " :Cannot join channel (+l)"
-#define ERR_INVITEONLYCHAN(nick, channel)							"473 " + nick + " " + channel + " :Cannot join channel (+i)"
-#define ERR_BANNEDFROMCHAN(nick, channel)							"474 " + nick + " " + channel + " :Cannot join channel (+b)"
-#define ERR_BADCHANNELKEY(nick, channel)							"475 " + nick + " " + channel + " :Cannot join channel (+k)"
+#define ERR_UNKNOWNMODE(nick, character, channel)			"472 " + nick + " " + character + " :is unknown mode char to me for " + channel
+#define ERR_INVITEONLYCHAN(nick, channel)					"473 " + nick + " " + channel + " :Cannot join channel (+i)"
+#define ERR_BANNEDFROMCHAN(nick, channel)					"474 " + nick + " " + channel + " :Cannot join channel (+b)"
+#define ERR_BADCHANNELKEY(nick, channel)					"475 " + nick + " " + channel + " :Cannot join channel (+k)"
 
 #define ERR_CHANOPRIVSNEEDED(nick, channel)					"482 " + nick + " " + channel + " :You're not channel operator"
 #define ERR_RESTRICTED(nick)								"484 " + nick + " :Your connection is restricted!"
@@ -60,13 +63,15 @@
 
 #define RPL_AWAY(nick, message)											"301 " + nick + " :" + message
 
-#define RPL_NAMREPLY(nick, channel, list)								"353 " + nick + " = " + channel + " :" + list
-#define RPL_ENDOFNAMES(nick, channel)									"366 " + nick + " " + channel + " :End of /NAMES list"
+#define RPL_CHANNELMODEIS(nick, channel, message)								"324 " + nick + " " + channel + " " + message
 
 #define RPL_NOTOPIC(nick, channel)										"331 " + nick + " " + channel + " :No topic is set"
 #define RPL_TOPIC(nick, channel, topic)									"332 " + nick + " " + channel + " :" + topic
 
 #define RPL_INVITING(nick, target, channel)								"341 " + nick + " " + target + " " + channel
+
+#define RPL_NAMREPLY(nick, channel, list)								"353 " + nick + " = " + channel + " :" + list
+#define RPL_ENDOFNAMES(nick, channel)									"366 " + nick + " " + channel + " :End of /NAMES list"
 
 #define RPL_MOTDSTART(nick, server)										"375 " + nick + " :- " + server + " Message of the day - "
 #define RPL_MOTD(nick, text)											"372 " + nick + " :- " + text

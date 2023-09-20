@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 16:56:36 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 01:32:28 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void QuitCommand::executeCommand(User *user, Data &data)
         if (!it->second || !it->second->containsUser(user->getNickname()))
             continue ;
 
-        it->second->announce(reply);
+        it->second->broadcast(user->getNickname(), reply);
         it->second->removeUser(user->getNickname());
         
         if (!it->second->getUsers().size())

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 15:57:19 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 00:45:02 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,11 @@ void JoinCommand::executeCommand(User *user, Data &data)
         {
             user->sendMessage(ERR_BADCHANNELKEY(user->getNickname(), target->getName()));
             continue;
+        }
+        if (target->isUserLimitSet() && target->getUsers().size() >= target->getMaximumCapacity())
+        {
+            user->sendMessage(ERR_CHANNELISFULL(user->getNickname(), target->getName()));
+            continue ;
         }
         if (user->getJoinedChannelsCount() > 10)
         {

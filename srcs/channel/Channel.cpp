@@ -1,10 +1,11 @@
 #include "../include/Channel.hpp"
 #include <sys/socket.h>
 
-
 Channel::Channel()
 	: _inviteOnly(false),
 	_private(false),
+	_topicOperator(false),
+	_key(false),
 	_userLimit(false),
 	_moderated(false),
 	_externalMessages(false)
@@ -158,6 +159,29 @@ const std::string Channel::getUserNicknames() const
 const std::pair<User *, Modes>& Channel::getUser(const std::string& nickname) const
 {
 	return (_users.find(nickname)->second);
+}
+
+std::string Channel::getModes() const
+{
+	std::string result("+");
+	//+tik pass
+
+	if (isTopicSettableByChannelOperatorOnly())
+		result += "t";
+	if (isInviteOnly())
+		result += "i";
+	if (isUserLimitSet())
+		result += "l";
+	if (isChannelKeySet())
+		result += "k ";
+	
+	if (isUserLimitSet())
+		result += " " + getMaximumCapacity();
+	
+	if (isChannelKeySet())
+		result += " " + getPassword();
+	
+	return (result);
 }
 
 void Channel::addUser(User *user, bool isOperator, bool hasVoice)

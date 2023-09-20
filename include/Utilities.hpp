@@ -1,8 +1,9 @@
+#pragma once
+
 #include <iostream>
 #include <ctime>
 
-#include "Server.hpp"
-
+#include "ChannelMode.hpp"
 
 std::string currentTimestamp(void);
 std::string obtain_hostname(sockaddr_in user_addr);
@@ -15,7 +16,9 @@ std::string trim(const std::string& str);
 void    removeCharacter(std::string& str, char target);
 bool	validateInput(std::string& input);
 
-bool isNumber(char *str);
+bool isNumber(const char *str);
+
+size_t getNumber(const std::string& str);
 
 int validatePort(int port);
 
@@ -29,3 +32,9 @@ void printDatas(Data &data);
 Data    emptyCommandData();
 
 std::vector<std::string> generateMotd();
+
+bool wildcardMatch(const char* pattern, const char* text);
+
+bool takesParam(int c);
+
+std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args);
