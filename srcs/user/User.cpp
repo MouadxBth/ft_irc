@@ -1,5 +1,7 @@
 #include "User.hpp"
 #include <vector>
+#include <cstring>
+#include <cerrno>
 
 User::User()
 	: _authenticated(false), 
@@ -170,7 +172,6 @@ void	User::setJoinedChannelsCount(int a)
 	this->_joinedChannelsCount = a;
 }
 
-
 void	User::sendMessage(const std::string& input) const
 {
 	std::string message;
@@ -181,7 +182,12 @@ void	User::sendMessage(const std::string& input) const
 		message += "\r\n";
 
 	if (getUserSocket().fd >= 0)
-		send(getUserSocket().fd, message.c_str(), message.size(), 0);
+	{	
+		if (send(getUserSocket().fd, message.c_str(), message.size(), 0) < 0)
+			std::cerr << "Couldn't send message to " << getNickname()
+					<< " because: " << strerror(errno)
+					<< std::endl;
+	}
 }
 
 static void	addressToString(std::ostream& outputSteam, const sockaddr_in& address)

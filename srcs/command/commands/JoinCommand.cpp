@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 00:45:02 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 16:30:30 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ void JoinCommand::executeCommand(User *user, Data &data)
             Channel *newChannel = new Channel();
 
             newChannel->setName(it->first);
-            newChannel->addUser(user, true, true);
+            newChannel->addUser(user, true, true, true);
             user->setJoinedChannelsCount(user->getJoinedChannelsCount() + 1);
 
             std::string message = ":" + user->getNickname() + "!" 
@@ -161,7 +161,7 @@ void JoinCommand::executeCommand(User *user, Data &data)
         if (target->isInviteOnly())
             target->removeInvite(user->getNickname());
         
-        target->addUser(user, false, false);
+        target->addUser(user, false, false, false);
 
         user->setJoinedChannelsCount(user->getJoinedChannelsCount() + 1);
         

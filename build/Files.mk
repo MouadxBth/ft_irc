@@ -6,16 +6,9 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/12 23:45:12 by mbouthai          #+#    #+#              #
-#    Updated: 2023/09/20 01:09:22 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/20 16:27:39 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
-
-# Headers/Includes
-
-HEADERS_DIR	:= include include/command include/command/collection
-
-#HEADERS	=
-#HEADERS	:= $(addprefix $(HEADERS_DIR)/,$(HEADERS))
 
 # Sources
 
@@ -60,6 +53,18 @@ SOURCES	= main.cpp \
 	
 
 SOURCES	:= $(addprefix $(SRCS_DIR)/,$(SOURCES))
+
+# Headers/Includes
+
+HEADER_DIR	:= include
+
+HEADER_DIRS	:= channel command command/collection user utilities
+
+HEADERS_DIR	:= $(addprefix $(HEADER_DIR)/,$(HEADER_DIRS)) $(HEADER_DIR)
+
+
+#HEADERS	=
+#HEADERS	:= $(addprefix $(HEADERS_DIR)/,$(HEADERS))
 
 # Objects/Output files
 

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 16:35:34 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 21:36:40 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,11 @@ void UserCommand::executeCommand(User *user, Data &data)
 
     Server::getInstance()->getConnectedUsers().erase(user->getUserSocket().fd);
     Server::getInstance()->getAuthenticatedUsers()[user->getNickname()] = user;
+
+    std::cout << "=> JOINED: " << user->getNickname() << std::endl;
+    Server::getInstance()->setJoins(Server::getInstance()->getJoins() + 1);
+
+    std::cout << Server::getInstance()->getJoins() << std::endl;
 
     //std::cout << "User: " << user->getNickname() << " has joined" << std::endl;
 

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 02:19:11 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 14:01:54 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 21:36:02 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ Server::Server()
 	_creationDate(getCurrentDateTime()),
 	_userModes("none"),
 	_channelModes("itkol"),
-	_motd(generateMotd())
+	_motd(generateMotd()),
+	_joins(0)
 {}
 
 Server::Server(const Server& instance)
@@ -39,7 +40,8 @@ Server::Server(const Server& instance)
 	_creationDate(instance.getVersion()),
 	_userModes(instance.getUserModes()),
 	_channelModes(instance.getChannelModes()),
-	_motd(instance.getMotd())
+	_motd(instance.getMotd()),
+	_joins(instance._joins)
 {
 	*this = instance;
 }
@@ -70,7 +72,8 @@ Server::Server(const size_t port, const std::string password)
 	_creationDate(getCurrentDateTime()),
 	_userModes("none"),
 	_channelModes("itkol"),
-	_motd(generateMotd())
+	_motd(generateMotd()),
+	_joins(0)
 {}
 
 Server::~Server()
@@ -195,6 +198,16 @@ Channel *Server::getChannel(const std::string& name)
 		return (result->second);
 	
 	return (NULL);
+}
+
+int	Server::getJoins() const
+{
+	return (_joins);
+}
+
+void	Server::setJoins(int joins)
+{
+	_joins = joins;
 }
 
 void	Server::removeUser(User *user)

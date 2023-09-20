@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 01:32:28 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 20:08:56 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,10 @@ void QuitCommand::executeCommand(User *user, Data &data)
 
     user->sendMessage(message);
 
+   // std::cout << "Closing fd: " << user->getUserSocket().fd << std::endl;
     close(user->getUserSocket().fd);
+
+    std::cout << "=> LEFT: " << user->getNickname() << std::endl;
 
     Server::getInstance()->removeUser(user);
 	

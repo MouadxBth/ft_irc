@@ -58,6 +58,8 @@ class Server
 
 		bool					_enabled;
 
+		int						_joins;
+
 	protected:
 
 		void	handleUserConnection();
@@ -98,6 +100,10 @@ class Server
 		User						*getUser(int fd);
 		
 		Channel						*getChannel(const std::string& name);
+
+		int							getJoins() const;
+
+		void						setJoins(int joins);
 
 		void	removeUser(User *user);
 

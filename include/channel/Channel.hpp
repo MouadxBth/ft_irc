@@ -12,6 +12,7 @@ typedef struct s_modes
 {
     bool voice;
     bool channelOperator;
+    bool channelOwner;
 }   Modes;
 
 class Channel
@@ -81,7 +82,7 @@ class Channel
 
         std::string getModes() const;
 
-        void addUser(User *user, bool isOperator, bool hasVoice);
+        void addUser(User *user, bool isOperator, bool hasVoice, bool channelOwner);
         void removeUser(const std::string& nickname);
         
         bool containsUser(const std::string& nickname) const;

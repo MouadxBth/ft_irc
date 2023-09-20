@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:58:13 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 02:15:07 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 20:08:30 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,9 @@ bool Server::handleUserData(pollfd& connectionInfo)
 	if (!user)
         return (false);
 
-	std::string input = readUserInput(connectionInfo);	
+	std::string input = readUserInput(connectionInfo);
+
+	//std::cout << "read: " << input << std::endl;
 
     // there is nothing to read from the client and the file descriptor is closed :
     if (input.empty())

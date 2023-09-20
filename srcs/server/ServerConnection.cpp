@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:56:31 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 02:14:45 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 20:08:37 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ void Server::handleUserConnection()
 	//std::cout << "\nNew user: " << *newUser << "\n" << std::endl;
 
     _sockets.push_back(newUserFd);
+
+	//std::cout << "Accepted: "<< newUserFd.fd << std::endl;
 }
 
 void Server::handleUserDisconnection(const pollfd& connectionInfo)

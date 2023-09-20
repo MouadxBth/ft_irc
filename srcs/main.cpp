@@ -7,7 +7,12 @@
 
 Server *server;
 
-void signalHandler(int signum) {
+void signalPipeHandler(int signum)
+{
+    (void) signum;
+}
+
+void signalInterruptHandler(int signum) {
     if (server)
     {
         delete server;
@@ -20,7 +25,8 @@ int main(int argc, char **argv)
 {
     int port;
 
-    signal(SIGINT, signalHandler);
+    signal(SIGINT, signalInterruptHandler);
+    signal(SIGPIPE, signalPipeHandler);
 
     if (argc != 3)
         return (std::cerr << "[Error]: Invalid usage!\n"

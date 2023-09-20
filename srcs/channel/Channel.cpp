@@ -1,5 +1,7 @@
-#include "../include/Channel.hpp"
+#include "Channel.hpp"
 #include <sys/socket.h>
+#include <cstring>
+#include <cerrno>
 
 Channel::Channel()
 	: _inviteOnly(false),
@@ -184,11 +186,12 @@ std::string Channel::getModes() const
 	return (result);
 }
 
-void Channel::addUser(User *user, bool isOperator, bool hasVoice)
+void Channel::addUser(User *user, bool isOperator, bool hasVoice, bool channelOwner)
 {
 	Modes modes = {
 		.voice = hasVoice,
-		.channelOperator = isOperator
+		.channelOperator = isOperator,
+		.channelOwner = channelOwner
 	};
 	this->_users[user->getNickname()] = std::make_pair(user, modes);
 }
@@ -244,35 +247,25 @@ void Channel::removeInvite(const std::string& nickname)
 	_inviteList.erase(nickname);
 }
 
-void Channel::broadcast(const std::string& nickname, std::string& input) const
+void Channel::broadcast(const std::string& nickname, std::string& message) const
 {
-	std::string message = input;
-
-	if (message[message.size() - 2] != '\r' && message[message.size() - 1] != '\n')
-		message = input + "\r\n";
-
 	for (std::map<std::string, std::pair<User *, Modes> >::const_iterator it = getUsers().begin();
 		it != this->_users.end();
 		it++)
 	{
 		if (it->second.first && it->second.first->getNickname() != nickname)
-			send(it->second.first->getUserSocket().fd, message.c_str(), message.size(), 0);
+			it->second.first->sendMessage(message);
 	}
 }
 
-void Channel::announce(std::string& input) const
+void Channel::announce(std::string& message) const
 {
-	std::string message = input;
-
-	if (message[message.size() - 2] != '\r' && message[message.size() - 1] != '\n')
-		message = input + "\r\n";
-	
 	for (std::map<std::string, std::pair<User *, Modes> >::const_iterator it = getUsers().begin();
 		it != this->_users.end();
 		it++)
 	{
 		if (it->second.first)
-			send(it->second.first->getUserSocket().fd, message.c_str(), message.size(), 0);
+			it->second.first->sendMessage(message);
 	}
 }
 
