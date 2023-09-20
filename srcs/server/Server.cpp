@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 02:19:11 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 14:42:28 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 14:01:54 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ Server::Server()
 	_password("password"),
 	_name("localhost"),
 	_version("Mawi-1.0.0"),
-	_creationDate("Mon 01 Jan CEST at 2023 01:01:01 PM"),
+	_creationDate(getCurrentDateTime()),
 	_userModes("none"),
 	_channelModes("itkol"),
 	_motd(generateMotd())
@@ -67,7 +67,7 @@ Server::Server(const size_t port, const std::string password)
 	_password(password),
 	_name("localhost"),
 	_version("Mawi-1.0.0"),
-	_creationDate("Mon 01 Jan CEST at 2023 01:01:01 PM"),
+	_creationDate(getCurrentDateTime()),
 	_userModes("none"),
 	_channelModes("itkol"),
 	_motd(generateMotd())

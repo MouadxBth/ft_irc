@@ -38,3 +38,5 @@ bool wildcardMatch(const char* pattern, const char* text);
 bool takesParam(int c);
 
 std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args);
+
+std::string getCurrentDateTime();

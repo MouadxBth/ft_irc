@@ -176,7 +176,7 @@ std::string Channel::getModes() const
 		result += "k ";
 	
 	if (isUserLimitSet())
-		result += " " + getMaximumCapacity();
+		result += " " + static_cast<int>(getMaximumCapacity());
 	
 	if (isChannelKeySet())
 		result += " " + getPassword();

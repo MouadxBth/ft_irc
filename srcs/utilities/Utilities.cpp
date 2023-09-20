@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 01:07:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 01:20:11 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 14:01:14 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -459,4 +459,15 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 	}
 
 	return (result);
+}
+
+std::string getCurrentDateTime()
+{
+    std::time_t now = std::time(NULL);
+    std::tm* tm_info = std::localtime(&now);
+
+    char buffer[80];
+    std::strftime(buffer, 80, "%a %d %b %Z at %Y %I:%M:%S %p", tm_info);
+
+    return buffer;
 }

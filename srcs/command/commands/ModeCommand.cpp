@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 01:28:43 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 13:42:08 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,7 +215,7 @@ void ModeCommand::executeCommand(User *user, Data &data)
 				channel->setUserLimit(it->add);
 				channel->setMaximumCapacity(value);
 
-				message += "+o ";
+				message += "+l ";
 				message += it->parameter;
 
 				channel->announce(message);
