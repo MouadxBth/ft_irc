@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:58:13 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 20:08:30 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/21 18:28:22 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,27 +16,35 @@
 #include "Server.hpp"
 #include "CommandManager.hpp"
 
-static std::string readUserInput(pollfd& connectionInfo)
+static std::string readUserInput(int fd)
 {
 	const int SIZE = 4096;
-	int		readData;
 	char    buffer[SIZE];
 	std::string result;
-	
+	ssize_t		bytesRead;
+
 	memset(buffer,'\0', SIZE);
-	
-	readData = recv(connectionInfo.fd, buffer, SIZE - 1, 0);
-	
-	if (readData < 0)
+
+	while (true)
 	{
-		return (std::cerr << "Error : Failed to receive data from a socket descriptor!\n"
-			<< strerror(errno)
-			<< std::endl, result);
+		bytesRead = recv(fd, buffer, SIZE, 0);
+		
+		if (bytesRead < 0)
+		{
+            // No more data to read at the moment
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+            	break;
+			return (std::cerr << "Error : Failed to receive data from a socket descriptor!\n"
+				<< strerror(errno)
+				<< std::endl, result);
+		}
+
+		if (!bytesRead)
+			break ;
+
+		result.append(buffer, bytesRead);
 	}
 	
-	if (readData)
-		result.append(buffer, readData);
-
 	return (result);
 }
 
@@ -150,21 +158,21 @@ static std::vector<Data> parseUserData(std::vector<std::string>& data)
 	return (result);
 }
 
-bool Server::handleUserData(pollfd& connectionInfo)
+bool Server::handleUserData(int fd)
 {
-	User *user = getUser(connectionInfo.fd);
+	User *user = getUser(fd);
 
 	// unable to find user <-- has to be an error / user disconnected
 	if (!user)
         return (false);
 
-	std::string input = readUserInput(connectionInfo);
+	std::string input = readUserInput(fd);
 
 	//std::cout << "read: " << input << std::endl;
 
     // there is nothing to read from the client and the file descriptor is closed :
     if (input.empty())
-		return (handleUserDisconnection(connectionInfo), false);
+		return (handleUserDisconnection(fd), false);
 
 	std::vector<std::string> dataInput = handleUserInput(user, input);
 

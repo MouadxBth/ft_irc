@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:56:31 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 20:08:37 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/21 19:46:17 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void Server::handleUserConnection()
 	sockaddr_in newUserAddress;
 	socklen_t newUserAddressSize = sizeof(newUserAddress);
 	
-	newUserSocket = accept(_listener.fd,
+	newUserSocket = accept(_listener_socket,
 		reinterpret_cast<struct sockaddr *>(&newUserAddress),
 		&newUserAddressSize);
 	
@@ -47,39 +47,51 @@ void Server::handleUserConnection()
         close(newUserSocket);
 		return ;
 	}
-	pollfd  newUserFd;
+	struct epoll_event  newUserEPollEvent;
 	
 	// fill the new pollfd struct of the newUser 
-	newUserFd.fd      = newUserSocket;
-	newUserFd.events  = POLLIN | POLLOUT;
-	newUserFd.revents = 0;
+	newUserEPollEvent.data.fd      = newUserSocket;
+	newUserEPollEvent.events  = EPOLLIN | EPOLLET;
+
+	if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, newUserSocket, &newUserEPollEvent) < 0)
+	{
+		std::cerr << "Error : EPOLL_CTL Failed !\n"
+			<< strerror(errno)
+			<< std::endl;
+        close(newUserSocket);
+		return ;
+	}
 
 	// create a new user with fd
 	User    *newUser = new User();
 	
 	newUser->setAddress(newUserAddress);
 	newUser->setHostname(obtain_hostname(newUserAddress));
-	newUser->setUserSocket(newUserFd);
+	newUser->setUserEPollEvent(newUserEPollEvent);
 	// add it to the Users map
-	_connectedUsers[newUserFd.fd] = newUser;
+	_connectedUsers[newUserSocket] = newUser;
+
+	_joins++;
+
+	std::cout << "=> CURRENT: " << _joins << std::endl;
 
 	//std::cout << "\nNew user: " << *newUser << "\n" << std::endl;
 
-    _sockets.push_back(newUserFd);
+    //_sockets.push_back(newUserEPollEvent);
 
-	//std::cout << "Accepted: "<< newUserFd.fd << std::endl;
+	//std::cout << "Accepted: "<< newUserEPollEvent.fd << std::endl;
 }
 
-void Server::handleUserDisconnection(const pollfd& connectionInfo)
+void Server::handleUserDisconnection(int fd)
 {
-    User *user = getUser(connectionInfo.fd);
+    User *user = getUser(fd);
     
     if (!user)
     {
         return ;
     }
 
-	std::vector<std::string> empty;
+	/*std::vector<std::string> empty;
 
 	Data data = {
 		.prefix = "",
@@ -88,7 +100,17 @@ void Server::handleUserDisconnection(const pollfd& connectionInfo)
 		.trail = "",
 		.valid = true,
 		.trailPresent = false
-	};
+	};*/
 
-	CommandManager::getInstance()->executeCommand(user, data);
+	close(user->getUserEPollEvent().data.fd);
+
+    std::cout << "=> LEFT: " << user->getNickname() << std::endl;
+
+    Server::getInstance()->removeUser(user);
+	
+    //Server::getInstance()->cleanChannels();
+
+    delete user;
+
+	//CommandManager::getInstance()->executeCommand(user, data);
 }

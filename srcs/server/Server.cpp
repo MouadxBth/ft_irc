@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 02:19:11 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 21:36:02 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/21 17:59:29 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,8 @@ Server& Server::operator=(const Server& instance)
 		_channels = instance._channels;
 
 		_address = instance._address;
-		_listener = instance._listener;
+		_listener_event = instance._listener_event;
+		_listener_socket = instance._listener_socket;
 	}
 	return (*this);
 }
@@ -172,7 +173,7 @@ User *Server::getAuthenticatedUser(int fd)
 		it != _authenticatedUsers.end();
 		it++)
 	{
-		if (it->second && it->second->getUserSocket().fd == fd)
+		if (it->second && it->second->getUserEPollEvent().data.fd == fd)
 			return (it->second);
 	}
 	return (NULL);
@@ -215,10 +216,10 @@ void	Server::removeUser(User *user)
 	if (!user)
 		return ;
 
-	_connectedUsers.erase(user->getUserSocket().fd);
+	_connectedUsers.erase(user->getUserEPollEvent().data.fd);
 	_authenticatedUsers.erase(user->getNickname());
 
-	_socketsToBeRemoved.push_back(user->getUserSocket());
+	//_socketsToBeRemoved.push_back(user->getUserSocket());
 }
 
 void	Server::removeChannel(const std::string& name)

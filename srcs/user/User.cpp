@@ -28,7 +28,7 @@ User& User::operator=(const User& instance)
 		setNickname(instance.getNickname());
 		setPassword(instance.getPassword());
 		setPartialMessage(instance.getPartialMessage());
-		setUserSocket(instance.getUserSocket());
+		setUserEPollEvent(instance.getUserEPollEvent());
 		setAddress(instance.getAddress());
 		setAuthenticated(instance.isAuthenticated());
 		setOperator(instance.isOperator());
@@ -87,9 +87,9 @@ bool            User::isAway() const
 	return (this->_away);
 }
 
-const pollfd&    User::getUserSocket() const
+const epoll_event&    User::getUserEPollEvent() const
 {
-	return (this->_userSocket);
+	return (this->_userEPollEvent);
 }
 
 const sockaddr_in&    User::getAddress() const
@@ -152,9 +152,9 @@ void    User::setPartialMessage(const std::string& partialMessage)
 	this->_partialMessage = partialMessage;
 }
 
-void    User::setUserSocket(const pollfd& socket)
+void    User::setUserEPollEvent(const epoll_event& socket)
 {
-	this->_userSocket = socket;
+	this->_userEPollEvent = socket;
 }
 
 void	User::setAddress(const sockaddr_in& address)
@@ -172,7 +172,7 @@ void	User::setJoinedChannelsCount(int a)
 	this->_joinedChannelsCount = a;
 }
 
-void	User::sendMessage(const std::string& input) const
+bool	User::sendMessage(const std::string& input) const
 {
 	std::string message;
 
@@ -181,13 +181,14 @@ void	User::sendMessage(const std::string& input) const
 	if (input[input.size() - 2] != '\r' && input[input.size() - 1] != '\n')
 		message += "\r\n";
 
-	if (getUserSocket().fd >= 0)
+	if (getUserEPollEvent().data.fd >= 0)
 	{	
-		if (send(getUserSocket().fd, message.c_str(), message.size(), 0) < 0)
-			std::cerr << "Couldn't send message to " << getNickname()
+		if (send(getUserEPollEvent().data.fd, message.c_str(), message.size(), 0) < 0)
+			return (std::cerr << "Couldn't send message to " << getNickname()
 					<< " because: " << strerror(errno)
-					<< std::endl;
+					<< std::endl, false);
 	}
+	return (true);
 }
 
 static void	addressToString(std::ostream& outputSteam, const sockaddr_in& address)
@@ -195,13 +196,6 @@ static void	addressToString(std::ostream& outputSteam, const sockaddr_in& addres
 	outputSteam << "\tAddress: "<< address.sin_addr.s_addr
 		<< "\n\tFamily: " << address.sin_family
 		<< "\n\tPort: " << address.sin_port;
-}
-
-static void	pollfdToString(std::ostream& outputSteam, const pollfd& fd)
-{
-	outputSteam << "\tFile Descriptor: " << fd.fd
-		<< "\n\tRequested Events: " << fd.events
-		<< "\n\tReturned Events:" << fd.revents;
 }
 
 std::ostream&	operator<<(std::ostream& outputStream, const User& user)
@@ -214,12 +208,10 @@ std::ostream&	operator<<(std::ostream& outputStream, const User& user)
 		<< "\n=> Username: " << user.getUsername()
 		<< "\n=> Password: " << user.getPassword()
 		<< "\n=> Is Authenticated: " << user.isAuthenticated()
-		<< "\n=> Is Operator: " << user.isOperator();
-	
-	outputStream << "\n=> User Pollfd: \n";
-	pollfdToString(outputStream, user.getUserSocket());
-
-	outputStream << "\n=> User Address: \n";
+		<< "\n=> Is Operator: " << user.isOperator()
+		<< "\n=> User fd: "
+		<< user.getUserEPollEvent().data.fd
+		<< "\n=> User Address: \n";
 	addressToString(outputStream, user.getAddress());
 	
 	return (outputStream);

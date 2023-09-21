@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 01:22:49 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/21 18:40:46 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,8 @@ void PrivMsg::executeCommand(User *user, Data &data)
             message += userTarget->getNickname() + " :";
             message += data.arguments.size() == 1 ? data.trail : data.arguments[1];
                 
-            userTarget->sendMessage(message);
+            if (!userTarget->sendMessage(message))
+                return ;
             
             if (userTarget->isAway())
                 user->sendMessage(RPL_AWAY(userTarget->getNickname(), userTarget->getAwayMessage()));
@@ -89,7 +90,8 @@ void PrivMsg::executeCommand(User *user, Data &data)
 
             if (!channelTarget)
             {
-                user->sendMessage(ERR_NOSUCHNICK(*it));
+                if (!user->sendMessage(ERR_NOSUCHNICK(*it)))
+                    return ;
                 continue;
             }
 
@@ -101,8 +103,9 @@ void PrivMsg::executeCommand(User *user, Data &data)
                     && !channelUser.second.voice 
                     && channelTarget->isModerated()))
             {
-                user->sendMessage(ERR_CANNOTSENDTOCHAN(user->getNickname(),
-                    channelTarget->getName()));
+                if (!user->sendMessage(ERR_CANNOTSENDTOCHAN(user->getNickname(),
+                    channelTarget->getName())))
+                    return ;
                 continue;
             }
 

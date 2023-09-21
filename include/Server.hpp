@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <sys/select.h>
 #include <vector>
-#include <poll.h>
+#include <sys/epoll.h>
 #include <iostream>
 #include <arpa/inet.h>
 
@@ -44,8 +44,8 @@ class Server
 		std::map<std::string, User *>		_authenticatedUsers;
 		std::map<std::string, Channel *>	_channels;
 		
-		std::vector<pollfd>		_sockets;
-		std::vector<pollfd>		_socketsToBeRemoved;
+		std::vector<struct epoll_event>		_sockets;
+		std::vector<struct epoll_event>		_socketsToBeRemoved;
 
 		std::vector<std::string>	_channelsToBeRemoved;
 
@@ -54,7 +54,11 @@ class Server
 
 		sockaddr_in 			_address;
 		socklen_t				_addressSize;
-		pollfd					_listener;
+
+		struct epoll_event		_listener_event;
+		int						_listener_socket;
+
+		int						_epoll_fd;
 
 		bool					_enabled;
 
@@ -63,8 +67,8 @@ class Server
 	protected:
 
 		void	handleUserConnection();
-		void	handleUserDisconnection(const pollfd& connectionInfo);
-		bool	handleUserData(pollfd& connectionInfo);
+		void	handleUserDisconnection(int fd);
+		bool	handleUserData(int fd);
 
 	public:
 		Server();

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 01:21:51 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/21 18:37:28 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,14 +47,16 @@ void MotdCommand::executeCommand(User *user, Data &data)
         return ;
     }
 
-    user->sendMessage(RPL_MOTDSTART(user->getNickname(),
-        Server::getInstance()->getName()));
+    if (!user->sendMessage(RPL_MOTDSTART(user->getNickname(),
+        Server::getInstance()->getName())))
+        return ;
     
     for (std::vector<std::string>::const_iterator it = Server::getInstance()->getMotd().begin();
         it != Server::getInstance()->getMotd().end();
         it++)
     {
-        user->sendMessage(RPL_MOTD(user->getNickname(), *it));
+        if (!user->sendMessage(RPL_MOTD(user->getNickname(), *it)))
+            return ;
     }
 
     user->sendMessage(RPL_ENDOFMOTD(user->getNickname()));

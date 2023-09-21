@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 16:04:18 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/21 18:40:06 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,12 +53,14 @@ void PartCommand::executeCommand(User *user, Data &data)
 
         if (!target)
         {
-            user->sendMessage(ERR_NOSUCHCHANNEL(user->getNickname(), *it));
+            if (!user->sendMessage(ERR_NOSUCHCHANNEL(user->getNickname(), *it)))
+                return ;
             continue ;
         }
         if (!target->containsUser(user->getNickname()))
         {
-            user->sendMessage(ERR_NOTONCHANNEL(user->getNickname(), *it));
+            if (!user->sendMessage(ERR_NOTONCHANNEL(user->getNickname(), *it)))
+                return ;
             continue ;
         }
 

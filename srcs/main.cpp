@@ -12,13 +12,15 @@ void signalPipeHandler(int signum)
     (void) signum;
 }
 
-void signalInterruptHandler(int signum) {
-    if (server)
+void signalInterruptHandler(int signum)
+{
+    (void) signum;
+
+    /*if (server)
     {
         delete server;
-    }
-    
-    std::exit(signum);
+    }*/
+
 }
 
 int main(int argc, char **argv)

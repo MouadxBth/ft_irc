@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 21:36:40 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/21 18:46:43 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,22 +65,26 @@ void UserCommand::executeCommand(User *user, Data &data)
 
     user->setAuthenticated(true);
 
-    user->sendMessage(RPL_WELCOME(user->getNickname(),
+    if (!user->sendMessage(RPL_WELCOME(user->getNickname(),
         user->getUsername(),
-        user->getHostname()));
+        user->getHostname())))
+        return ;
     
-    user->sendMessage(RPL_YOURHOST(user->getNickname(),
+    if (!user->sendMessage(RPL_YOURHOST(user->getNickname(),
         Server::getInstance()->getName(),
-        Server::getInstance()->getVersion()));
+        Server::getInstance()->getVersion())))
+        return ;
 
-    user->sendMessage(RPL_CREATED(user->getNickname(),
-        Server::getInstance()->getCreationDate()));
+    if (!user->sendMessage(RPL_CREATED(user->getNickname(),
+        Server::getInstance()->getCreationDate())))
+        return ;
 
-    user->sendMessage(RPL_MYINFO(user->getNickname(),
+    if (!user->sendMessage(RPL_MYINFO(user->getNickname(),
         Server::getInstance()->getName(),
         Server::getInstance()->getVersion(),
         Server::getInstance()->getUserModes(),
-        Server::getInstance()->getChannelModes()));
+        Server::getInstance()->getChannelModes())))
+        return ;
 
     Data motdData = emptyCommandData();
 
@@ -88,13 +92,13 @@ void UserCommand::executeCommand(User *user, Data &data)
 
     CommandManager::getInstance()->executeCommand(user, motdData);
 
-    Server::getInstance()->getConnectedUsers().erase(user->getUserSocket().fd);
+    Server::getInstance()->getConnectedUsers().erase(user->getUserEPollEvent().data.fd);
     Server::getInstance()->getAuthenticatedUsers()[user->getNickname()] = user;
 
     std::cout << "=> JOINED: " << user->getNickname() << std::endl;
-    Server::getInstance()->setJoins(Server::getInstance()->getJoins() + 1);
+    //Server::getInstance()->setJoins(Server::getInstance()->getJoins() + 1);
 
-    std::cout << Server::getInstance()->getJoins() << std::endl;
+   // std::cout << Server::getInstance()->getJoins() << std::endl;
 
     //std::cout << "User: " << user->getNickname() << " has joined" << std::endl;
 

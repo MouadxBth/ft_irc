@@ -2,7 +2,7 @@
 
 # include <iostream>
 # include <string>
-# include <poll.h>
+# include <sys/epoll.h>
 # include <netinet/in.h>
 
 class User
@@ -19,7 +19,7 @@ class User
         bool            _operator;
         bool            _away;
 
-	    pollfd		    _userSocket;
+	    struct epoll_event		    _userEPollEvent;
         sockaddr_in     _address;
 
         bool             _usedPassword;
@@ -44,7 +44,7 @@ class User
         bool            isOperator() const;
         bool            isAway() const;
 
-        const pollfd&          getUserSocket() const;
+        const epoll_event&          getUserEPollEvent() const;
         const sockaddr_in&     getAddress() const;
 
         bool      hasUsedPassword() const;
@@ -61,14 +61,14 @@ class User
         void    setOperator(bool boolean);
         void    setAway(bool boolean);
 
-        void    setUserSocket(const pollfd& user_fd);
+        void    setUserEPollEvent(const epoll_event& epollEvent);
         void    setAddress(const sockaddr_in& address);
 
         void    setUsedPassword(bool b);
 
         void    setJoinedChannelsCount(int count);
 
-        void    sendMessage(const std::string &message) const;
+        bool    sendMessage(const std::string &message) const;
 
 };
 

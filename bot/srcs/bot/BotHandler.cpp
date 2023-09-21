@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 17:58:50 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 18:07:39 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/20 23:14:56 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <cstring>
 #include <cerrno>
 
-std::string readInput(pollfd& connectionInfo) throw(std::runtime_error)
+std::string Bot::readInput(pollfd& connectionInfo) throw(std::runtime_error)
 {
 	const int SIZE = 4096;
 	int		readData;

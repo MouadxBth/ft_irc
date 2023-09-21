@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 22:24:04 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/21 18:35:01 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,8 @@ void InviteCommand::executeCommand(User *user, Data &data)
         + user->getHostname() + " " 
         + data.command + " " + data.arguments[0] + " " + data.arguments[1];
 
-    userTarget->sendMessage(message);
+    if (!userTarget->sendMessage(message))
+        return ;
 
     if (userTarget->isAway())
         user->sendMessage(RPL_AWAY(userTarget->getNickname(), userTarget->getAwayMessage()));

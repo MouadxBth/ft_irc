@@ -6,7 +6,7 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/12 23:45:12 by mbouthai          #+#    #+#              #
-#    Updated: 2023/09/20 16:35:37 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/20 23:13:51 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ HEADERS_DIR	:= include
 SRCS_DIR	:= srcs
 
 BOT_DIR	:= bot
-BOT_SRCS	= Bot.cpp
+BOT_SRCS	= Bot.cpp BotConfiguration.cpp BotConnection.cpp BotHandler.cpp BotManagement.cpp
 BOT_SRCS	:= $(addprefix $(BOT_DIR)/,$(BOT_SRCS))
 
 SOURCES	= main.cpp $(BOT_SRCS)

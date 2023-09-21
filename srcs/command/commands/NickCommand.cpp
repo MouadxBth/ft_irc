@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 01:22:30 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/21 18:00:19 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void NickCommand::executeCommand(User *user, Data &data)
     const User *target = Server::getInstance()->getAuthenticatedUser(data.arguments[0]);
     
     // already used nickname
-    if (target && target->getUserSocket().fd != user->getUserSocket().fd)
+    if (target && target->getUserEPollEvent().data.fd != user->getUserEPollEvent().data.fd)
     {
         user->sendMessage(ERR_NICKNAMEINUSE(nickname, data.arguments[0]));
         return ;

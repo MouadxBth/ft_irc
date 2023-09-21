@@ -53,12 +53,14 @@ void NamesCommand::executeCommand(User *user, Data &data)
                 continue;
             }
             
-            user->sendMessage(RPL_NAMREPLY(user->getNickname(),
+            if (!user->sendMessage(RPL_NAMREPLY(user->getNickname(),
                 current->getName(),
-                current->getUserNicknames()));
+                current->getUserNicknames())))
+                return ;
 
-            user->sendMessage(RPL_ENDOFNAMES(user->getNickname(),
-                current->getName()));
+            if (!user->sendMessage(RPL_ENDOFNAMES(user->getNickname(),
+                current->getName())))
+                return ;
         }
         return ;
     }
@@ -69,17 +71,20 @@ void NamesCommand::executeCommand(User *user, Data &data)
     {
         if (!it->second)
         {
-            user->sendMessage(RPL_ENDOFNAMES(user->getNickname(),
-                it->first));
+            if (!user->sendMessage(RPL_ENDOFNAMES(user->getNickname(),
+                it->first)))
+                return ;
             continue;
         }
         
-        user->sendMessage(RPL_NAMREPLY(user->getNickname(),
+        if (!user->sendMessage(RPL_NAMREPLY(user->getNickname(),
             it->first,
-            it->second->getUserNicknames()));
+            it->second->getUserNicknames())))
+            return ;
 
-        user->sendMessage(RPL_ENDOFNAMES(user->getNickname(),
-            it->first));
+        if (!user->sendMessage(RPL_ENDOFNAMES(user->getNickname(),
+            it->first)))
+            return ;
     }
 
     std::vector<std::string> users;
@@ -101,9 +106,10 @@ void NamesCommand::executeCommand(User *user, Data &data)
 		nicknames += users[index];
 	}
 
-    user->sendMessage(RPL_NAMREPLY(user->getNickname(),
+    if (!user->sendMessage(RPL_NAMREPLY(user->getNickname(),
             "*",
-            nicknames));
+            nicknames)))
+        return ;
 
     user->sendMessage(RPL_ENDOFNAMES(user->getNickname(),
         nicknames));
