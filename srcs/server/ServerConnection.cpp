@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:56:31 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 17:46:31 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 19:06:59 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@
 
 void Server::handleUserConnection()
 {
-
-	std::cout << "here" << std::endl;
 	int newUserSocket;
 	sockaddr_in newUserAddress;
 	socklen_t newUserAddressSize = sizeof(newUserAddress);

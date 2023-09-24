@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 00:03:40 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 17:25:29 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 18:58:48 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,5 +70,7 @@ void	Server::configure(void)
 			close(_listener.fd),
 			std::exit(EXIT_FAILURE));
 	}
+
+	_sockets.push_back(_listener);
 
 }
