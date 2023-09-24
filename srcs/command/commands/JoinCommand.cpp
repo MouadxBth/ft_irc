@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 13:24:42 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 14:05:16 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,8 @@ void JoinCommand::executeCommand(User *user, Data &data)
 
         if (!target)
         {
+            if (it->first.size() > 50)
+                continue ;
             Channel *newChannel = new Channel(it->first);
 
             newChannel->addUser(user, modes);
