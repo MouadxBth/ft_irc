@@ -6,13 +6,14 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 12:04:38 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 01:09:11 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 12:13:42 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CommandManager.hpp"
 #include "Command.hpp"
 #include "CommandReplies.hpp"
+#include "Utilities.hpp"
 
 # include "PassCommand.hpp"
 # include "UserCommand.hpp"
@@ -39,12 +40,16 @@ CommandManager::~CommandManager()
 
 CommandManager::CommandManager(const CommandManager& instance)
 {
-    (void) instance;
+    *this = instance;
 }
 
 CommandManager& CommandManager::operator=(const CommandManager& instance)
 {
-    (void) instance;
+    if (this != &instance)
+    {
+        _registeredCommands.clear();
+        _registeredCommands = instance.getRegisteredCommands();
+    }
     return (*this);
 }
 
@@ -91,9 +96,7 @@ void    CommandManager::executeCommand(User *user, Data &data)
     }
 
     if (!data.valid)
-    {
         return ;
-    }
     
     if (!user->isAuthenticated() && it->second->isAuthRequired())
     {
@@ -102,10 +105,7 @@ void    CommandManager::executeCommand(User *user, Data &data)
     }
 
     if (data.arguments.size() > 15 || (data.trail.empty() && it->second->requiresTrail()))
-    {
-        user->sendMessage(ERR_UNKNOWNCOMMAND(nickname, data.command));
         return ;
-    }
 
     it->second->executeCommand(user, data);
 }

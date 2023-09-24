@@ -1,25 +1,11 @@
 #pragma once
 
 # include <string>
-# include <sstream>
 # include <vector>
 # include <map>
+# include <set>
 
-#include <cstdlib>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/select.h>
-#include <vector>
-#include <sys/epoll.h>
-#include <iostream>
-#include <arpa/inet.h>
-
-# include "CommandData.hpp"
 # include "Channel.hpp"
-# include "Utilities.hpp"
 
 class CommandManager;
 class Command;
@@ -28,55 +14,52 @@ class User;
 class Server
 {
 	private:
-		static Server 					*_instance;
+		static Server 			*_instance;
+
+		bool					_enabled;
 
 		const size_t			_port;
+
 		const std::string		_password;
 		const std::string		_name;
 		const std::string		_version;
 		const std::string		_creationDate;
 		const std::string		_userModes;
 		const std::string		_channelModes;
-		
+
 		const std::vector<std::string>		_motd;
+
+		std::set<std::string> _reservedNicknames;
+		std::set<std::string> _restrictedNicknames;
 		
 		std::map<int, User *>				_connectedUsers;
 		std::map<std::string, User *>		_authenticatedUsers;
 		std::map<std::string, Channel *>	_channels;
 		
-		std::vector<struct epoll_event>		_sockets;
-		std::vector<struct epoll_event>		_socketsToBeRemoved;
+		std::set<std::string>	_channelsToBeRemoved;
 
-		std::vector<std::string>	_channelsToBeRemoved;
+		int						_listenerSocket;
 
-		std::vector<std::string> _reservedNicknames;
-		std::vector<std::string> _restrictedNicknames;
-
-		sockaddr_in 			_address;
-		socklen_t				_addressSize;
-
-		struct epoll_event		_listener_event;
-		int						_listener_socket;
-
-		int						_epoll_fd;
-
-		bool					_enabled;
-
-		int						_joins;
+		int						_epollInstance;
 
 	protected:
+
+		Server();
+		Server(const Server& instance);
+		Server(const size_t port, const std::string password);
 
 		void	handleUserConnection();
 		void	handleUserDisconnection(int fd);
 		bool	handleUserData(int fd);
 
 	public:
-		Server();
 		~Server();
-		Server(const Server& instance);
 		Server& operator=(const Server& instance);
-		
-		Server(const size_t port, const std::string password);
+
+		static Server* getInstance();
+		static Server* createInstance(size_t port, std::string& password);
+
+		bool	isEnabled() const;
 		
 		size_t						getPort() const;
 		const std::string&			getPassword() const;
@@ -86,32 +69,32 @@ class Server
 		const std::string&			getUserModes() const;
 		const std::string&			getChannelModes() const;
 		
-		const std::vector<std::string>&			getMotd() const;
-
-
-		std::map<int, User *>&					getConnectedUsers();
-		std::map<std::string, User *>&			getAuthenticatedUsers();
-		std::map<std::string, Channel *>&		getChannels();
-
-		std::vector<std::string>&	getReservedNicknames();
-		std::vector<std::string>&	getRestrictedNicknames();
-
-		User						*getConnectedUser(int fd);
+		const std::vector<std::string>&					getMotd() const;
 		
-		User						*getAuthenticatedUser(const std::string& nickname);
-		User						*getAuthenticatedUser(int fd);
-		
+		const std::set<std::string>&					getReservedNicknames() const;
+		const std::set<std::string>&					getRestrictedNicknames() const;
+
+		const std::map<int, User *>&					getConnectedUsers() const;
+		const std::map<std::string, User *>&			getAuthenticatedUsers() const;
+		const std::map<std::string, Channel *>&			getChannels() const;
+
 		User						*getUser(int fd);
-		
+		User						*getUser(const std::string& name);
 		Channel						*getChannel(const std::string& name);
 
-		int							getJoins() const;
+		bool	addReservedNickname(const std::string& nickname);
+		bool	removeReservedNickname(const std::string& nickname);
 
-		void						setJoins(int joins);
+		bool	addRestrictedNickname(const std::string& nickname);
+		bool	removeRestrictedNickname(const std::string& nickname);
 
-		void	removeUser(User *user);
+		bool	authenticateUser(User *user);
 
-		void	removeChannel(const std::string& name);
+		bool	removeUser(User *user);
+
+		void	addChannel(Channel *channel);
+
+		bool	removeChannel(const std::string& name);
 
 		void	cleanChannels();
 
@@ -120,9 +103,5 @@ class Server
 		void enable();
 
 		void disable();
-
-		static Server* getInstance();
-
-		static Server* createInstance(size_t port, std::string& password);
 
 };

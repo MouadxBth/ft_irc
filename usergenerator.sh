@@ -11,7 +11,7 @@ netcat=`which nc`
 for ((i=1; i<=$num_requests; i++)); do
 	$netcat -c "echo 'PASS pass\r\nNICK nick$i\r\nUSER user 0 0 0\r\n'" $target_host $target_port &
     	# sleep 0.1  # Sleep for 100 milliseconds between requests
-		sleep 0.00001
+		sleep 0.001
 done
 
 echo "Requests sent."

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 01:15:55 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 01:16:11 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 10:39:20 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,5 +19,4 @@ typedef struct s_channel_mode
 	int mode;
 	bool add;
 	std::string parameter;
-
 }	ChannelMode;

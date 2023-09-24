@@ -12,6 +12,7 @@
 
 #include "NamesCommand.hpp"
 #include "Server.hpp"
+#include "Utilities.hpp"
 
 //ERR_TOOMANYMATCHES              ERR_NOSUCHSERVER
 //           RPL_NAMREPLY                    RPL_ENDOFNAMES
@@ -65,7 +66,7 @@ void NamesCommand::executeCommand(User *user, Data &data)
         return ;
     }
 
-    for (std::map<std::string, Channel *>::iterator it = Server::getInstance()->getChannels().begin();
+    for (std::map<std::string, Channel *>::const_iterator it = Server::getInstance()->getChannels().begin();
             it != Server::getInstance()->getChannels().end();
             it++)
     {

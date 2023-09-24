@@ -6,13 +6,16 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/11 21:52:17 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 01:23:46 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 11:43:45 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Command.hpp"
 
 Command::Command()
+    : _name("unknown"),
+    _authRequired(false),
+    _requireTrail(false)
 {}
 
 Command::~Command()
@@ -58,15 +61,15 @@ bool Command::requiresTrail() const
 
 void    Command::setName(const std::string& name)
 {
-    _name = name;
+    this->_name = name;
 }
 
 void    Command::setAuthRequired(bool auth)
 {
-    _authRequired = auth;
+    this->_authRequired = auth;
 }
 
 void    Command::setRequireTrail(bool trail)
 {
-    _requireTrail = trail;
+    this->_requireTrail = trail;
 }

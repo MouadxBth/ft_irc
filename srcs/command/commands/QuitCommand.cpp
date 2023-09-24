@@ -6,12 +6,13 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 18:00:41 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 13:11:52 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "QuitCommand.hpp"
 #include "Server.hpp"
+#include "unistd.h"
 
 QuitCommand::QuitCommand() : Command("QUIT", false, false)
 {}
@@ -28,7 +29,6 @@ QuitCommand& QuitCommand::operator=(const QuitCommand& instance)
         Command::operator=(instance);
     return *this;
 }
-
 
 void QuitCommand::executeCommand(User *user, Data &data)
 {   
@@ -55,7 +55,10 @@ void QuitCommand::executeCommand(User *user, Data &data)
         it->second->removeUser(user->getNickname());
         
         if (!it->second->getUsers().size())
+        {
+            std::cout << "Staged channel: " << it->first << std::endl;
             Server::getInstance()->removeChannel(it->first);
+        }
     }
 
     std::string message = "ERROR :Closing Link: ";
@@ -74,10 +77,7 @@ void QuitCommand::executeCommand(User *user, Data &data)
 
     user->sendMessage(message);
 
-   // std::cout << "Closing fd: " << user->getUserSocket().fd << std::endl;
-    close(user->getUserEPollEvent().data.fd);
-
-    std::cout << "=> LEFT: " << user->getNickname() << std::endl;
+    close(user->getSocket());
 
     Server::getInstance()->removeUser(user);
 	

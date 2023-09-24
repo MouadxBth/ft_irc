@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 02:19:11 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 17:59:29 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 13:22:38 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "Server.hpp"
 #include "User.hpp"
 #include "CommandManager.hpp"
+#include "Utilities.hpp"
 
 Server *Server::_instance = NULL;
 
@@ -28,8 +29,7 @@ Server::Server()
 	_creationDate(getCurrentDateTime()),
 	_userModes("none"),
 	_channelModes("itkol"),
-	_motd(generateMotd()),
-	_joins(0)
+	_motd(generateMotd())
 {}
 
 Server::Server(const Server& instance)
@@ -40,29 +40,9 @@ Server::Server(const Server& instance)
 	_creationDate(instance.getVersion()),
 	_userModes(instance.getUserModes()),
 	_channelModes(instance.getChannelModes()),
-	_motd(instance.getMotd()),
-	_joins(instance._joins)
+	_motd(instance.getMotd())
 {
 	*this = instance;
-}
-
-Server& Server::operator=(const Server& instance)
-{
-	if (this != &instance)
-	{
-		_connectedUsers.clear();
-		_authenticatedUsers.clear();
-		_channels.clear();
-
-		_connectedUsers = instance._connectedUsers;
-		_authenticatedUsers = instance._authenticatedUsers;
-		_channels = instance._channels;
-
-		_address = instance._address;
-		_listener_event = instance._listener_event;
-		_listener_socket = instance._listener_socket;
-	}
-	return (*this);
 }
 
 Server::Server(const size_t port, const std::string password)
@@ -73,13 +53,64 @@ Server::Server(const size_t port, const std::string password)
 	_creationDate(getCurrentDateTime()),
 	_userModes("none"),
 	_channelModes("itkol"),
-	_motd(generateMotd()),
-	_joins(0)
+	_motd(generateMotd())
 {}
+
+Server& Server::operator=(const Server& instance)
+{
+	if (this != &instance)
+	{
+		_reservedNicknames.clear();
+		_restrictedNicknames.clear();
+		
+		_connectedUsers.clear();
+		_authenticatedUsers.clear();
+		_channels.clear();
+
+		_connectedUsers = instance._connectedUsers;
+		_authenticatedUsers = instance._authenticatedUsers;
+		_channels = instance._channels;
+
+		_listenerSocket = instance._listenerSocket;
+
+		_epollInstance = instance._epollInstance;
+	}
+	return (*this);
+}
 
 Server::~Server()
 {
 	this->disable();
+}
+
+Server *Server::getInstance()
+{
+	if (!_instance)
+	{
+		_instance = new Server();
+		_instance->configure();
+	}
+	return (_instance);
+}
+
+Server *Server::createInstance(size_t port, std::string& password)
+{
+	if (!_instance)
+	{
+		_instance = new Server(port, password);
+		_instance->configure();
+	}
+	return (_instance);
+}
+
+bool	Server::isEnabled() const
+{
+	return (this->_enabled);
+}
+
+size_t		Server::getPort() const
+{
+    return (this->_port);
 }
 
 const std::string&    Server::getName() const
@@ -117,78 +148,57 @@ const std::vector<std::string>&    Server::getMotd() const
     return (this->_motd);
 }
 
-size_t		Server::getPort() const
-{
-    return (this->_port);
-}
-
-std::map<int, User *>&		Server::getConnectedUsers()
-{
-    return (this->_connectedUsers);
-}
-
-std::map<std::string, User *>&		Server::getAuthenticatedUsers()
-{
-    return (this->_authenticatedUsers);
-}
-
-std::map<std::string, Channel *>&    Server::getChannels()
-{
-    return (this->_channels);
-}
-
-std::vector<std::string>&	Server::getReservedNicknames()
+const std::set<std::string>&	Server::getReservedNicknames() const
 {
 	return (this->_reservedNicknames);
 }
 
-std::vector<std::string>&	Server::getRestrictedNicknames()
+const std::set<std::string>&	Server::getRestrictedNicknames() const
 {
 	return (this->_restrictedNicknames);
 }
 
-User *Server::getConnectedUser(int fd)
+const std::map<int, User *>&		Server::getConnectedUsers() const
 {
-	std::map<int, User *>::iterator result = _connectedUsers.find(fd);
-	
-	if (result != _connectedUsers.end())
-		return (result->second);
-	
-	return (NULL);
+    return (this->_connectedUsers);
 }
 
-User *Server::getAuthenticatedUser(const std::string& nickname)
+const std::map<std::string, User *>&		Server::getAuthenticatedUsers() const
 {
-	std::map<std::string, User *>::iterator result = _authenticatedUsers.find(nickname);
-	
-	if (result != _authenticatedUsers.end())
-		return (result->second);
-	
-	return (NULL);
+    return (this->_authenticatedUsers);
 }
 
-User *Server::getAuthenticatedUser(int fd)
+const std::map<std::string, Channel *>&    Server::getChannels() const
 {
-	for (std::map<std::string, User *>::iterator it = _authenticatedUsers.begin();
-		it != _authenticatedUsers.end();
-		it++)
-	{
-		if (it->second && it->second->getUserEPollEvent().data.fd == fd)
-			return (it->second);
-	}
-	return (NULL);
+    return (this->_channels);
 }
 
 User *Server::getUser(int fd)
 {
-	User *user = getConnectedUser(fd);
+	std::map<int, User *>::iterator result = _connectedUsers.find(fd);
 
-    if (!user)
+	if (result != _connectedUsers.end())
+		return (result->second);
+	
+	for (std::map<std::string, User *>::iterator it = _authenticatedUsers.begin();
+		it != _authenticatedUsers.end();
+		it++)
 	{
-        user = getAuthenticatedUser(fd);
+		if (it->second && it->second->getSocket() == fd)
+			return (it->second);
 	}
 
-	return (user);
+	return (NULL);
+}
+
+User *Server::getUser(const std::string& nickname)
+{
+	std::map<std::string, User *>::iterator result = _authenticatedUsers.find(nickname);
+
+	if (result != _authenticatedUsers.end())
+		return (result->second);
+
+	return (NULL);
 }
 
 Channel *Server::getChannel(const std::string& name)
@@ -201,71 +211,73 @@ Channel *Server::getChannel(const std::string& name)
 	return (NULL);
 }
 
-int	Server::getJoins() const
+bool	Server::addReservedNickname(const std::string& nickname)
 {
-	return (_joins);
+	return (this->_reservedNicknames.insert(nickname).second);
 }
 
-void	Server::setJoins(int joins)
+bool	Server::removeReservedNickname(const std::string& nickname)
 {
-	_joins = joins;
+	return (this->_reservedNicknames.erase(nickname));
 }
 
-void	Server::removeUser(User *user)
+bool	Server::addRestrictedNickname(const std::string& nickname)
+{
+	return (this->_restrictedNicknames.insert(nickname).second);
+}
+
+bool	Server::removeRestrictedNickname(const std::string& nickname)
+{
+	return (this->_restrictedNicknames.erase(nickname));
+}
+
+bool	Server::authenticateUser(User *user)
+{
+	if (!user || user->getNickname().empty())
+		return (false);
+	if (!_connectedUsers.erase(user->getSocket()))
+		return (false);
+	_authenticatedUsers[user->getNickname()] = user;
+	return (true);
+}
+
+bool	Server::removeUser(User *user)
 {
 	if (!user)
-		return ;
+		return (false);
 
-	_connectedUsers.erase(user->getUserEPollEvent().data.fd);
-	_authenticatedUsers.erase(user->getNickname());
-
-	//_socketsToBeRemoved.push_back(user->getUserSocket());
+	return (_connectedUsers.erase(user->getSocket()) ||
+		_authenticatedUsers.erase(user->getNickname()));
 }
 
-void	Server::removeChannel(const std::string& name)
+void	Server::addChannel(Channel *channel)
 {
-	if (std::find(_channelsToBeRemoved.begin(),
-		_channelsToBeRemoved.end(),
-		name) == _channelsToBeRemoved.end())
-	{
-		_channelsToBeRemoved.push_back(name);
-	}
+	if (!channel)
+		return ;
+	this->_channels[channel->getName()] = channel;
+}
+
+bool	Server::removeChannel(const std::string& name)
+{
+	return (_channelsToBeRemoved.insert(name).second);
 }
 
 void	Server::cleanChannels()
 {
 	Channel *target;
     
-	for (std::vector<std::string>::iterator it = _channelsToBeRemoved.begin();
-        it != _channelsToBeRemoved.end(); it++)
+	for (std::set<std::string>::iterator it = _channelsToBeRemoved.begin();
+        it != _channelsToBeRemoved.end();
+		it++)
 	{
         target = getChannel(*it);
         if (target && !target->getUsers().size())
         {
+			std::cout << "deleting channel: " << target->getName() << std::endl;
             _channels.erase(*it);
             delete target;
         }
 	}
 
     _channelsToBeRemoved.clear();
-}
-
-Server *Server::getInstance()
-{
-	if (!_instance)
-	{
-		_instance = new Server();
-		_instance->configure();
-	}
-	return (_instance);
-}
-
-Server *Server::createInstance(size_t port, std::string& password)
-{
-	if (!_instance)
-	{
-		_instance = new Server(port, password);
-		_instance->configure();
-	}
-	return (_instance);
 }

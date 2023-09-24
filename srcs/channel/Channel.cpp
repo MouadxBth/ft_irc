@@ -4,27 +4,75 @@
 #include <cerrno>
 
 Channel::Channel()
-	: _inviteOnly(false),
-	_private(false),
+	: _name("default"),
+	_inviteOnly(false),
 	_topicOperator(false),
 	_key(false),
 	_userLimit(false),
+	_private(false),
 	_moderated(false),
 	_externalMessages(false)
 {}
 
-Channel::~Channel() {}
-
-Channel::Channel(const Channel& instance)
+Channel::~Channel()
 {
-	(void) instance;
+	// should not be possible
+	for (std::map<std::string, std::pair<User *, ChannelUserModes> >::iterator it = _users.begin();
+		it != _users.end();
+		it++)
+	{
+		User *user = it->second.first;
+		if (user)
+			delete user;
+	}
+
+	_users.clear();
+}
+
+Channel::Channel(const Channel& instance) : _name(instance.getName())
+{
+	*this = instance;
 }
 
 Channel& Channel::operator=(const Channel& instance)
 {
-	(void) instance;
+	if (this != &instance)
+	{
+		_users.clear();
+		_inviteList.clear();
+		_banList.clear();
+
+		_users = instance.getUsers();
+		_inviteList = instance.getInviteList();
+		_banList = instance.getBanList();
+
+		setInviteOnly(instance.isInviteOnly());
+		setTopicSettableByChannelOperatorOnly(instance.isTopicSettableByChannelOperatorOnly());
+		setTopic(instance.getTopic());
+		
+		setChannelKey(instance.isChannelKeySet());
+		setPassword(instance.getPassword());
+
+		setUserLimit(instance.isUserLimitSet());
+		setMaximumCapacity(instance.getMaximumCapacity());
+
+		setPrivate(instance.isPrivate());
+		setModerated(instance.isModerated());
+		setExternalMessagesEnabled(instance.isExternalMessagesEnabled());
+	}
 	return (*this);
 }
+
+Channel::Channel(const std::string& name)
+	: _name(name),
+	_inviteOnly(false),
+	_topicOperator(false),
+	_key(false),
+	_userLimit(false),
+	_private(false),
+	_moderated(false),
+	_externalMessages(false)
+{}
 
 const std::string& Channel::getName() const
 {
@@ -46,14 +94,63 @@ size_t Channel::getMaximumCapacity() const
 	return (this->_maximumCapacity);
 }
 
-const std::map<std::string, std::pair<User *, Modes> >& Channel::getUsers() const
+const std::set<std::string>&	Channel::getInviteList() const
+{
+	return (this->_inviteList);
+}
+
+const std::set<std::string>&	Channel::getBanList() const
+{
+	return (this->_banList);
+}
+
+const std::map<std::string, std::pair<User *, ChannelUserModes> >& Channel::getUsers() const
 {
 	return (this->_users);
 }
 
-bool Channel::isPrivate() const
+const std::pair<User *, ChannelUserModes>& Channel::getUser(const std::string& nickname) const
 {
-	return (this->_private);
+	return (_users.find(nickname)->second);
+}
+
+const std::string Channel::getUserNicknames() const
+{
+	std::string	nicknames;
+
+	for (std::map<std::string, std::pair<User *, ChannelUserModes> >::const_iterator it = this->_users.begin(); 
+		it != this->_users.end();
+		it++)
+	{
+		if (!nicknames.empty())
+			nicknames += " ";
+		if (it->second.second.channelOperator)
+			nicknames += "@";
+		nicknames += it->first;
+	}
+	return (nicknames);
+}
+
+const std::string Channel::getChannelUserModes() const
+{
+	std::string result("+");
+
+	if (isTopicSettableByChannelOperatorOnly())
+		result += "t";
+	if (isInviteOnly())
+		result += "i";
+	if (isUserLimitSet())
+		result += "l";
+	if (isChannelKeySet())
+		result += "k ";
+	
+	if (isUserLimitSet())
+		result += " " + static_cast<int>(getMaximumCapacity());
+	
+	if (isChannelKeySet())
+		result += " " + getPassword();
+	
+	return (result);
 }
 
 bool Channel::isInviteOnly() const
@@ -76,9 +173,9 @@ bool Channel::isUserLimitSet() const
 	return (this->_userLimit);
 }
 
-bool Channel::isExternalMessagesEnabled() const
+bool Channel::isPrivate() const
 {
-	return (this->_externalMessages);
+	return (this->_private);
 }
 
 bool Channel::isModerated() const
@@ -86,19 +183,9 @@ bool Channel::isModerated() const
 	return (this->_moderated);
 }
 
-bool Channel::isInvited(const std::string& nickname) const
+bool Channel::isExternalMessagesEnabled() const
 {
-	return (_inviteList.find(nickname) != _inviteList.end());
-}
-
-bool Channel::isUserBanned(const std::string& nickname) const
-{
-	return (_banList.find(nickname) != _banList.end());
-}
-
-void Channel::setName(const std::string& name)
-{
-	this->_name = name;
+	return (this->_externalMessages);
 }
 
 void Channel::setTopic(const std::string& topic)
@@ -121,11 +208,6 @@ void Channel::setInviteOnly(bool inviteOnly)
 	this->_inviteOnly = inviteOnly;
 }
 
-void Channel::setPrivate(bool _private)
-{
-	this->_private = _private;
-}
-
 void Channel::setTopicSettableByChannelOperatorOnly(bool topicOperator)
 {
 	this->_topicOperator = topicOperator;
@@ -141,63 +223,49 @@ void Channel::setUserLimit(bool _private)
 	this->_userLimit = _private;
 }
 
-const std::string Channel::getUserNicknames() const
+void Channel::setPrivate(bool _private)
 {
-	std::string	nicknames;
-
-	for (std::map<std::string, std::pair<User *, Modes> >::const_iterator it = this->_users.begin(); 
-		it != this->_users.end();
-		it++)
-	{
-		if (!nicknames.empty())
-			nicknames += " ";
-		if (it->second.second.channelOperator)
-			nicknames += "@";
-		nicknames += it->first;
-	}
-	return (nicknames);
+	this->_private = _private;
 }
 
-const std::pair<User *, Modes>& Channel::getUser(const std::string& nickname) const
+void Channel::setModerated(bool moderated)
 {
-	return (_users.find(nickname)->second);
+	this->_moderated = moderated;
 }
 
-std::string Channel::getModes() const
+void Channel::setExternalMessagesEnabled(bool externalMessages)
 {
-	std::string result("+");
-	//+tik pass
-
-	if (isTopicSettableByChannelOperatorOnly())
-		result += "t";
-	if (isInviteOnly())
-		result += "i";
-	if (isUserLimitSet())
-		result += "l";
-	if (isChannelKeySet())
-		result += "k ";
-	
-	if (isUserLimitSet())
-		result += " " + static_cast<int>(getMaximumCapacity());
-	
-	if (isChannelKeySet())
-		result += " " + getPassword();
-	
-	return (result);
+	this->_externalMessages = externalMessages;
 }
 
-void Channel::addUser(User *user, bool isOperator, bool hasVoice, bool channelOwner)
+bool Channel::isUserInvited(const std::string& nickname) const
 {
-	Modes modes = {
-		.voice = hasVoice,
-		.channelOperator = isOperator,
-		.channelOwner = channelOwner
-	};
-	this->_users[user->getNickname()] = std::make_pair(user, modes);
+	return (_inviteList.find(nickname) != _inviteList.end());
 }
-void Channel::removeUser(const std::string& nickname)
+
+bool Channel::inviteUser(const std::string& nickname)
 {
-	this->_users.erase(nickname);
+	return (this->_inviteList.insert(nickname).second);
+}
+
+bool Channel::unInviteUser(const std::string& nickname)
+{
+	return (this->_inviteList.erase(nickname));
+}
+
+bool Channel::isUserBanned(const std::string& nickname) const
+{
+	return (_banList.find(nickname) != _banList.end());
+}
+
+bool Channel::banUser(const std::string& nickname)
+{
+	return (this->_banList.insert(nickname).second);
+}
+
+bool Channel::pardonUser(const std::string& nickname)
+{
+	return (this->_banList.erase(nickname));
 }
 
 bool Channel::containsUser(const std::string& nickname) const
@@ -205,51 +273,48 @@ bool Channel::containsUser(const std::string& nickname) const
 	return (_users.find(nickname) != _users.end() && getUser(nickname).first != NULL);
 }
 
-void Channel::promoteUser(const std::string& nickname)
+void Channel::addUser(User *user, ChannelUserModes& ChannelUserModes)
 {
-	if (containsUser(nickname))
-		this->_users[nickname].second.channelOperator = true;
+	this->_users[user->getNickname()] = std::make_pair(user, ChannelUserModes);
 }
-void Channel::demoteUser(const std::string& nickname)
+void Channel::removeUser(const std::string& nickname)
 {
-	if (containsUser(nickname))
-		this->_users[nickname].second.channelOperator = false;
+	this->_users.erase(nickname);
 }
 
-void Channel::grantVoice(const std::string& nickname)
+bool Channel::setOwner(const std::string& nickname, bool boolean)
 {
-	if (containsUser(nickname))
-		this->_users[nickname].second.voice = true;
-}
-void Channel::revokeVoice(const std::string& nickname)
-{
-	if (containsUser(nickname))
-		this->_users[nickname].second.voice = false;
+	std::map<std::string, std::pair<User *, ChannelUserModes> >::iterator result = _users.find(nickname);
+
+	if (result == _users.end() || !result->second.first)
+		return (false);
+	result->second.second.channelOwner = boolean;
+	return (true);
 }
 
-void Channel::banUser(const std::string& nickname)
+bool Channel::setOperator(const std::string& nickname, bool boolean)
 {
-	this->_banList.insert(nickname);
+	std::map<std::string, std::pair<User *, ChannelUserModes> >::iterator result = _users.find(nickname);
+
+	if (result == _users.end() || !result->second.first)
+		return (false);
+	result->second.second.channelOperator = boolean;
+	return (true);
 }
 
-void Channel::pardonUser(const std::string& nickname)
+bool Channel::setVoice(const std::string& nickname, bool boolean)
 {
-	this->_banList.erase(nickname);
-}
+	std::map<std::string, std::pair<User *, ChannelUserModes> >::iterator result = _users.find(nickname);
 
-void Channel::inviteUser(const std::string& nickname)
-{
-	this->_inviteList.insert(nickname);
-}
-
-void Channel::removeInvite(const std::string& nickname)
-{
-	_inviteList.erase(nickname);
+	if (result == _users.end() || !result->second.first)
+		return (false);
+	result->second.second.voice = boolean;
+	return (true);
 }
 
 void Channel::broadcast(const std::string& nickname, std::string& message) const
 {
-	for (std::map<std::string, std::pair<User *, Modes> >::const_iterator it = getUsers().begin();
+	for (std::map<std::string, std::pair<User *, ChannelUserModes> >::const_iterator it = getUsers().begin();
 		it != this->_users.end();
 		it++)
 	{
@@ -258,9 +323,9 @@ void Channel::broadcast(const std::string& nickname, std::string& message) const
 	}
 }
 
-void Channel::announce(std::string& message) const
+void Channel::announce(const std::string& message) const
 {
-	for (std::map<std::string, std::pair<User *, Modes> >::const_iterator it = getUsers().begin();
+	for (std::map<std::string, std::pair<User *, ChannelUserModes> >::const_iterator it = getUsers().begin();
 		it != this->_users.end();
 		it++)
 	{
@@ -269,9 +334,9 @@ void Channel::announce(std::string& message) const
 	}
 }
 
-void Channel::announce(std::vector<std::string>& messages) const
+void Channel::announce(const std::vector<std::string>& messages) const
 {
-	for (std::vector<std::string>::iterator it = messages.begin();
+	for (std::vector<std::string>::const_iterator it = messages.begin();
 		it != messages.end();
 		it++)
 	{
@@ -279,16 +344,54 @@ void Channel::announce(std::vector<std::string>& messages) const
 	}
 }
 
-std::ostream&	operator<<(std::ostream& outputStream, const Channel& channel)
+std::ostream& operator<<(std::ostream& outputStream, const Channel& channel)
 {
-	outputStream << "Channel Info:\n" 
-		<< "=> Name: " << channel.getName() 
+	outputStream << "Channel Info:\n"
+		<< "=> Name: " << channel.getName()
 		<< "\n=> Topic: " << channel.getTopic() 
-		<< "\n=> Maximum Capacity: " << channel.getMaximumCapacity()
-		<< "\n=> Is Invite Only: " <<channel.isInviteOnly()
-		<< "\n=> Is Private: " << channel.isPrivate()
-		<< "\n=> Is Channel Key Set: " << channel.isChannelKeySet()
-		<< "\n=> Is User Limit Set: " << channel.isUserLimitSet()
-		<< "\n=> Members Count: " << channel.getUsers().size();
-	return (outputStream);
+		<< "\n=> Channel Key Set: " << (channel.isChannelKeySet() ? "Yes" : "No") << " Value: " << channel.getPassword()
+		<< "\n=> User Limit Set: " << (channel.isUserLimitSet() ? "Yes" : "No") << " Value: " << channel.getMaximumCapacity()
+		<< "\n=> Invite Only: " << (channel.isInviteOnly() ? "Yes" : "No")
+		<< "\n=> Topic Control: " << (channel.isTopicSettableByChannelOperatorOnly() ? "Operator" : "All")
+		<< "\n=> Private: " << (channel.isPrivate() ? "Yes" : "No")
+		<< "\n=> Moderated: " << (channel.isModerated() ? "Yes" : "No")
+		<< "\n=> External Messages Enabled: " << (channel.isExternalMessagesEnabled() ? "Yes" : "No")
+		<< "\nInvite List:\n=> ";
+
+    for (std::set<std::string>::const_iterator it = channel.getInviteList().begin();
+		it != channel.getInviteList().end();)
+    {
+        outputStream << *it;
+		it++;
+		if (it != channel.getInviteList().end())
+			outputStream << ", ";
+    }
+
+    outputStream << "\nBan List:\n=> ";
+
+    for (std::set<std::string>::const_iterator it = channel.getBanList().begin();
+		it != channel.getBanList().end();)
+    {
+        outputStream << *it;
+		it++;
+		if (it != channel.getBanList().end())
+			outputStream << ", ";
+    }
+
+    outputStream << "\nUsers:"
+		<< "\nTotal: " << channel.getUsers().size()
+		<< "\n";
+
+    for (std::map<std::string, std::pair<User *, ChannelUserModes> >::const_iterator it = channel.getUsers().begin();
+		it != channel.getUsers().end();
+		++it)
+    {
+        outputStream << " Nickname: " << it->first
+			<< "\n\t- Channel Owner: " << (it->second.second.channelOwner ? "Yes" : "No")
+			<< "\n\t- Channel Operator: " << (it->second.second.channelOperator ? "Yes" : "No")
+			<< "\n\t- Has Voice: " << (it->second.second.voice ? "Yes" : "No");
+    }
+
+    return (outputStream);
 }
+

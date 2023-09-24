@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 18:40:46 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 12:56:35 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void PrivMsg::executeCommand(User *user, Data &data)
     {
         user->sendMessage(ERR_TOOMANYTARGETS(data.arguments[0],
             "ERR_TOOMANYTARGETS",
-            "Bruv, are u okay?, reduce them targets and try again"));
+            "Bruv, chill, reduce them targets and try again"));
         return ;
     }
 
@@ -66,7 +66,7 @@ void PrivMsg::executeCommand(User *user, Data &data)
         it != recipients.end();
         it++)
     {
-        const User *userTarget = Server::getInstance()->getAuthenticatedUser(*it);
+        const User *userTarget = Server::getInstance()->getUser(*it);
 
         message = ":" + user->getNickname() + "!" 
                 + user->getUsername() + "@" 
@@ -95,7 +95,7 @@ void PrivMsg::executeCommand(User *user, Data &data)
                 continue;
             }
 
-            const std::pair<User *, Modes>& channelUser = channelTarget->getUser(user->getNickname());
+            const std::pair<User *, ChannelUserModes>& channelUser = channelTarget->getUser(user->getNickname());
 
             if ((!channelUser.first && channelTarget->isExternalMessagesEnabled())
                 || (channelTarget->isUserBanned(user->getNickname()))

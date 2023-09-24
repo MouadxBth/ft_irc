@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 19:50:02 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 00:51:01 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 11:31:16 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,8 +76,6 @@
 #define RPL_MOTDSTART(nick, server)										"375 " + nick + " :- " + server + " Message of the day - "
 #define RPL_MOTD(nick, text)											"372 " + nick + " :- " + text
 #define RPL_ENDOFMOTD(nick)												"376 " + nick + " :End of MOTD command"
-
-
 
 
 #define DUMMY(nick) "000 " + nick + " :"

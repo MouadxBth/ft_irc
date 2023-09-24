@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 12:00:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 00:33:14 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 12:56:05 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <cstdarg>
 
 # include "Server.hpp"
+# include "CommandData.hpp"
 
 class CommandManager
 {

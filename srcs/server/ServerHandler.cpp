@@ -6,15 +6,19 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:58:13 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 18:28:22 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 12:12:14 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/socket.h>
 #include <cstring>
 #include <cerrno>
+#include <sstream>
 
 #include "Server.hpp"
 #include "CommandManager.hpp"
+#include "CommandData.hpp"
+#include "Utilities.hpp"
 
 static std::string readUserInput(int fd)
 {
@@ -58,7 +62,7 @@ static std::vector<std::string> handleUserInput(User *user, std::string &input)
 	
 	while(std::getline(ss, holder) && !holder.empty())
 	{
-		// newline was not found (should be impossible but nevertheless)
+		// newline was not found
 		if (ss.eof())
 		{
 			holder = user->getPartialMessage() + holder;
@@ -71,9 +75,12 @@ static std::vector<std::string> handleUserInput(User *user, std::string &input)
 		{
 			holder = user->getPartialMessage() + holder;
 			user->setPartialMessage("");
+
+			if (holder.size() > 512)
+				holder = holder.substr(0, 512);
 		}
 		
-		if (holder.find('\r') == std::string::npos)
+		if (holder.find('\r') == std::string::npos || holder[holder.size() - 1] != '\r')
 		{
 			user->setPartialMessage(holder);
 			continue;
@@ -98,6 +105,7 @@ static Data parseUserInput(std::string& input)
 		.command = "",
 		.arguments = initializer,
 		.trail = "",
+		.originalInput = input,
 		.valid = validateInput(input),
 		.trailPresent = false
 	};
@@ -110,7 +118,7 @@ static Data parseUserInput(std::string& input)
 	
 	if (input[0] == ':')
 	{
-		data.command = input.substr(1, position);
+		data.prefix = input.substr(1, position);
 		index = position + 1;
 	}
 

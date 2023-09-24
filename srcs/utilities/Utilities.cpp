@@ -6,15 +6,19 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 01:07:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 21:27:45 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 13:55:00 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <cstring>
 #include <algorithm>
 #include <fstream>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sstream>
 
 #include "Server.hpp"
+#include "CommandData.hpp"
 #include "Utilities.hpp"
 
 std::string currentTimestamp(void)
@@ -33,26 +37,24 @@ std::string currentTimestamp(void)
     return (result);
 }
 
-std::string obtain_hostname(sockaddr_in user_addr)
+std::string obtain_hostname(sockaddr_in& user_addr)
 {
     std::string ret_str;
-    struct addrinfo hint, *res;
-    char *user_ip;
+    struct hostent* host_info;
+    char* user_ip;
 
     user_ip = inet_ntoa(user_addr.sin_addr);
 
-    bzero(&hint, sizeof(hint));
-    hint.ai_flags = AI_CANONNAME;
-    hint.ai_family = user_addr.sin_family;
-    
-    getaddrinfo(user_ip, NULL, &hint, &res);
+    host_info = gethostbyaddr((const char*)&user_addr.sin_addr, sizeof(user_addr.sin_addr), AF_INET);
 
-    if (res && res->ai_canonname)  
-       ret_str.assign(res->ai_canonname);
+    (void) user_ip;
+
+    if (host_info != NULL && host_info->h_name != NULL)
+        ret_str.assign(host_info->h_name);
     else
         ret_str.assign("EMPTY");
-    freeaddrinfo(res);
-    return (ret_str);
+
+    return ret_str;
 }
 
 bool isKnownCommand(std::string command)
@@ -116,12 +118,13 @@ void removeCharacter(std::string& str, char target) {
     }
 }
 
-bool	validateInput(std::string& input)
+bool	validateInput(const std::string& input)
 {
 	if (input.empty())
 		return (false);
 
 	bool flag = std::isspace(input[0]);
+    bool trail = false;
 
 	for (size_t index = 0; index < input.size(); index++)
 	{
@@ -132,7 +135,16 @@ bool	validateInput(std::string& input)
 			flag = true;
 		}
 		else
+        {
 			flag = false;
+            if (!trail && input[index] == ':' && index != 0)
+                trail = true;
+        }
+	}
+	
+	if (!trail)
+	{
+	    return (!flag);
 	}
 
 	return (true);
@@ -213,7 +225,7 @@ bool isValidIRCNickname(const std::string& nickname)
     return (true);
 }
 
-bool containsString(const std::vector<std::string>& collection, const std::string& element)
+bool containsString(const std::set<std::string>& collection, const std::string& element)
 {
     // Convert the provided string to lowercase for case-insensitive comparison
     std::string lowercaseElement = element;
@@ -223,7 +235,7 @@ bool containsString(const std::vector<std::string>& collection, const std::strin
         lowercaseElement.begin(), ::tolower);
 
     // Check if the lowercase element is in the given collection
-    for (std::vector<std::string>::const_iterator it = collection.begin();
+    for (std::set<std::string>::const_iterator it = collection.begin();
         it != collection.end();
         it++)
     {
@@ -278,6 +290,7 @@ Data emptyCommandData()
         .command = "",
         .arguments = empty,
         .trail = "",
+        .originalInput = "",
         .valid = true,
         .trailPresent = false
     };
@@ -410,7 +423,7 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 
 			for (size_t j = 1; j < args[index].size(); j++)
 			{
-				if (takesParam(args[index][j]))
+				if (takesParam(args[index][j]) && args[index][0] == '+')
 					takes++;
 			}
 			
@@ -449,7 +462,7 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 				riz.add = args[index][0] == '+';
 				riz.mode = args[index][j];
 				
-				if (takesParam(args[index][j]))
+				if (takesParam(args[index][j]) && riz.add)
 					riz.parameter = moreArgs[temp++];
 				
 				result.push_back(riz);

@@ -6,12 +6,13 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 18:00:19 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 11:48:46 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "NickCommand.hpp"
 #include "Server.hpp"
+#include "Utilities.hpp"
 
 //ERR_NONICKNAMEGIVEN             ERR_ERRONEUSNICKNAME
 //           ERR_NICKNAMEINUSE               ERR_NICKCOLLISION
@@ -39,7 +40,6 @@ void NickCommand::executeCommand(User *user, Data &data)
 {
     std::string nickname = user->getNickname().empty() ? "*" : user->getNickname();
 
-    
     if (!user->hasUsedPassword())
         return ;
 
@@ -56,10 +56,10 @@ void NickCommand::executeCommand(User *user, Data &data)
         return ;
     }
 
-    const User *target = Server::getInstance()->getAuthenticatedUser(data.arguments[0]);
+    const User *target = Server::getInstance()->getUser(data.arguments[0]);
     
-    // already used nickname
-    if (target && target->getUserEPollEvent().data.fd != user->getUserEPollEvent().data.fd)
+    // nickname already taken
+    if (target && target->getSocket() != user->getSocket())
     {
         user->sendMessage(ERR_NICKNAMEINUSE(nickname, data.arguments[0]));
         return ;

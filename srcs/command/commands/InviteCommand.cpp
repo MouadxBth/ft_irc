@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 18:35:01 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 12:59:07 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void InviteCommand::executeCommand(User *user, Data &data)
         return ;
     }
 
-    const User *userTarget = Server::getInstance()->getAuthenticatedUser(data.arguments[0]);
+    const User *userTarget = Server::getInstance()->getUser(data.arguments[0]);
     
     if (!userTarget)
     {

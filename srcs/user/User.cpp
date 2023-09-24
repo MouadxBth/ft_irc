@@ -1,19 +1,36 @@
-#include "User.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   User.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/24 11:15:11 by mbouthai          #+#    #+#             */
+/*   Updated: 2023/09/24 13:20:53 by mbouthai         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include <sys/socket.h>
 #include <vector>
 #include <cstring>
 #include <cerrno>
+#include <unistd.h>
+
+#include "User.hpp"
 
 User::User()
-	: _authenticated(false), 
-	_operator(false),
+	: _socket(-1), 
+	_authenticated(false),
 	_away(false),
 	_usedPassword(false),
 	_joinedChannelsCount(0)
 {}
 
-User::~User() {}
+User::~User()
+{}
 
 User::User(const User& instance)
+	: _socket(instance._socket)
 {
 	*this = instance;
 }
@@ -22,29 +39,44 @@ User& User::operator=(const User& instance)
 {
 	if (this != &instance)
 	{
+		setNickname(instance.getNickname());
 		setUsername(instance.getUsername());
 		setFullname(instance.getFullname());
 		setHostname(instance.getHostname());
-		setNickname(instance.getNickname());
-		setPassword(instance.getPassword());
+
 		setPartialMessage(instance.getPartialMessage());
-		setUserEPollEvent(instance.getUserEPollEvent());
-		setAddress(instance.getAddress());
+		setAwayMessage(instance.getAwayMessage());
+	
 		setAuthenticated(instance.isAuthenticated());
-		setOperator(instance.isOperator());
+		setAway(instance.isAway());
+
+		setJoinedChannelsCount(instance.getJoinedChannelsCount());
 		setJoinedChannelsCount(instance.getJoinedChannelsCount());
 	}
 	return (*this);
 }
 
-const std::string&   User::getUsername() const
+User::User(int socket)
+	: _socket(socket), 
+	_authenticated(false),
+	_away(false),
+	_usedPassword(false),
+	_joinedChannelsCount(0)
+{}
+
+int          User::getSocket() const
 {
-	return (this->_username);
+	return (this->_socket);
 }
 
 const std::string&    User::getNickname() const
 {
 	return (this->_nickname);
+}
+
+const std::string&   User::getUsername() const
+{
+	return (this->_username);
 }
 
 const std::string&    User::getFullname() const
@@ -55,11 +87,6 @@ const std::string&    User::getFullname() const
 const std::string&    User::getHostname() const
 {
 	return (this->_hostname);
-}
-
-const std::string&    User::getPassword() const
-{
-	return (this->_password);
 }
 
 const std::string&    User::getPartialMessage() const
@@ -77,44 +104,29 @@ bool            User::isAuthenticated() const
 	return (this->_authenticated);
 }
 
-bool            User::isOperator() const
-{
-	return (this->_operator);
-}
-
 bool            User::isAway() const
 {
 	return (this->_away);
 }
 
-const epoll_event&    User::getUserEPollEvent() const
-{
-	return (this->_userEPollEvent);
-}
-
-const sockaddr_in&    User::getAddress() const
-{
-	return (_address);
-}
-
 bool	User::hasUsedPassword() const
 {
-	return (_usedPassword);
+	return (this->_usedPassword);
 }
 
 int	User::getJoinedChannelsCount() const
 {
-	return (_joinedChannelsCount);
-}
-
-void   User::setUsername(const std::string& username)
-{
-	this->_username = username;
+	return (this->_joinedChannelsCount);
 }
 
 void   User::setNickname(const std::string& nickname)
 {
 	this->_nickname = nickname;
+}
+
+void   User::setUsername(const std::string& username)
+{
+	this->_username = username;
 }
 
 void    User::setFullname(const std::string& fullname)
@@ -127,19 +139,9 @@ void    User::setHostname(const std::string& hostname)
 	this->_hostname = hostname;
 }
 
-void    User::setPassword(const std::string& password)
-{
-	this->_password = password;
-}
-
 void    User::setAuthenticated(bool authenticated)
 {
 	this->_authenticated = authenticated;
-}
-
-void    User::setOperator(bool _operator)
-{
-	this->_operator = _operator;
 }
 
 void    User::setAway(bool _operator)
@@ -152,14 +154,9 @@ void    User::setPartialMessage(const std::string& partialMessage)
 	this->_partialMessage = partialMessage;
 }
 
-void    User::setUserEPollEvent(const epoll_event& socket)
+void    User::setAwayMessage(const std::string& message)
 {
-	this->_userEPollEvent = socket;
-}
-
-void	User::setAddress(const sockaddr_in& address)
-{
-	this->_address = address;
+	this->_awayMessage = message;
 }
 
 void	User::setUsedPassword(bool b)
@@ -176,43 +173,35 @@ bool	User::sendMessage(const std::string& input) const
 {
 	std::string message;
 
+	if (getSocket() < 0)
+		return (false);
+
 	message += input;
 
 	if (input[input.size() - 2] != '\r' && input[input.size() - 1] != '\n')
 		message += "\r\n";
 
-	if (getUserEPollEvent().data.fd >= 0)
-	{	
-		if (send(getUserEPollEvent().data.fd, message.c_str(), message.size(), 0) < 0)
-			return (std::cerr << "Couldn't send message to " << getNickname()
-					<< " because: " << strerror(errno)
-					<< std::endl, false);
-	}
+	if (send(getSocket(), message.c_str(), message.size(), 0) < 0)
+		return (std::cerr << "Couldn't send message to " << getNickname()
+				<< " because: " << strerror(errno)
+				<< std::endl, false);
+	
 	return (true);
 }
 
-static void	addressToString(std::ostream& outputSteam, const sockaddr_in& address)
+std::ostream& operator<<(std::ostream& outputStream, const User& user)
 {
-	outputSteam << "\tAddress: "<< address.sin_addr.s_addr
-		<< "\n\tFamily: " << address.sin_family
-		<< "\n\tPort: " << address.sin_port;
-}
-
-std::ostream&	operator<<(std::ostream& outputStream, const User& user)
-{
-	outputStream << "User Info:\n" 
-		<< "=> Full Name: " << user.getFullname()
-		<< "\n=> Partial Message: " << user.getPartialMessage()
-		<< "\n=> Hostname: " << user.getHostname()
+	outputStream << "User Info:\n"
+		<< "=> Socket: " << user.getSocket()
 		<< "\n=> Nickname: " << user.getNickname()
 		<< "\n=> Username: " << user.getUsername()
-		<< "\n=> Password: " << user.getPassword()
-		<< "\n=> Is Authenticated: " << user.isAuthenticated()
-		<< "\n=> Is Operator: " << user.isOperator()
-		<< "\n=> User fd: "
-		<< user.getUserEPollEvent().data.fd
-		<< "\n=> User Address: \n";
-	addressToString(outputStream, user.getAddress());
-	
-	return (outputStream);
+		<< "\n=> Fullname: " << user.getFullname()
+		<< "\n=> Hostname: " << user.getHostname() 
+		<< "\n=> Partial Message: " << user.getPartialMessage() 
+		<< "\n=> Authenticated: " << (user.isAuthenticated() ? "Yes" : "No") 
+		<< "\n=> Away: " << (user.isAway() ? "Yes" : "No") << " Message: " << user.getAwayMessage() 
+		<< "\n=> Used Password: " << (user.hasUsedPassword() ? "Yes" : "No") 
+		<< "\n=> Joined Channels Count: " << user.getJoinedChannelsCount();
+
+    return outputStream;
 }

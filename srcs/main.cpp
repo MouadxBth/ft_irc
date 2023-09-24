@@ -15,12 +15,6 @@ void signalPipeHandler(int signum)
 void signalInterruptHandler(int signum)
 {
     (void) signum;
-
-    /*if (server)
-    {
-        delete server;
-    }*/
-
 }
 
 int main(int argc, char **argv)
@@ -53,5 +47,8 @@ int main(int argc, char **argv)
 
     server = Server::createInstance(static_cast<size_t>(port), password);
     server->enable();
+    
+    delete server;
+   
     return (0);
 }

@@ -6,13 +6,14 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 16:30:30 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 13:24:42 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "JoinCommand.hpp"
 #include "Server.hpp"
 #include "CommandManager.hpp"
+#include "Utilities.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_BANNEDFROMCHAN
 //           ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
@@ -100,15 +101,26 @@ void JoinCommand::executeCommand(User *user, Data &data)
                 "Reduce the number of channels please, skipping targets..."));
             return ;
         }
+
+        if (it->first[0] != '#')
+        {
+            user->sendMessage(ERR_NOSUCHCHANNEL(user->getNickname(), it->first));
+            continue; 
+        }
         
         Channel *target = Server::getInstance()->getChannel(it->first);
 
+        ChannelUserModes modes = {
+            .channelOwner = true,
+            .channelOperator = true,
+            .voice = true
+        };
+
         if (!target)
         {
-            Channel *newChannel = new Channel();
+            Channel *newChannel = new Channel(it->first);
 
-            newChannel->setName(it->first);
-            newChannel->addUser(user, true, true, true);
+            newChannel->addUser(user, modes);
             user->setJoinedChannelsCount(user->getJoinedChannelsCount() + 1);
 
             std::string message = ":" + user->getNickname() + "!" 
@@ -116,7 +128,7 @@ void JoinCommand::executeCommand(User *user, Data &data)
                 + user->getHostname() + " " 
                 + data.command + " " + data.arguments[0];
                 
-            Server::getInstance()->getChannels()[it->first] = newChannel;
+            Server::getInstance()->addChannel(newChannel);
             
             newChannel->announce(message);
 
@@ -125,6 +137,8 @@ void JoinCommand::executeCommand(User *user, Data &data)
             namesData.arguments.push_back(newChannel->getName());
 
             CommandManager::getInstance()->executeCommand(user, namesData);
+
+            std::cout << *newChannel << std::endl;
             current++;
             continue ;
         }
@@ -137,7 +151,7 @@ void JoinCommand::executeCommand(User *user, Data &data)
             user->sendMessage(ERR_BANNEDFROMCHAN(user->getNickname(), target->getName()));
             continue;
         }
-        if (target->isInviteOnly() && !target->isInvited(user->getNickname()))
+        if (target->isInviteOnly() && !target->isUserInvited(user->getNickname()))
         {
             user->sendMessage(ERR_INVITEONLYCHAN(user->getNickname(), target->getName()));
             continue;
@@ -159,9 +173,13 @@ void JoinCommand::executeCommand(User *user, Data &data)
         }
 
         if (target->isInviteOnly())
-            target->removeInvite(user->getNickname());
+            target->unInviteUser(user->getNickname());
         
-        target->addUser(user, false, false, false);
+        modes.channelOwner = false;
+        modes.channelOperator = false;
+        modes.voice = false;
+        
+        target->addUser(user, modes);
 
         user->setJoinedChannelsCount(user->getJoinedChannelsCount() + 1);
         
@@ -179,12 +197,5 @@ void JoinCommand::executeCommand(User *user, Data &data)
         current++;
 
         CommandManager::getInstance()->executeCommand(user, namesData);
-        //temporary
-        //user->sendMessage("You joined!");
-        // information about all commands his server receives affecting the channel.  This
-        // includes JOIN, MODE, KICK, PART, QUIT and of course PRIVMSG/NOTICE
-        // user receives a JOIN message as confirmation and is then sent the channel's 
-        // topic (using RPL_TOPIC) and the list of users who are on the channel (using RPL_NAMREPLY), 
-        // which MUST include the user joining
     }
 }

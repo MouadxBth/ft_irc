@@ -6,16 +6,19 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:42:14 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 22:56:15 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 11:00:40 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/epoll.h>
 #include <cerrno>
 #include <cstring>
+#include <unistd.h>
 
 #include "Server.hpp"
 #include "User.hpp"
 #include "CommandManager.hpp"
+#include "Utilities.hpp"
 
 void Server::enable()
 {
@@ -30,7 +33,7 @@ void Server::enable()
 	
 	while (_enabled)
 	{
-		socketsWithData = epoll_wait(_epoll_fd, events, MAX_EVENTS, 15);
+		socketsWithData = epoll_wait(_epollInstance, events, MAX_EVENTS, 15);
 		
 		if (socketsWithData < 0 && _enabled)
 		{
@@ -46,7 +49,7 @@ void Server::enable()
 		
 		for (int index = 0; index < socketsWithData; index++)
 		{
-			if (events[index].data.fd == _listener_socket)
+			if (events[index].data.fd == _listenerSocket)
 				handleUserConnection();
 			else if (events[index].events & EPOLLHUP)
 				handleUserDisconnection(events[index].data.fd);
@@ -58,9 +61,7 @@ void Server::enable()
 
 void Server::disable()
 {
-	std::cout << currentTimestamp() << " Disabling server..." << std::endl;
-	std::string message = currentTimestamp() + " Server has been shut down.\n";
-	
+	std::cout << currentTimestamp() << " Disabling server..." << std::endl;	
     _enabled = false;
 
 	for (std::map<int, User *>::const_iterator it = _connectedUsers.begin();
@@ -69,9 +70,7 @@ void Server::disable()
 	{
 		if (!it->second)
 			continue;
-
-		it->second->sendMessage(message);
-		handleUserDisconnection(it->second->getUserEPollEvent().data.fd);
+		handleUserDisconnection(it->second->getSocket());
 	}
 
     for (std::map<std::string, User *>::const_iterator it = _authenticatedUsers.begin();
@@ -80,10 +79,11 @@ void Server::disable()
 	{
 		if (!it->second)
 			continue;
-
-		it->second->sendMessage(message);
-		handleUserDisconnection(it->second->getUserEPollEvent().data.fd);
+		handleUserDisconnection(it->second->getSocket());
 	}
+
+	_connectedUsers.clear();
+	_authenticatedUsers.clear();
 
 	cleanChannels();
 
@@ -92,10 +92,6 @@ void Server::disable()
     commandManager->cleanUp();
 
 	delete commandManager;
-
-    _connectedUsers.clear();
-	_authenticatedUsers.clear();
-	_sockets.clear();
 	
-	close(_listener_socket);
+	close(_listenerSocket);
 }

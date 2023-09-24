@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/19 11:13:56 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 01:24:56 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 11:30:37 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ public:
     
     bool                isAuthRequired() const;
     bool                requiresTrail() const;
-    
 
     void    setName(const std::string& name);
 

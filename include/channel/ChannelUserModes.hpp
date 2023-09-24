@@ -1,29 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   CommandData.hpp                                    :+:      :+:    :+:   */
+/*   ChannelUserModes.hpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/14 21:54:18 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 11:35:12 by mbouthai         ###   ########.fr       */
+/*   Created: 2023/09/24 10:37:27 by mbouthai          #+#    #+#             */
+/*   Updated: 2023/09/24 12:16:49 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <string>
-#include <vector>
-
-class User;
-
-typedef struct s_data
+typedef struct s_channel_user_modes
 {
-    std::string prefix;
-    std::string command;
-    std::vector<std::string> arguments;
-    std::string trail;
-    std::string originalInput;
-	bool valid;
-    bool trailPresent;
-} Data;
+    bool channelOwner;
+    bool channelOperator;
+    bool voice;
+}   ChannelUserModes;

@@ -38,7 +38,7 @@ void NoticeCommand::executeCommand(User *user, Data &data)
         return ;
     }
 
-    const User *userTarget = Server::getInstance()->getAuthenticatedUser(data.arguments[0]);
+    const User *userTarget = Server::getInstance()->getUser(data.arguments[0]);
 
     std::string message = ":" + user->getNickname() + "!" 
             + user->getUsername() + "@" 

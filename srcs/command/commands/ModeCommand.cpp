@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 13:42:08 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 14:01:15 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ void ModeCommand::executeCommand(User *user, Data &data)
 	{
 		user->sendMessage(RPL_CHANNELMODEIS(user->getNickname(),
 			channel->getName(),
-			channel->getModes()));
+			channel->getChannelUserModes()));
 		return ;
 	}
 
@@ -79,9 +79,11 @@ void ModeCommand::executeCommand(User *user, Data &data)
 		return ;
 	}
 
-	std::pair<User *, Modes> channelUser;
+	std::pair<User *, ChannelUserModes> channelUser;
 	size_t value;
 	std::string modeMessage;
+	
+	int current = 0;
 
 	for (std::vector<ChannelMode>::const_iterator it = modes.begin();
 		it != modes.end();
@@ -121,6 +123,8 @@ void ModeCommand::executeCommand(User *user, Data &data)
 				break ;
 				
 			case 'k':
+				if (current > 2)
+					break ;
 				if (it->add && channel->isChannelKeySet())
 				{
 					user->sendMessage(ERR_KEYSET(user->getNickname(), channel->getName()));
@@ -146,9 +150,12 @@ void ModeCommand::executeCommand(User *user, Data &data)
 					message += " " + it->parameter;
 
 				channel->announce(message);
+				current++;
 				break ;
 				
 			case 'o':
+				if (current > 2)
+					break ;
 				if (it->parameter.empty())
 				{
 					message = data.command + " ";
@@ -158,13 +165,15 @@ void ModeCommand::executeCommand(User *user, Data &data)
 					break ;
 				}
 				
-				channelUser = channel->getUser(it->parameter);
-				
-				if (!channelUser.first)
+				if (!channel->containsUser(it->parameter))
 				{
-					user->sendMessage(ERR_NOTONCHANNEL(user->getNickname(), channel->getName()));
+					user->sendMessage(ERR_USERNOTINCHANNEL(user->getNickname(),
+						it->parameter,
+						channel->getName()));
 					break ;
 				}
+				
+				channelUser = channel->getUser(it->parameter);
 
 				if ((it->add && channelUser.second.channelOperator)
 					|| (!it->add && !channelUser.second.channelOperator))
@@ -173,15 +182,18 @@ void ModeCommand::executeCommand(User *user, Data &data)
 					break ;
 				}
 				
-				channelUser.second.channelOperator = it->add;
+				channel->setOperator(it->parameter, it->add);
 
 				message += it->add ? "+o " : "-o ";
 				message += it->parameter;
 
 				channel->announce(message);
+				current++;
 				break ;
 				
 			case 'l':
+				if (current > 2)
+					break ;
 				if (it->add && channel->isUserLimitSet())
 				{
 					user->sendMessage(ERR_KEYSET(user->getNickname(), channel->getName()));
@@ -190,8 +202,8 @@ void ModeCommand::executeCommand(User *user, Data &data)
 				
 				if (!it->add)
 				{
+					std::cout << "REMOVED" << std::endl;
 					channel->setUserLimit(false);
-
 					message += "-l";
 					channel->announce(message);
 					break ;
@@ -211,6 +223,13 @@ void ModeCommand::executeCommand(User *user, Data &data)
 				}
 				
 				value = getNumber(it->parameter);
+
+				if (value <= 0)
+				{
+					break ;
+				}
+
+				std::cout << "VALUE: " << value << std::endl;
 				
 				channel->setUserLimit(it->add);
 				channel->setMaximumCapacity(value);
@@ -219,6 +238,7 @@ void ModeCommand::executeCommand(User *user, Data &data)
 				message += it->parameter;
 
 				channel->announce(message);
+				current++;
 				break ;
 				
 			default:

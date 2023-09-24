@@ -6,12 +6,13 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 18:40:06 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 13:08:48 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PartCommand.hpp"
 #include "Server.hpp"
+#include "Utilities.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_NOSUCHCHANNEL
 //           ERR_NOTONCHANNEL

@@ -6,13 +6,14 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 18:46:43 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 11:58:58 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "UserCommand.hpp"
 #include "Server.hpp"
 #include "CommandManager.hpp"
+#include "Utilities.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_ALREADYREGISTRED
 //USER guest 0 * :Ronnie Reagan 
@@ -37,7 +38,6 @@ UserCommand& UserCommand::operator=(const UserCommand& instance)
     return *this;
 }
 
-
 void UserCommand::executeCommand(User *user, Data &data)
 {
     // user hasn't used nick command yet
@@ -57,13 +57,16 @@ void UserCommand::executeCommand(User *user, Data &data)
     }
     
     user->setUsername(data.arguments[0]);
+    
     if (data.arguments.size() == 3)
         user->setFullname(data.trail);
     else
         user->setFullname(data.arguments[3]);
+    
     // set user mode
 
     user->setAuthenticated(true);
+    Server::getInstance()->authenticateUser(user);
 
     if (!user->sendMessage(RPL_WELCOME(user->getNickname(),
         user->getUsername(),
@@ -92,15 +95,8 @@ void UserCommand::executeCommand(User *user, Data &data)
 
     CommandManager::getInstance()->executeCommand(user, motdData);
 
-    Server::getInstance()->getConnectedUsers().erase(user->getUserEPollEvent().data.fd);
-    Server::getInstance()->getAuthenticatedUsers()[user->getNickname()] = user;
-
-    std::cout << "=> JOINED: " << user->getNickname() << std::endl;
-    //Server::getInstance()->setJoins(Server::getInstance()->getJoins() + 1);
-
-   // std::cout << Server::getInstance()->getJoins() << std::endl;
-
-    //std::cout << "User: " << user->getNickname() << " has joined" << std::endl;
-
-    //std::cout << *user << std::endl;
+    std::cout << "=> AUTHENTICATED: " << user->getNickname() 
+        << "\n"
+        << *user
+        << std::endl;
 }

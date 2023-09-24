@@ -6,12 +6,13 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/21 18:36:25 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 13:06:07 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "KickCommand.hpp"
 #include "Server.hpp"
+#include "Utilities.hpp"
 
 //ERR_NEEDMOREPARAMS              ERR_NOSUCHCHANNEL
 //           ERR_BADCHANMASK                 ERR_CHANOPRIVSNEEDED
@@ -49,7 +50,7 @@ bool    verify(User *user, Channel *channel, std::string& name)
         return (false);
     }
     
-    std::pair<User *, Modes> channelUser = channel->getUser(user->getNickname());
+    std::pair<User *, ChannelUserModes> channelUser = channel->getUser(user->getNickname());
 
     if (!channelUser.second.channelOperator)
     {
