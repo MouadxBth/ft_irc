@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 11:15:11 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 13:20:53 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 17:30:31 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,7 @@
 #include "User.hpp"
 
 User::User()
-	: _socket(-1), 
-	_authenticated(false),
+	: _authenticated(false),
 	_away(false),
 	_usedPassword(false),
 	_joinedChannelsCount(0)
@@ -56,7 +55,7 @@ User& User::operator=(const User& instance)
 	return (*this);
 }
 
-User::User(int socket)
+User::User(const pollfd& socket)
 	: _socket(socket), 
 	_authenticated(false),
 	_away(false),
@@ -64,7 +63,7 @@ User::User(int socket)
 	_joinedChannelsCount(0)
 {}
 
-int          User::getSocket() const
+const pollfd&          User::getSocket() const
 {
 	return (this->_socket);
 }
@@ -173,7 +172,7 @@ bool	User::sendMessage(const std::string& input) const
 {
 	std::string message;
 
-	if (getSocket() < 0)
+	if (getSocket().fd < 0)
 		return (false);
 
 	message += input;
@@ -181,7 +180,7 @@ bool	User::sendMessage(const std::string& input) const
 	if (input[input.size() - 2] != '\r' && input[input.size() - 1] != '\n')
 		message += "\r\n";
 
-	if (send(getSocket(), message.c_str(), message.size(), 0) < 0)
+	if (send(getSocket().fd, message.c_str(), message.size(), 0) < 0)
 		return (std::cerr << "Couldn't send message to " << getNickname()
 				<< " because: " << strerror(errno)
 				<< std::endl, false);
@@ -192,7 +191,7 @@ bool	User::sendMessage(const std::string& input) const
 std::ostream& operator<<(std::ostream& outputStream, const User& user)
 {
 	outputStream << "User Info:\n"
-		<< "=> Socket: " << user.getSocket()
+		<< "=> Socket: " << user.getSocket().fd
 		<< "\n=> Nickname: " << user.getNickname()
 		<< "\n=> Username: " << user.getUsername()
 		<< "\n=> Fullname: " << user.getFullname()

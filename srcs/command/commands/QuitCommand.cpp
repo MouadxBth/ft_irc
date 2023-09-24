@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 13:11:52 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 17:32:32 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void QuitCommand::executeCommand(User *user, Data &data)
 
     user->sendMessage(message);
 
-    close(user->getSocket());
+    close(user->getSocket().fd);
 
     Server::getInstance()->removeUser(user);
 	

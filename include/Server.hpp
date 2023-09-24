@@ -4,6 +4,7 @@
 # include <vector>
 # include <map>
 # include <set>
+# include <poll.h>
 
 # include "Channel.hpp"
 
@@ -38,9 +39,10 @@ class Server
 		
 		std::set<std::string>	_channelsToBeRemoved;
 
-		int						_listenerSocket;
+		std::vector<pollfd>		_sockets;
+		std::vector<pollfd>		_socketsToBeRemoved;
 
-		int						_epollInstance;
+		pollfd					_listener;
 
 	protected:
 

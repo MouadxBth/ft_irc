@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 02:19:11 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 13:22:38 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 17:35:11 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,7 @@ Server& Server::operator=(const Server& instance)
 		_authenticatedUsers = instance._authenticatedUsers;
 		_channels = instance._channels;
 
-		_listenerSocket = instance._listenerSocket;
-
-		_epollInstance = instance._epollInstance;
+		_listener = instance._listener;
 	}
 	return (*this);
 }
@@ -184,7 +182,7 @@ User *Server::getUser(int fd)
 		it != _authenticatedUsers.end();
 		it++)
 	{
-		if (it->second && it->second->getSocket() == fd)
+		if (it->second && it->second->getSocket().fd == fd)
 			return (it->second);
 	}
 
@@ -235,7 +233,7 @@ bool	Server::authenticateUser(User *user)
 {
 	if (!user || user->getNickname().empty())
 		return (false);
-	if (!_connectedUsers.erase(user->getSocket()))
+	if (!_connectedUsers.erase(user->getSocket().fd))
 		return (false);
 	_authenticatedUsers[user->getNickname()] = user;
 	return (true);
@@ -245,8 +243,10 @@ bool	Server::removeUser(User *user)
 {
 	if (!user)
 		return (false);
-
-	return (_connectedUsers.erase(user->getSocket()) ||
+	
+	_socketsToBeRemoved.push_back(user->getSocket());
+	
+	return (_connectedUsers.erase(user->getSocket().fd) ||
 		_authenticatedUsers.erase(user->getNickname()));
 }
 

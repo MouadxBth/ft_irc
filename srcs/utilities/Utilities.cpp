@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 01:07:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 13:55:00 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 17:14:13 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,16 @@
 #include "Server.hpp"
 #include "CommandData.hpp"
 #include "Utilities.hpp"
+
+std::vector<pollfd>::iterator findSocket(std::vector<pollfd>& vec, int fd)
+{
+    for (std::vector<pollfd>::iterator it = vec.begin(); it != vec.end(); ++it)
+	{
+        if (it->fd == fd)
+            return (it);
+    }
+    return (vec.end());
+}
 
 std::string currentTimestamp(void)
 {

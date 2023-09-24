@@ -6,11 +6,10 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:42:14 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 11:00:40 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 17:44:24 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sys/epoll.h>
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
@@ -24,18 +23,15 @@ void Server::enable()
 {
 	std::cout << currentTimestamp() << " Starting server..." << std::endl;
 	_enabled = true;
+	int	 socketsReadyForIO = 0;
 
-	const int MAX_EVENTS = 4096;
+	std::vector<pollfd>::iterator currentSocket;
 
-	struct epoll_event events[MAX_EVENTS];
-
-	int	 socketsWithData = 0;
-	
 	while (_enabled)
 	{
-		socketsWithData = epoll_wait(_epollInstance, events, MAX_EVENTS, 15);
+		socketsReadyForIO = poll(_sockets.data(), _sockets.size(), 0);
 		
-		if (socketsWithData < 0 && _enabled)
+		if (socketsReadyForIO < 0 && _enabled)
 		{
 			std::cerr << "Error : An error has occurred during the processing of events of the current connection!\n" 
 				<< strerror(errno) 
@@ -44,18 +40,37 @@ void Server::enable()
 		}
 		
 		// Idle
-		if (!socketsWithData)
+		if (!socketsReadyForIO)
 			continue;
-		
-		for (int index = 0; index < socketsWithData; index++)
+
+		if (_sockets[0].revents & POLLIN)
+			handleUserConnection();
+
+		for (std::vector<pollfd>::iterator it = _sockets.begin() + 1; it != _sockets.end();)
 		{
-			if (events[index].data.fd == _listenerSocket)
-				handleUserConnection();
-			else if (events[index].events & EPOLLHUP)
-				handleUserDisconnection(events[index].data.fd);
+			currentSocket = findSocket(_socketsToBeRemoved, it->fd);
+
+			if (currentSocket != _socketsToBeRemoved.end())
+			{
+				it = _sockets.erase(it);
+				_socketsToBeRemoved.erase(currentSocket);
+				continue ;
+			}
+
+			if (_enabled && it->revents & POLLIN)
+			{
+				handleUserData(it->fd);
+				it++;
+			}
+			else if (_enabled && it->revents & POLLHUP)
+			{
+				handleUserDisconnection(it->fd);
+			}
 			else
-				handleUserData(events[index].data.fd);
+				it++;
 		}
+
+        _sockets[0].revents = 0;
 	}
 }
 
@@ -70,7 +85,7 @@ void Server::disable()
 	{
 		if (!it->second)
 			continue;
-		handleUserDisconnection(it->second->getSocket());
+		handleUserDisconnection(it->second->getSocket().fd);
 	}
 
     for (std::map<std::string, User *>::const_iterator it = _authenticatedUsers.begin();
@@ -79,7 +94,7 @@ void Server::disable()
 	{
 		if (!it->second)
 			continue;
-		handleUserDisconnection(it->second->getSocket());
+		handleUserDisconnection(it->second->getSocket().fd);
 	}
 
 	_connectedUsers.clear();
@@ -93,5 +108,5 @@ void Server::disable()
 
 	delete commandManager;
 	
-	close(_listenerSocket);
+	close(_listener.fd);
 }

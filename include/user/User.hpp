@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 10:52:44 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 11:27:52 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 17:30:10 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,12 @@
 
 # include <iostream>
 # include <string>
+# include <poll.h>
 
 class User
 {
     private:
-        const int             _socket;
+        pollfd             _socket;
 
         std::string     _nickname;
         std::string     _username;
@@ -43,9 +44,9 @@ class User
         User(const User& instance);
         User& operator=(const User& instance);
 
-        User(int socket);
+        User(const pollfd& socket);
 
-        int          getSocket() const;
+        const pollfd&          getSocket() const;
 
         const std::string&    getNickname() const;
         const std::string&    getUsername() const;

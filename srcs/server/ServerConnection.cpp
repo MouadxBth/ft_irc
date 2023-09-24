@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:56:31 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 12:03:16 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/24 17:46:31 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <cerrno>
 #include <fcntl.h>
 #include <unistd.h>
-#include <sys/epoll.h>
+#include <poll.h>
 
 #include "Server.hpp"
 #include "CommandManager.hpp"
@@ -25,11 +25,13 @@
 
 void Server::handleUserConnection()
 {
+
+	std::cout << "here" << std::endl;
 	int newUserSocket;
 	sockaddr_in newUserAddress;
 	socklen_t newUserAddressSize = sizeof(newUserAddress);
 	
-	newUserSocket = accept(_listenerSocket,
+	newUserSocket = accept(_listener.fd,
 		reinterpret_cast<struct sockaddr *>(&newUserAddress),
 		&newUserAddressSize);
 	
@@ -53,27 +55,21 @@ void Server::handleUserConnection()
         close(newUserSocket);
 		return ;
 	}
-	struct epoll_event  newUserEPollEvent;
+	
+	pollfd  newUserPollFd;
 	
 	// fill the new pollfd struct of the newUser 
-	newUserEPollEvent.data.fd      = newUserSocket;
-	newUserEPollEvent.events  = EPOLLIN | EPOLLET;
-
-	if (epoll_ctl(_epollInstance, EPOLL_CTL_ADD, newUserSocket, &newUserEPollEvent) < 0)
-	{
-		std::cerr << "Error : EPOLL_CTL Failed !\n"
-			<< strerror(errno)
-			<< std::endl;
-        close(newUserSocket);
-		return ;
-	}
+	newUserPollFd.fd      = newUserSocket;
+	newUserPollFd.events  = POLLIN | POLLOUT;
 
 	// create a new user with fd
-	User    *newUser = new User(newUserSocket);
+	User    *newUser = new User(newUserPollFd);
 	
 	newUser->setHostname(obtain_hostname(newUserAddress));
 	// add it to the Users map
 	_connectedUsers[newUserSocket] = newUser;
+
+	_sockets.push_back(newUserPollFd);
 
 	std::cout << "=> CONNECTED: [" << newUserSocket << "]" << std::endl;
 }
@@ -93,7 +89,7 @@ void Server::handleUserDisconnection(int fd)
 
 	data.command = "QUIT";
 	
-	std::cout << "=> DISCONNECTED: [" << user->getSocket() << "]" << std::endl;
+	std::cout << "=> DISCONNECTED: [" << user->getSocket().fd << "]" << std::endl;
 
 	CommandManager::getInstance()->executeCommand(user, data);
 

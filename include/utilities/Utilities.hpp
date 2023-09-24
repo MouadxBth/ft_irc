@@ -9,6 +9,8 @@
 #include "ChannelMode.hpp"
 #include "CommandData.hpp"
 
+std::vector<pollfd>::iterator findSocket(std::vector<pollfd>& vec, int fd);
+
 bool isNumber(const char *str);
 size_t getNumber(const std::string& str);
 
