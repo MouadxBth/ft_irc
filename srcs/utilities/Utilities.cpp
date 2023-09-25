@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 01:07:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/25 19:33:16 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/25 19:51:47 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -414,13 +414,12 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 			current.add = args[index][0] == '+';
 			current.mode = args[index][1];
 			
-			if (takesParam(current.mode) && args[index][0] == '+')
+			if (takesParam(current.mode))
 			{
-				if (index + 1 >= args.size())
+				if (index + 1 < args.size())
 				{
-					return (empty);
+				    current.parameter = args[index + 1];
 				}
-				current.parameter = args[index + 1];
 				index++;
 			}
 			result.push_back(current);

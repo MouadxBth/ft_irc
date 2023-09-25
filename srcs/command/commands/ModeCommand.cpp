@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 14:01:15 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/25 20:03:11 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,9 @@ void ModeCommand::executeCommand(User *user, Data &data)
 					user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), message));
 					break ;
 				}
+
+				if (!it->add && !channel->isChannelKeySet())
+					break ;
 					
 				if (it->add)
 					channel->setPassword(it->parameter);
@@ -202,10 +205,12 @@ void ModeCommand::executeCommand(User *user, Data &data)
 				
 				if (!it->add)
 				{
-					std::cout << "REMOVED" << std::endl;
-					channel->setUserLimit(false);
-					message += "-l";
-					channel->announce(message);
+					if (channel->isUserLimitSet())
+					{
+						channel->setUserLimit(false);
+						message += "-l";
+						channel->announce(message);
+					}
 					break ;
 				}
 
@@ -228,8 +233,6 @@ void ModeCommand::executeCommand(User *user, Data &data)
 				{
 					break ;
 				}
-
-				std::cout << "VALUE: " << value << std::endl;
 				
 				channel->setUserLimit(it->add);
 				channel->setMaximumCapacity(value);
