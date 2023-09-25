@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 02:19:11 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 17:35:11 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/25 20:55:13 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,8 +246,7 @@ bool	Server::removeUser(User *user)
 	
 	_socketsToBeRemoved.push_back(user->getSocket());
 	
-	return (_connectedUsers.erase(user->getSocket().fd) ||
-		_authenticatedUsers.erase(user->getNickname()));
+	return (true);
 }
 
 void	Server::addChannel(Channel *channel)
