@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 12:56:35 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/25 19:19:06 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,8 @@ void PrivMsg::executeCommand(User *user, Data &data)
 
             const std::pair<User *, ChannelUserModes>& channelUser = channelTarget->getUser(user->getNickname());
 
-            if ((!channelUser.first && channelTarget->isExternalMessagesEnabled())
+            if (!channelTarget->containsUser(user->getNickname()) 
+                || (!channelUser.first && channelTarget->isExternalMessagesEnabled())
                 || (channelTarget->isUserBanned(user->getNickname()))
                 || (!channelUser.second.channelOperator 
                     && !channelUser.second.voice 
