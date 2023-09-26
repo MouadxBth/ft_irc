@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/26 13:57:49 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 15:31:06 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,6 @@ void PassCommand::executeCommand(User *user, Data &data)
         user->sendMessage(ERR_ALREADYREGISTERED(user->getNickname()));
         return ;
     }
-
-    if (user->getNickname().empty())
-        return ;
 
     if (data.arguments.empty())
     {
