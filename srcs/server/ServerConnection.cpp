@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:56:31 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 19:06:59 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 12:58:58 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,10 @@ void Server::handleUserConnection()
 	User    *newUser = new User(newUserPollFd);
 	
 	newUser->setHostname(obtain_hostname(newUserAddress));
+
+	if (newUser->getHostname() == "127.0.0.1")
+		newUser->setHostname(_hostname);
+
 	// add it to the Users map
 	_connectedUsers[newUserSocket] = newUser;
 
@@ -82,7 +86,7 @@ void Server::handleUserDisconnection(int fd)
     }
 
 	std::vector<std::string> empty;
-
+	
 	Data data = emptyCommandData();
 
 	data.command = "QUIT";

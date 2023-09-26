@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/25 20:03:11 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/25 22:34:28 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,7 @@ void ModeCommand::executeCommand(User *user, Data &data)
 					break ;
 				}
 
-				if (it->add && it->parameter.empty())
+				if (it->add && it->parameter.empty())	
 				{
 					message = data.command + " ";
 					message += "+l";

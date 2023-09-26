@@ -30,13 +30,15 @@ class Server
 
 		const std::vector<std::string>		_motd;
 
+		std::string				_hostname;
+
 		std::set<std::string> _reservedNicknames;
 		std::set<std::string> _restrictedNicknames;
 		
 		std::map<int, User *>				_connectedUsers;
 		std::map<std::string, User *>		_authenticatedUsers;
 		std::map<std::string, Channel *>	_channels;
-		
+	
 		std::set<std::string>	_channelsToBeRemoved;
 
 		std::vector<pollfd>		_sockets;
@@ -72,6 +74,8 @@ class Server
 		const std::string&			getChannelModes() const;
 		
 		const std::vector<std::string>&					getMotd() const;
+
+		const std::string&			getHostname() const;
 		
 		const std::set<std::string>&					getReservedNicknames() const;
 		const std::set<std::string>&					getRestrictedNicknames() const;
@@ -93,6 +97,10 @@ class Server
 		bool	authenticateUser(User *user);
 
 		bool	removeUser(User *user);
+
+		void	cleanConnectedUsers();
+
+		void	cleanAuthenticatedUsers();
 
 		void	addChannel(Channel *channel);
 

@@ -6,7 +6,7 @@
 #    By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/12 23:45:12 by mbouthai          #+#    #+#              #
-#    Updated: 2023/09/20 16:27:39 by mbouthai         ###   ########.fr        #
+#    Updated: 2023/09/26 13:50:51 by mbouthai         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,7 @@ COMMAND_SRCS	:= $(addprefix $(COMMAND_DIR)/,$(COMMAND_SRCS))
 
 SERVER_DIR	:= server
 SERVER_SRCS	= Server.cpp ServerConfiguration.cpp ServerManagement.cpp \
-	ServerConnection.cpp ServerHandler.cpp 
+	ServerConnection.cpp ServerHandler.cpp ServerCleanup.cpp
 SERVER_SRCS	:= $(addprefix $(SERVER_DIR)/,$(SERVER_SRCS))
 
 USER_DIR	:= user

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 02:19:11 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/25 20:55:13 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 13:48:34 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,6 +243,9 @@ bool	Server::removeUser(User *user)
 {
 	if (!user)
 		return (false);
+
+	_connectedUsers.erase(user->getSocket().fd);
+	_authenticatedUsers.erase(user->getNickname());
 	
 	_socketsToBeRemoved.push_back(user->getSocket());
 	
@@ -259,24 +262,4 @@ void	Server::addChannel(Channel *channel)
 bool	Server::removeChannel(const std::string& name)
 {
 	return (_channelsToBeRemoved.insert(name).second);
-}
-
-void	Server::cleanChannels()
-{
-	Channel *target;
-    
-	for (std::set<std::string>::iterator it = _channelsToBeRemoved.begin();
-        it != _channelsToBeRemoved.end();
-		it++)
-	{
-        target = getChannel(*it);
-        if (target && !target->getUsers().size())
-        {
-			std::cout << "deleting channel: " << target->getName() << std::endl;
-            _channels.erase(*it);
-            delete target;
-        }
-	}
-
-    _channelsToBeRemoved.clear();
 }

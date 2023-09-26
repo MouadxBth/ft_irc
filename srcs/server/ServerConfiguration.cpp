@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 00:03:40 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 18:58:48 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 12:47:53 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <poll.h>
 
 #include "Server.hpp"
+#include "Utilities.hpp"
 
 void	Server::configure(void)
 {
@@ -56,11 +57,13 @@ void	Server::configure(void)
 
 	// Bind the socket to the IP address and port of the server and check the status 
     if (bind(_listener.fd, reinterpret_cast<struct sockaddr *>(&_address), _addressSize) < 0)
+	{
         (std::cerr << "Error : Binding Failed due to: " 
 			<< strerror(errno) 
 			<< std::endl,
 			close(_listener.fd),
 			std::exit(EXIT_FAILURE));
+	}
 
 	 // Listening for incoming connection requests and check the status
     if (listen(_listener.fd, SOMAXCONN) < 0)
@@ -71,6 +74,8 @@ void	Server::configure(void)
 			std::exit(EXIT_FAILURE));
 	}
 
+	_hostname = "localhost";
+	
 	_sockets.push_back(_listener);
 
 }

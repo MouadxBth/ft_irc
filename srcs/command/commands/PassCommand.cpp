@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 16:39:52 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 13:57:49 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,24 +35,25 @@ PassCommand& PassCommand::operator=(const PassCommand& instance)
 
 void PassCommand::executeCommand(User *user, Data &data)
 {
-    std::string nickname = "*";
-    
     if (user->isAuthenticated())
     {
         user->sendMessage(ERR_ALREADYREGISTERED(user->getNickname()));
         return ;
     }
 
+    if (user->getNickname().empty())
+        return ;
+
     if (data.arguments.empty())
     {
-        user->sendMessage(ERR_NEEDMOREPARAMS(nickname, data.command));
+        user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), data.command));
         return ;
     }
     
     // check password
     if (Server::getInstance()->getPassword() != data.arguments[0])
     {
-        user->sendMessage(ERR_PASSWDMISMATCH(nickname));
+        user->sendMessage(ERR_PASSWDMISMATCH(user->getNickname()));
         return ;
     }
 

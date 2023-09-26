@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 01:07:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/25 19:51:47 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 12:45:59 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,22 +50,15 @@ std::string currentTimestamp(void)
 std::string obtain_hostname(sockaddr_in& user_addr)
 {
     std::string ret_str;
-    struct hostent* host_info;
     char* user_ip;
 
     user_ip = inet_ntoa(user_addr.sin_addr);
 
-    host_info = gethostbyaddr((const char*)&user_addr.sin_addr, sizeof(user_addr.sin_addr), AF_INET);
-
-    (void) user_ip;
-
-    if (host_info != NULL && host_info->h_name != NULL)
-        ret_str.assign(host_info->h_name);
-    else
-        ret_str.assign("EMPTY");
+    ret_str = user_ip;
 
     return ret_str;
 }
+
 
 bool isKnownCommand(std::string command)
 {

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:42:14 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 17:44:24 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 13:49:20 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,26 +79,9 @@ void Server::disable()
 	std::cout << currentTimestamp() << " Disabling server..." << std::endl;	
     _enabled = false;
 
-	for (std::map<int, User *>::const_iterator it = _connectedUsers.begin();
-        it != _connectedUsers.end();
-        it++)
-	{
-		if (!it->second)
-			continue;
-		handleUserDisconnection(it->second->getSocket().fd);
-	}
+	cleanConnectedUsers();
 
-    for (std::map<std::string, User *>::const_iterator it = _authenticatedUsers.begin();
-        it != _authenticatedUsers.end();
-        it++)
-	{
-		if (!it->second)
-			continue;
-		handleUserDisconnection(it->second->getSocket().fd);
-	}
-
-	_connectedUsers.clear();
-	_authenticatedUsers.clear();
+	cleanAuthenticatedUsers();
 
 	cleanChannels();
 
