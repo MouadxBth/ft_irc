@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 13:08:48 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 15:50:25 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ void PartCommand::executeCommand(User *user, Data &data)
                 return ;
             continue ;
         }
+        
         if (!target->containsUser(user->getNickname()))
         {
             if (!user->sendMessage(ERR_NOTONCHANNEL(user->getNickname(), *it)))
@@ -78,8 +79,12 @@ void PartCommand::executeCommand(User *user, Data &data)
             message += user->getNickname();
 
         target->removeUser(user->getNickname());
+        
         if (!target->getUsers().size())
+        {
+            std::cout << "PART no users" << std::endl;
             Server::getInstance()->removeChannel(target->getName());
+        }
         
         user->setJoinedChannelsCount(user->getJoinedChannelsCount() - 1);
 

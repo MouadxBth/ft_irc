@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 14:05:16 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 15:46:48 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,8 @@ void JoinCommand::executeCommand(User *user, Data &data)
 
     int current = 0;
 
+    std::string message;
+
     for (std::map<std::string, std::string>::const_iterator it = elements.begin();
         it != elements.end();
         it++)
@@ -125,10 +127,10 @@ void JoinCommand::executeCommand(User *user, Data &data)
             newChannel->addUser(user, modes);
             user->setJoinedChannelsCount(user->getJoinedChannelsCount() + 1);
 
-            std::string message = ":" + user->getNickname() + "!" 
+            message = ":" + user->getNickname() + "!" 
                 + user->getUsername() + "@" 
-                + user->getHostname() + " " 
-                + data.command + " " + data.arguments[0];
+                + user->getHostname() + " "     
+                + data.command + " " + newChannel->getName();
                 
             Server::getInstance()->addChannel(newChannel);
             
@@ -185,7 +187,7 @@ void JoinCommand::executeCommand(User *user, Data &data)
 
         user->setJoinedChannelsCount(user->getJoinedChannelsCount() + 1);
         
-        std::string message = ":" + user->getNickname() + "!" 
+        message = ":" + user->getNickname() + "!" 
                 + user->getUsername() + "@" 
                 + user->getHostname() + " " 
                 + data.command + " " + target->getName();

@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 17:58:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 18:40:10 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 17:23:44 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,11 @@ void Bot::listen()
                     return ;
                 }
 
-                prepareInput(input);
+                std::vector<std::string> result = prepareInput(input);
+                for (std::vector<std::string>::const_iterator ct = result.begin(); ct != result.end(); ct++)
+                {
+                    std::cout << *ct << std::endl;
+                }
             }
             catch(std::exception& e)
             {

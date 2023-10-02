@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:42:14 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/26 13:49:20 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 15:51:34 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,8 @@ void Server::disable()
 	cleanAuthenticatedUsers();
 
 	cleanChannels();
+
+	_channels.clear();
 
 	CommandManager *commandManager = CommandManager::getInstance();
 

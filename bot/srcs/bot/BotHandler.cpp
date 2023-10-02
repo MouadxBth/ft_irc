@@ -6,13 +6,16 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 17:58:50 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 23:14:56 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/02 15:07:39 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Bot.hpp"
 #include <cstring>
 #include <cerrno>
+#include <iostream>
+
+#include "CommandReplies.hpp"
 
 std::string Bot::readInput(pollfd& connectionInfo) throw(std::runtime_error)
 {
@@ -69,4 +72,133 @@ std::vector<std::string> Bot::prepareInput(std::string& input)
 	}
     
     return (result);
+}
+
+bool startsWith(const std::string& fullString, const std::string& startString) {
+    // Check if the startString is longer than the fullString
+    if (startString.length() > fullString.length()) {
+        return false;
+    }
+    
+    // Compare the startString to the beginning of the fullString
+    return fullString.compare(0, startString.length(), startString) == 0;
+}
+
+// PRIVMSG bot !hello
+
+bool    handleJoinReply(const std::string& reply)
+{
+    if (startsWith(reply, "332"))
+        return (std::cout << ">> BOT JOINED CHANNEL SUCCESSFULLY << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "403"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_NOSUCHCHANNEL << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "405"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_TOOMANYCHANNELS << " 
+            << std::endl,
+            false);
+    else if (startsWith(reply, "407"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_TOOMANYTARGETS << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "437"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_UNAVAILRESOURCE << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "461"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_NEEDMOREPARAMS << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "471"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_CHANNELISFULL << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "473"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_INVITEONLYCHAN << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "474"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_BANNEDFROMCHAN << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "475"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_BADCHANNELKEY << "
+            << std::endl, false);
+}
+
+bool    handlePrivMsgReply(const std::string& reply)
+{
+	//ERR_NORECIPIENT() 411                ERR_NOTEXTTOSEND() 412
+	//ERR_CANNOTSENDTOCHAN() 404
+    //ERR_TOOMANYTARGETS() 407
+	//ERR_NOSUCHNICK() 401
+	//RPL_AWAY() 301
+
+ 	if (startsWith(reply, "332"))
+        return (std::cout << ">> BOT JOINED CHANNEL SUCCESSFULLY << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "403"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_NOSUCHCHANNEL << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "405"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_TOOMANYCHANNELS << " 
+            << std::endl,
+            false);
+    else if (startsWith(reply, "407"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_TOOMANYTARGETS << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "437"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_UNAVAILRESOURCE << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "461"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_NEEDMOREPARAMS << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "471"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_CHANNELISFULL << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "473"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_INVITEONLYCHAN << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "474"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_BANNEDFROMCHAN << "
+            << std::endl,
+            false);
+    else if (startsWith(reply, "475"))
+        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_BADCHANNELKEY << "
+            << std::endl,
+            false);
+}
+
+void    handleInput(std::vector<std::string>& input)
+{
+    //":" + user->getNickname() + "!" 
+    //            + user->getUsername() + "@" 
+    //            + user->getHostname() + " " 
+    //            + data.command + " "
+    std::string nickname;
+    std::string message;
+    
+    for (std::vector<std::string>::const_iterator it = input.begin(); it != input.end(); it++)
+    {
+        if ((*it)[0] != ':')
+            continue ;
+        
+        size_t index = 0;
+        while ((*it)[++index] != '!')
+            nickname += (*it)[index];
+
+        
+        
+        //if (startsWith(*it, "475"))
+    }
 }

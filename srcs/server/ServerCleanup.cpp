@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 13:48:12 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/26 13:50:06 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/09/26 15:51:19 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,5 +107,5 @@ void	Server::cleanChannels()
 	}
 
     _channelsToBeRemoved.clear();
-    _channels.clear();
+    //_channels.clear();
 }
