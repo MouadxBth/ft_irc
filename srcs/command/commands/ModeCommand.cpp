@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/25 22:34:28 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/03 16:15:27 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,9 @@ void ModeCommand::executeCommand(User *user, Data &data)
 	std::vector<ChannelMode> modes = parseModeArguments(data.arguments);
 
 	if (!modes.size())
+		return ;
+
+	if (!channel->containsUser(user->getNickname()))
 		return ;
 
 	if (!channel->getUser(user->getNickname()).second.channelOperator)

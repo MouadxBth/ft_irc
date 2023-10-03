@@ -273,7 +273,8 @@ bool Channel::pardonUser(const std::string& nickname)
 
 bool Channel::containsUser(const std::string& nickname) const
 {
-	return (_users.find(nickname) != _users.end() && getUser(nickname).first != NULL);
+	const std::map<std::string, std::pair<User *, ChannelUserModes> >::const_iterator result = _users.find(nickname);
+	return (result != _users.end() && result->second.first != NULL);
 }
 
 void Channel::addUser(User *user, ChannelUserModes& ChannelUserModes)
