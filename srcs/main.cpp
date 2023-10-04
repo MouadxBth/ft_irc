@@ -51,6 +51,13 @@ int main(int argc, char **argv)
 
     std::string password(argv[2]);
 
+    if (password.empty())
+        return (std::cerr << "[Error]: Invalid password!\n"
+                << "Proper usage: (./ircserv <PORT: Positive number> <PASSWORD: String>)\n"
+                << "=> Password must not be empty!"
+                << std::endl,
+                EXIT_FAILURE);
+
     server = Server::createInstance(static_cast<size_t>(port), password);
     server->enable();
     

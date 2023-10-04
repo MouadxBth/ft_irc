@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/26 15:32:39 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/03 21:54:46 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,11 @@ void UserCommand::executeCommand(User *user, Data &data)
     if (data.arguments.empty() || data.arguments.size() < 3)
     {
         user->sendMessage(ERR_NEEDMOREPARAMS(user->getNickname(), data.command));
+        return ;
+    }
+
+    if (!isValidIRCUsername(data.arguments[0]))
+    {
         return ;
     }
     

@@ -74,8 +74,6 @@ class Server
 		const std::string&			getChannelModes() const;
 		
 		const std::vector<std::string>&					getMotd() const;
-
-		const std::string&			getHostname() const;
 		
 		const std::set<std::string>&					getReservedNicknames() const;
 		const std::set<std::string>&					getRestrictedNicknames() const;

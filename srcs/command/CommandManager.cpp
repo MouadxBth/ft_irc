@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 12:04:38 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 12:13:42 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/03 21:23:41 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@
 # include "NamesCommand.hpp"
 # include "NoticeCommand.hpp"
 # include "ModeCommand.hpp"
+# include "ListCommand.hpp"
 
 CommandManager *CommandManager::_instance = NULL;
 
@@ -65,6 +66,7 @@ void    CommandManager::registerCommand(Command *command)
         return ;
         
     _registeredCommands[command->getName()] = command;
+    std::cout << "Regisetered: "<< command->getName() << std::endl;
 }
 
 void    CommandManager::unregisterCommand(const std::string& command)
@@ -84,6 +86,8 @@ void    CommandManager::executeCommand(User *user, Data &data)
     nickname = user->getNickname().empty() 
         ? "*"
         : user->getNickname();
+    
+    printDatas(data);
 
     std::map<std::string, Command *>::iterator it = _registeredCommands.find(data.command);
     
@@ -174,6 +178,7 @@ CommandManager *CommandManager::getInstance()
             new NamesCommand(),
             new NoticeCommand(),
             new ModeCommand(),
+            new ListCommand(),
             NULL);
     }
     return (_instance);

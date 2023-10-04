@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/19 16:34:21 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/04 03:14:24 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,10 @@ void TopicCommand::executeCommand(User *user, Data &data)
     Channel *target = Server::getInstance()->getChannel(data.arguments[0]);
     
     if (!target)
+    {
+        user->sendMessage(ERR_NOSUCHCHANNEL(user->getNickname(), data.arguments[0]));
         return ;
+    }
     
     if (!target->containsUser(user->getNickname()))
     {

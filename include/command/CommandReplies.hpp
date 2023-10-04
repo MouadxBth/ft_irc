@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 19:50:02 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 11:31:16 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/03 21:00:31 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,10 @@
 
 #define RPL_AWAY(nick, message)											"301 " + nick + " :" + message
 
-#define RPL_CHANNELMODEIS(nick, channel, message)								"324 " + nick + " " + channel + " " + message
+#define RPL_LIST(nick, channel, users, topic)						    "322 " + nick + " " + channel + " " + users + " :" + topic
+#define RPL_LISTEND(nick)						                        "323 " + nick + " :End of LIST"
+
+#define RPL_CHANNELMODEIS(nick, channel, message)						"324 " + nick + " " + channel + " " + message
 
 #define RPL_NOTOPIC(nick, channel)										"331 " + nick + " " + channel + " :No topic is set"
 #define RPL_TOPIC(nick, channel, topic)									"332 " + nick + " " + channel + " :" + topic

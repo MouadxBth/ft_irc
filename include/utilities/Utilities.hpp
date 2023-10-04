@@ -29,6 +29,7 @@ void    removeCharacter(std::string& str, char target);
 bool	validateInput(const std::string& input);
 
 bool isValidIRCNickname(const std::string& nickname);
+bool isValidIRCUsername(const std::string& username);
 
 bool containsString(const std::set<std::string>& collection, const std::string& element);
 

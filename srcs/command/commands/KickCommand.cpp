@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 13:06:07 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/03 20:32:48 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,8 +108,8 @@ void KickCommand::executeCommand(User *user, Data &data)
 
             replies.push_back(message);
             
-            channelTarget->removeUser(*it);
             channelTarget->getUser(*it).first->sendMessage(message);
+            channelTarget->removeUser(*it);
         }
         channelTarget->announce(replies);
         return ;

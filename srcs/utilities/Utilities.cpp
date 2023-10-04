@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 01:07:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/26 12:45:59 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/03 21:53:21 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ bool isKnownCommand(std::string command)
         || command == "KICK"
         || command == "NAMES"
         || command == "TOPIC"
+        || command == "LIST"
         || command == "MODE")
         return (true);
     return (false);
@@ -131,7 +132,7 @@ bool	validateInput(const std::string& input)
 
 	for (size_t index = 0; index < input.size(); index++)
 	{
-		if (std::isspace(input[index]))
+		if (std::isspace(input[index]) && !trail)
 		{
 			if (flag)
 				return (false) ;
@@ -228,6 +229,29 @@ bool isValidIRCNickname(const std::string& nickname)
     return (true);
 }
 
+bool isValidIRCUsername(const std::string& username)
+{
+    // Check the length of the username
+    if (username.empty() || username.size() > 50) {
+        return false;
+    }
+
+    // Check the first character
+    if (!(isalpha(username[0]) || username[0] == '_')) {
+        return false;
+    }
+
+    // Check the rest of the characters
+    for (size_t i = 1; i < username.size(); ++i) {
+        if (!(isalnum(username[i]) || username[i] == '_' || username[i] == '-' || username[i] == '[' || username[i] == ']')) {
+            return false;
+        }
+    }
+
+    // All checks passed, the username is valid
+    return true;
+}
+
 bool containsString(const std::set<std::string>& collection, const std::string& element)
 {
     // Convert the provided string to lowercase for case-insensitive comparison
@@ -282,6 +306,8 @@ void printDatas(Data &data)
 	
 	std::cout << "\n\tArgument Size: " << data.arguments.size()
 		<< "\n\tTrail: " << data.trail << " " << data.trail.size() << std::endl;
+
+    std::cout << "Valid: " << data.valid << std::endl;
 }
 
 Data emptyCommandData()

@@ -142,7 +142,7 @@ const std::string Channel::getChannelUserModes() const
 	if (isUserLimitSet())
 		result += "l";
 	if (isChannelKeySet())
-		result += "k ";
+		result += "k";
 	
 	if (isUserLimitSet())
 	{

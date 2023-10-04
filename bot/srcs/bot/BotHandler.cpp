@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 17:58:50 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/10/02 15:07:39 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/03 20:26:28 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,7 +178,11 @@ bool    handlePrivMsgReply(const std::string& reply)
             << std::endl,
             false);
 }
-
+bool checkNames(std::vector<std::string>::const_iterator it, std::string name)
+{
+    if (std::strcmp(name.c_str(), )
+    
+}
 void    handleInput(std::vector<std::string>& input)
 {
     //":" + user->getNickname() + "!" 
@@ -196,8 +200,10 @@ void    handleInput(std::vector<std::string>& input)
         size_t index = 0;
         while ((*it)[++index] != '!')
             nickname += (*it)[index];
-
-        
+        //check username
+        checkNames(it, this->getUsername())
+        //check hostname
+        checkNames(it, this->getHostname())
         
         //if (startsWith(*it, "475"))
     }

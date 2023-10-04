@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 09:55:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/26 15:46:48 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/03 21:50:29 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,12 @@ void JoinCommand::executeCommand(User *user, Data &data)
             if (it->first.size() > 50)
                 continue ;
             Channel *newChannel = new Channel(it->first);
+
+            if (!it->second.empty())
+            {
+                newChannel->setPassword(it->second);
+                newChannel->setChannelKey(true);
+            }
 
             newChannel->addUser(user, modes);
             user->setJoinedChannelsCount(user->getJoinedChannelsCount() + 1);
