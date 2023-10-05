@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 17:58:50 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/10/05 20:39:25 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 20:52:29 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ void    Bot::handleInput(std::vector<std::string>& input)
 
 bool    Bot::isKnownCommand(const std::string& command)
 {
-    return (command == "!flip" || command == "!random" || command == "who");
+    return (command == "!flip" || command == "!random" || command == "!who");
 }
 
 
