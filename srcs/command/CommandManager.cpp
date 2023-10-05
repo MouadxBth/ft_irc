@@ -6,10 +6,12 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/12 12:04:38 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/10/03 21:23:41 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 21:28:51 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sstream>
+#include <string>
 #include "CommandManager.hpp"
 #include "Command.hpp"
 #include "CommandReplies.hpp"
@@ -110,6 +112,25 @@ void    CommandManager::executeCommand(User *user, Data &data)
 
     if (data.arguments.size() > 15 || (data.trail.empty() && it->second->requiresTrail()))
         return ;
+
+    if (!data.prefix.empty())
+    {
+        std::istringstream iss(data.prefix);
+        std::string nickname, username, hostname;
+        
+        std::getline(iss, nickname, '!');
+        
+        std::getline(iss, username, '@');
+            
+        std::getline(iss, hostname);
+
+        if (nickname != user->getNickname()
+            || username != user->getUsername()
+            || hostname != user->getHostname())
+        {
+            return ;
+        }
+    }
 
     it->second->executeCommand(user, data);
 }

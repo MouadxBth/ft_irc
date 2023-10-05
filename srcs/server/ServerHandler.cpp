@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:58:13 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/10/05 16:17:14 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 21:25:41 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,7 @@ static Data parseUserInput(std::string& input)
 			arguments += input[index];
 	}
 
+	data.prefix = trim(data.prefix);
 	arguments = trim(arguments);
 	data.arguments = split(arguments, ' ');
     return (data);
