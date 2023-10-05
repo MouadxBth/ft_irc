@@ -6,12 +6,13 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 16:35:40 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 18:32:05 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 20:12:04 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <cstdlib>
+#include <stdlib.h>
 
 # include "Bot.hpp"
 
@@ -56,6 +57,8 @@ int main(int argc, char **argv)
             << "=> Port range: [1025-65536]"
             << std::endl,
             EXIT_FAILURE);
+    
+    std::srand(time(NULL));
 
     std::string host(argv[2]);
     std::string password(argv[3]);

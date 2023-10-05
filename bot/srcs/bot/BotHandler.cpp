@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 17:58:50 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/10/03 20:26:28 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 20:39:25 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 #include <cstring>
 #include <cerrno>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <stdlib.h>
 
 #include "CommandReplies.hpp"
 
@@ -74,137 +77,91 @@ std::vector<std::string> Bot::prepareInput(std::string& input)
     return (result);
 }
 
-bool startsWith(const std::string& fullString, const std::string& startString) {
-    // Check if the startString is longer than the fullString
-    if (startString.length() > fullString.length()) {
-        return false;
-    }
+Message Bot::parseMessage(const std::string& message) {
+    Message result;
+    std::istringstream iss(message);
+
+    std::string myname;
     
-    // Compare the startString to the beginning of the fullString
-    return fullString.compare(0, startString.length(), startString) == 0;
-}
-
-// PRIVMSG bot !hello
-
-bool    handleJoinReply(const std::string& reply)
-{
-    if (startsWith(reply, "332"))
-        return (std::cout << ">> BOT JOINED CHANNEL SUCCESSFULLY << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "403"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_NOSUCHCHANNEL << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "405"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_TOOMANYCHANNELS << " 
-            << std::endl,
-            false);
-    else if (startsWith(reply, "407"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_TOOMANYTARGETS << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "437"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_UNAVAILRESOURCE << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "461"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_NEEDMOREPARAMS << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "471"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_CHANNELISFULL << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "473"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_INVITEONLYCHAN << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "474"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_BANNEDFROMCHAN << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "475"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_BADCHANNELKEY << "
-            << std::endl, false);
-}
-
-bool    handlePrivMsgReply(const std::string& reply)
-{
-	//ERR_NORECIPIENT() 411                ERR_NOTEXTTOSEND() 412
-	//ERR_CANNOTSENDTOCHAN() 404
-    //ERR_TOOMANYTARGETS() 407
-	//ERR_NOSUCHNICK() 401
-	//RPL_AWAY() 301
-
- 	if (startsWith(reply, "332"))
-        return (std::cout << ">> BOT JOINED CHANNEL SUCCESSFULLY << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "403"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_NOSUCHCHANNEL << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "405"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_TOOMANYCHANNELS << " 
-            << std::endl,
-            false);
-    else if (startsWith(reply, "407"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_TOOMANYTARGETS << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "437"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_UNAVAILRESOURCE << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "461"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_NEEDMOREPARAMS << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "471"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_CHANNELISFULL << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "473"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_INVITEONLYCHAN << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "474"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_BANNEDFROMCHAN << "
-            << std::endl,
-            false);
-    else if (startsWith(reply, "475"))
-        return (std::cout << ">> BOT COULD NOT JOIN CHANNEL: ERR_BADCHANNELKEY << "
-            << std::endl,
-            false);
-}
-bool checkNames(std::vector<std::string>::const_iterator it, std::string name)
-{
-    if (std::strcmp(name.c_str(), )
+    char colon;
     
+    iss >> colon;
+    
+    std::getline(iss, result.nickname, '!');
+    
+    std::getline(iss, result.username, '@');
+        
+    std::getline(iss, result.hostname, ' ');
+    
+    std::getline(iss, result.command, ' ');
+
+    std::getline(iss, myname, ' ');
+    
+    std::getline(iss, result.content);
+    
+    result.content.erase(0, 1);
+
+    std::cout << result.nickname << " "
+        << result.username << " "
+        << result.hostname << " "
+        << result.command << " "
+        << result.nickname << " "
+        << result.content << std::endl;
+
+    return (result);
 }
-void    handleInput(std::vector<std::string>& input)
+
+
+void    Bot::handleInput(std::vector<std::string>& input)
 {
-    //":" + user->getNickname() + "!" 
-    //            + user->getUsername() + "@" 
-    //            + user->getHostname() + " " 
-    //            + data.command + " "
-    std::string nickname;
-    std::string message;
+    Message current;
     
     for (std::vector<std::string>::const_iterator it = input.begin(); it != input.end(); it++)
     {
         if ((*it)[0] != ':')
             continue ;
+        current = parseMessage(*it);
+        if (current.command.empty() || current.nickname.empty() || current.content.empty())
+            continue;
+        executeMessage(current);
+    }
+}
+
+
+bool    Bot::isKnownCommand(const std::string& command)
+{
+    return (command == "!flip" || command == "!random" || command == "who");
+}
+
+
+void    Bot::executeMessage(const Message& message)
+{
+    if (message.command != "PRIVMSG" && message.command != "NOTICE")
+        return ;
+    
+    if (!isKnownCommand(message.content))
+        return ;
+
+    if (message.content == "!flip")
+    {
+        std::string result = std::rand() % 2 ? "heads" : "tails";
+        sendMessage("PRIVMSG " + message.nickname + " :" + result);
+        return ;
+    }
+    
+    if (message.content == "!random")
+    {
+        std::stringstream iss;
+
+        iss << (std::rand() % 1000);
         
-        size_t index = 0;
-        while ((*it)[++index] != '!')
-            nickname += (*it)[index];
-        //check username
-        checkNames(it, this->getUsername())
-        //check hostname
-        checkNames(it, this->getHostname())
-        
-        //if (startsWith(*it, "475"))
+        sendMessage("PRIVMSG " + message.nickname + " :" + iss.str());
+        return ;
+    }
+
+    if (message.content == "!who")
+    {
+        sendMessage("PRIVMSG " + message.nickname + " :Hello! my name is mawibot! i'm a Bot!");
+        return ;
     }
 }

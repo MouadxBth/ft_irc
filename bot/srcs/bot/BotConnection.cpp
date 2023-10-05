@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 17:57:23 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/26 18:14:10 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 19:57:51 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ void Bot::establishConnection()
     sendMessage("PASS " + _password);
     sendMessage("NICK " + _nickname);
     sendMessage("USER " + _username + " 0 * :" + _username + " Bot");
-    sendMessage("JOIN #bot");
 }
 
 void Bot::destroyConnection()

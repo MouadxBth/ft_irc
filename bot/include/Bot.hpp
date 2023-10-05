@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 14:35:18 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/20 18:30:01 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 20:21:03 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,15 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+
+typedef struct s_message
+{
+    std::string nickname;
+    std::string username;
+    std::string hostname;
+    std::string command;
+    std::string content;
+}   Message;
 
 class Bot
 {
@@ -64,6 +73,12 @@ public:
     const sockaddr_in   getServerAddress() const;
 
     bool                isEnabled() const;
+
+    Message parseMessage(const std::string& message);
+    
+    void    handleInput(std::vector<std::string>& input);
+    bool    isKnownCommand(const std::string& command);
+    void    executeMessage(const Message& message);
 
 
 };

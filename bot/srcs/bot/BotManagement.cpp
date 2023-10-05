@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 17:58:04 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/26 17:23:44 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 20:22:47 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,8 @@ void Bot::listen()
                 {
                     std::cout << *ct << std::endl;
                 }
+
+                handleInput(result);
             }
             catch(std::exception& e)
             {
