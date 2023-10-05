@@ -58,6 +58,13 @@ int main(int argc, char **argv)
                 << std::endl,
                 EXIT_FAILURE);
 
+    if (!validatePassword(password))
+        return (std::cerr << "[Error]: Invalid password!\n"
+                << "Proper usage: (./ircserv <PORT: Positive number> <PASSWORD: String>)\n"
+                << "=> Password must not contain any whitespaces!"
+                << std::endl,
+                EXIT_FAILURE);
+
     server = Server::createInstance(static_cast<size_t>(port), password);
     server->enable();
     

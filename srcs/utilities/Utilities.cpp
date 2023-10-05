@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/19 01:07:58 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/10/03 21:53:21 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/04 16:09:04 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,16 @@
 #include "Server.hpp"
 #include "CommandData.hpp"
 #include "Utilities.hpp"
+
+bool    validatePassword(const std::string& str)
+{
+    for (size_t index = 0; index < str.size(); index++)
+    {
+        if (std::isspace(str[index]))
+            return (false);
+    }
+    return (true);
+}
 
 std::vector<pollfd>::iterator findSocket(std::vector<pollfd>& vec, int fd)
 {

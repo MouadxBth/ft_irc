@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/18 23:58:13 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/24 12:12:14 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 16:17:14 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,25 +29,22 @@ static std::string readUserInput(int fd)
 
 	memset(buffer,'\0', SIZE);
 
-	while (true)
+	bytesRead = recv(fd, buffer, SIZE, 0);
+	
+	if (bytesRead < 0)
 	{
-		bytesRead = recv(fd, buffer, SIZE, 0);
-		
-		if (bytesRead < 0)
-		{
-            // No more data to read at the moment
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-            	break;
-			return (std::cerr << "Error : Failed to receive data from a socket descriptor!\n"
-				<< strerror(errno)
-				<< std::endl, result);
-		}
-
-		if (!bytesRead)
-			break ;
-
-		result.append(buffer, bytesRead);
+		// No more data to read at the moment
+		//if (errno == EAGAIN || errno == EWOULDBLOCK)
+		//	return (result);
+		return (std::cerr << "Error : Failed to receive data from a socket descriptor!\n"
+			<< strerror(errno)
+			<< std::endl, result);
 	}
+
+	if (!bytesRead)
+		return (result);
+
+	result.append(buffer, bytesRead);
 	
 	return (result);
 }
@@ -75,9 +72,6 @@ static std::vector<std::string> handleUserInput(User *user, std::string &input)
 		{
 			holder = user->getPartialMessage() + holder;
 			user->setPartialMessage("");
-
-			if (holder.size() > 512)
-				holder = holder.substr(0, 512);
 		}
 		
 		if (holder.find('\r') == std::string::npos || holder[holder.size() - 1] != '\r')
@@ -90,7 +84,8 @@ static std::vector<std::string> handleUserInput(User *user, std::string &input)
 
 		removeCharacter(holder, char(4));
 
-		data.push_back(holder);
+		if (!(holder.size() > 512))
+			data.push_back(holder);
 
 	}
 	return (data);

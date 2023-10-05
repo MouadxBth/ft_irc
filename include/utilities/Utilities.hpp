@@ -9,6 +9,8 @@
 #include "ChannelMode.hpp"
 #include "CommandData.hpp"
 
+bool    validatePassword(const std::string& str);
+
 std::vector<pollfd>::iterator findSocket(std::vector<pollfd>& vec, int fd);
 
 bool isNumber(const char *str);
