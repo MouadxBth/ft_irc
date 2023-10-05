@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 17:58:50 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/10/05 20:52:29 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 21:08:10 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,10 @@ void    Bot::handleInput(std::vector<std::string>& input)
 
 bool    Bot::isKnownCommand(const std::string& command)
 {
-    return (command == "!flip" || command == "!random" || command == "!who");
+    return (command == "!flip" 
+        || command == "!random" 
+        || command == "!who"
+        || command == "!help");
 }
 
 
@@ -162,6 +165,16 @@ void    Bot::executeMessage(const Message& message)
     if (message.content == "!who")
     {
         sendMessage("PRIVMSG " + message.nickname + " :Hello! my name is mawibot! i'm a Bot!");
+        return ;
+    }
+
+    if (message.content == "!help")
+    {
+        sendMessage("PRIVMSG " + message.nickname + " :Here are the available commands:");
+        sendMessage("PRIVMSG " + message.nickname + " :!flip (Flipping a coin, will return either a heads or tails)");
+        sendMessage("PRIVMSG " + message.nickname + " :!random (Will generate a random number in this range [0-1000])");
+        sendMessage("PRIVMSG " + message.nickname + " :!who (Presents the bot information)");
+        sendMessage("PRIVMSG " + message.nickname + " :!help (To showcase the available commands)");
         return ;
     }
 }

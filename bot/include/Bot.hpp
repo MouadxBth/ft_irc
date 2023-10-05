@@ -6,7 +6,7 @@
 /*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 14:35:18 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/10/05 20:21:03 by mbouthai         ###   ########.fr       */
+/*   Updated: 2023/10/05 21:10:34 by mbouthai         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,7 @@ private:
 
     std::string                 readInput(pollfd& fd) throw(std::runtime_error);
     std::vector<std::string>    prepareInput(std::string& input);
-    void                        handleInput();
-
+    
     void                        sendMessage(const std::string& message);
 
 public:
@@ -67,12 +66,6 @@ public:
     void    destroyConnection();
 
     void    listen();
-
-    const pollfd&       getBotSocker() const;
-
-    const sockaddr_in   getServerAddress() const;
-
-    bool                isEnabled() const;
 
     Message parseMessage(const std::string& message);
     
