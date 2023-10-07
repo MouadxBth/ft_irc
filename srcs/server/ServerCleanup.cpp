@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ServerCleanup.cpp                                  :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mbouthai <mbouthai@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/26 13:48:12 by mbouthai          #+#    #+#             */
-/*   Updated: 2023/09/26 15:51:19 by mbouthai         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include <unistd.h>
 
@@ -26,10 +15,6 @@ void	Server::cleanConnectedUsers()
 		std::string nickname = it->second->getNickname().empty() 
 			? "*" 
 			: it->second->getNickname();
-
-		std::string reply = ":" + nickname + "!" 
-                + it->second->getUsername() + "@" 
-                + it->second->getHostname() + " QUIT :QUIT: " + nickname;
 
 		std::string message = "ERROR :Closing Link: " 
 			+ it->second->getHostname() 
