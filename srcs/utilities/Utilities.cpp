@@ -375,7 +375,7 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 				if (index + 1 < args.size())
 				{
 				    current.parameter = args[index + 1];
-				}
+				} // <---
 				index++;
 			}
 			result.push_back(current);
@@ -386,19 +386,42 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 		{
 			size_t takes = 0;
 
+            char current = args[index][0];
+            int cflag = current == '+' || current == '-';
+
+            // +t-i
+            // ++t
+
 			for (size_t j = 1; j < args[index].size(); j++)
 			{
-				if (takesParam(args[index][j]) && args[index][0] == '+')
+                if (args[index][j] == '+' || args[index][j] == '-')
+                {
+                    if (cflag)
+                        return (empty);
+                    else
+                        cflag = true;
+                    current = args[index][j];
+                    continue;
+                }
+                cflag = false;
+				if (takesParam(args[index][j]) && current == '+')
 					takes++;
 			}
 			
 			if (!takes)
 			{
+                current = args[index][0];
+                
 				for (size_t j = 1; j < args[index].size(); j++)
 				{
+                    if (args[index][j] == '+' || args[index][j] == '-')
+                    {
+                        current = args[index][j];
+                        continue;
+                    }
 					ChannelMode riz;
 
-					riz.add = args[index][0] == '+';
+					riz.add = current == '+';
 					riz.mode = args[index][j];
 					result.push_back(riz);
 				}
@@ -419,12 +442,17 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 			{
 				return (empty);
 			}
-
+            current = args[index][0];
 			for (size_t j = 1, temp = 0; j < args[index].size(); j++)
 			{
+                if (args[index][j] == '+' || args[index][j] == '-')
+                {
+                    current = args[index][j];
+                    continue;
+                }
 				ChannelMode riz;
 
-				riz.add = args[index][0] == '+';
+				riz.add = current == '+';
 				riz.mode = args[index][j];
 				
 				if (takesParam(args[index][j]) && riz.add)

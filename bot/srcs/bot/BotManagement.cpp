@@ -1,4 +1,3 @@
-
 #include "Bot.hpp"
 #include <iostream>
 #include <cstring>

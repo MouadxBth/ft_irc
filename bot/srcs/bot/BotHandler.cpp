@@ -7,8 +7,6 @@
 #include <string>
 #include <stdlib.h>
 
-#include "CommandReplies.hpp"
-
 std::string Bot::readInput(pollfd& connectionInfo) throw(std::runtime_error)
 {
 	const int SIZE = 4096;
