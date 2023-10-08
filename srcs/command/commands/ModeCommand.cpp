@@ -139,6 +139,9 @@ void ModeCommand::executeCommand(User *user, Data &data)
 
 				if (!it->add && !channel->isChannelKeySet())
 					break ;
+
+				if (!it->add && !it->parameter.empty() && it->parameter != channel->getPassword())
+					break ;
 					
 				if (it->add)
 					channel->setPassword(it->parameter);

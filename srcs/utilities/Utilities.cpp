@@ -373,7 +373,7 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 			current.add = args[index][0] == '+';
 			current.mode = args[index][1];
 			
-			if (takesParam(current.mode) && current.add)
+			if (takesParam(current.mode))
 			{
 				if (index + 1 < args.size())
 				{
@@ -410,7 +410,7 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
                     continue;
                 }
                 cflag = false;
-				if (takesParam(args[index][j]) && current == '+')
+				if (takesParam(args[index][j]))
 					takes++;
 			}
 
@@ -452,10 +452,13 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 				riz.add = current == '+';
 				riz.mode = args[index][j];
 				
-				if (takesParam(args[index][j]) && riz.add)
+				if (takesParam(args[index][j]))
                 {
-					riz.parameter = args[++temp];
-                    incr++;
+					if (++temp < args.size())
+					{
+						riz.parameter = args[temp];
+                    	incr++;
+					}
                 }
 				
 				result.push_back(riz);
