@@ -18,7 +18,8 @@ void Bot::establishConnection()
         result = connect(_listener.fd,    
                 reinterpret_cast<struct sockaddr *>(&_serverAddress),
                 sizeof(_serverAddress));
-        if (!result)
+        
+        if (!result || errno == EISCONN)
             break ;
 
         if (errno != ECONNREFUSED)

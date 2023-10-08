@@ -135,8 +135,7 @@ void JoinCommand::executeCommand(User *user, Data &data)
             namesData.arguments.push_back(newChannel->getName());
 
             CommandManager::getInstance()->executeCommand(user, namesData);
-
-            std::cout << *newChannel << std::endl;
+            
             current++;
             continue ;
         }

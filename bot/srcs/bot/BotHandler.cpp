@@ -90,13 +90,6 @@ Message Bot::parseMessage(const std::string& message) {
     
     result.content.erase(0, 1);
 
-    std::cout << result.nickname << " "
-        << result.username << " "
-        << result.hostname << " "
-        << result.command << " "
-        << result.nickname << " "
-        << result.content << std::endl;
-
     return (result);
 }
 

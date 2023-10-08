@@ -1,9 +1,0 @@
-+ Figure out the program components.
-
-- Figure out the data structure to hold the client unique data.
-
-+ Develop the logic for the base components and do more research on them.
-	 .the base components i figure out for now are:
-		- a client-handler to initiate and maintain the server-client connection.
-		- an IRC compatible command parser using the recent RFC.
-- Create the server and client class based on limited knowledge about them and handle client registration.

@@ -44,7 +44,6 @@ void QuitCommand::executeCommand(User *user, Data &data)
         
         if (!it->second->getUsers().size())
         {
-            std::cout << "Staged channel: " << it->first << std::endl;
             Server::getInstance()->removeChannel(it->first);
         }
     }
