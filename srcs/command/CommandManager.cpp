@@ -75,8 +75,6 @@ void    CommandManager::executeCommand(User *user, Data &data)
     nickname = user->getNickname().empty() 
         ? "*"
         : user->getNickname();
-    
-    printDatas(data);
 
     std::map<std::string, Command *>::iterator it = _registeredCommands.find(data.command);
     

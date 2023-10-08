@@ -88,8 +88,5 @@ void UserCommand::executeCommand(User *user, Data &data)
 
     CommandManager::getInstance()->executeCommand(user, motdData);
 
-    std::cout << "=> AUTHENTICATED: " << user->getNickname() 
-        << "\n"
-        << *user
-        << std::endl;
+    std::cout << "=> AUTHENTICATED: " << user->getNickname() << std::endl;
 }
