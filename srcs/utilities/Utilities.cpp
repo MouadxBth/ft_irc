@@ -335,7 +335,7 @@ std::vector<std::string> generateMotd()
     {
         std::cout << "not found" << std::endl;
         line += "This is a dummy motd\n";
-        line += "Fun fact, u ain't got no hoes";
+        line += "Fun fact, u ain't got no girls";
         return (split(line, '\n'));
     }
 
@@ -345,67 +345,6 @@ std::vector<std::string> generateMotd()
     return (result);
 }
 
-bool wildcardMatch(const char* pattern, const char* text)
-{
-    if (*pattern == '\0')
-        return (true);
-    
-    while (*text)
-    {
-        if (*pattern == *text || *pattern == '?')
-        {
-            ++pattern;
-            ++text;
-        }
-        else if (*pattern == '*')
-        {
-            pattern++;
-
-            // Handle special cases
-            if (*pattern == '\0')
-            {
-                // If '*' is the last character in pattern, it matches the rest of 'text'.
-                return (true);
-            }
-            else if (*pattern == '*')
-            {
-                // If there are consecutive '*', merge them into one
-                while (*pattern == '*')
-                    ++pattern;
-
-                // Try each possible position in text
-                while (*text)
-                {
-                    if (wildcardMatch(pattern, text))
-                        return (true);
-                    ++text;
-                }
-                return false;
-            }
-            else
-            {
-                // Normal '*' behavior, match any number of characters
-                while (*text)
-                {
-                    if (wildcardMatch(pattern, text))
-                        return (true);
-                    ++text;
-                }
-                return (false);
-            }
-        }
-        else
-        {
-            return (false);
-        }
-    }
-
-    // Check if there are any remaining '*' in the pattern
-    while (*pattern == '*')
-        ++pattern;
-
-    return (*pattern == '\0');
-}
 
 bool takesParam(int c)
 {

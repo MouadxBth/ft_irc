@@ -56,7 +56,6 @@ void    CommandManager::registerCommand(Command *command)
         return ;
         
     _registeredCommands[command->getName()] = command;
-    std::cout << "Regisetered: "<< command->getName() << std::endl;
 }
 
 void    CommandManager::unregisterCommand(const std::string& command)

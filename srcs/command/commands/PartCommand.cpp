@@ -70,7 +70,6 @@ void PartCommand::executeCommand(User *user, Data &data)
         
         if (!target->getUsers().size())
         {
-            std::cout << "PART no users" << std::endl;
             Server::getInstance()->removeChannel(target->getName());
         }
         

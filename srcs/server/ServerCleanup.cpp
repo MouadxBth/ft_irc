@@ -55,7 +55,6 @@ void	Server::cleanAuthenticatedUsers()
 			
 			if (!ct->second->getUsers().size())
 			{
-				std::cout << "Staged channel: " << ct->first << std::endl;
 				Server::getInstance()->removeChannel(ct->first);
 			}
 		}
@@ -85,7 +84,7 @@ void	Server::cleanChannels()
         target = getChannel(*it);
         if (target && !target->getUsers().size())
         {
-			std::cout << "deleting channel: " << target->getName() << std::endl;
+
             _channels.erase(*it);
             delete target;
         }

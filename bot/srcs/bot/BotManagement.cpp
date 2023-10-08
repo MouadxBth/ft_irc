@@ -63,10 +63,6 @@ void Bot::listen()
                 }
 
                 std::vector<std::string> result = prepareInput(input);
-                for (std::vector<std::string>::const_iterator ct = result.begin(); ct != result.end(); ct++)
-                {
-                    std::cout << *ct << std::endl;
-                }
 
                 handleInput(result);
             }
