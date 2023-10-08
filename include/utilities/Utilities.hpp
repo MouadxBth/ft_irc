@@ -9,6 +9,8 @@
 #include "ChannelMode.hpp"
 #include "CommandData.hpp"
 
+void	printMode(const ChannelMode& mode);
+
 bool    validatePassword(const std::string& str);
 
 std::vector<pollfd>::iterator findSocket(std::vector<pollfd>& vec, int fd);

@@ -2,6 +2,7 @@
 #include <sys/socket.h>
 #include <cstring>
 #include <cerrno>
+#include <sstream>
 
 Channel::Channel()
 	: _name("default"),
@@ -135,6 +136,8 @@ const std::string Channel::getChannelUserModes() const
 {
 	std::string result("+");
 
+	std::stringstream ss;
+
 	if (isTopicSettableByChannelOperatorOnly())
 		result += "t";
 	if (isInviteOnly())
@@ -147,7 +150,8 @@ const std::string Channel::getChannelUserModes() const
 	if (isUserLimitSet())
 	{
 		result += " ";
-		result += static_cast<int>(getMaximumCapacity());
+		ss << getMaximumCapacity();
+		result += ss.str();
 	}
 	
 	if (isChannelKeySet())

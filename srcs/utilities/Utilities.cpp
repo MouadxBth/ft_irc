@@ -362,6 +362,7 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 	{
 		if (args[index][0] != '+' && args[index][0] != '-')
 		{
+		//	std::cout << "Arg: " << index << " : " << args[index] << " does not start with either + -" << std::endl;
 			return (empty);
 		}
 			
@@ -399,7 +400,10 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
                 if (args[index][j] == '+' || args[index][j] == '-')
                 {
                     if (cflag)
+					{
+					//	std::cout << "1) Arg: " << index << " cflag found twice" << std::endl;
                         return (empty);
+					}
                     else
                         cflag = true;
                     current = args[index][j];
@@ -409,6 +413,8 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 				if (takesParam(args[index][j]) && current == '+')
 					takes++;
 			}
+
+		//	std::cout << "Takes: " << takes << std::endl;
 			
 			if (!takes)
 			{
@@ -432,7 +438,8 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 			}
 
             current = args[index][0];
-            size_t incr = 0;
+            size_t incr = 1;
+
 			for (size_t j = 1, temp = index; j < args[index].size(); j++)
 			{
                 if (args[index][j] == '+' || args[index][j] == '-')
@@ -453,6 +460,7 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 				
 				result.push_back(riz);
 			}
+			//std::cout << "Incr: " << incr << std::endl;
 			index += incr;
 		}
 	}
@@ -469,4 +477,12 @@ std::string getCurrentDateTime()
     std::strftime(buffer, 80, "%a %d %b %Z at %Y %I:%M:%S %p", tm_info);
 
     return buffer;
+}
+
+void	printMode(const ChannelMode& mode)
+{
+	std::cout << "Add: " << mode.add << "\n"
+		<< "Mode: " << mode.mode << "\n"
+		<< "param: " << mode.parameter << std::endl;
+
 }

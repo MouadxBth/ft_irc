@@ -117,6 +117,7 @@ void    CommandManager::executeCommand(User *user, Data &data)
         }
     }
 
+    //printDatas(data);
     it->second->executeCommand(user, data);
 }
 

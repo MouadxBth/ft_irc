@@ -58,6 +58,13 @@ void ModeCommand::executeCommand(User *user, Data &data)
 
 	std::vector<ChannelMode> modes = parseModeArguments(data.arguments);
 
+	/*for (std::vector<ChannelMode>::const_iterator cit = modes.begin();
+		cit != modes.end();
+		cit++)
+	{
+		printMode(*cit);
+	}*/
+
 	if (!modes.size())
 		return ;
 
