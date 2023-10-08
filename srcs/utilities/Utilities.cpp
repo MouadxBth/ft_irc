@@ -355,6 +355,8 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 {
 	std::vector<ChannelMode> result;
 	std::vector<ChannelMode> empty;
+
+    // channel 
 	
 	for (size_t index = 1; index < args.size();)
 	{
@@ -428,22 +430,10 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 				index++;
 				continue ;
 			}
-			
-			std::vector<std::string> moreArgs;
-			
-			if (index + 1 >= args.size())
-			{
-				return (empty);
-			}
-			
-			moreArgs = split(args[index + 1], ',');
 
-			if (moreArgs.size() != takes)
-			{
-				return (empty);
-			}
             current = args[index][0];
-			for (size_t j = 1, temp = 0; j < args[index].size(); j++)
+            size_t incr = 0;
+			for (size_t j = 1, temp = index; j < args[index].size(); j++)
 			{
                 if (args[index][j] == '+' || args[index][j] == '-')
                 {
@@ -456,11 +446,14 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 				riz.mode = args[index][j];
 				
 				if (takesParam(args[index][j]) && riz.add)
-					riz.parameter = moreArgs[temp++];
+                {
+					riz.parameter = args[++temp];
+                    incr++;
+                }
 				
 				result.push_back(riz);
 			}
-			index += 2;
+			index += incr;
 		}
 	}
 
