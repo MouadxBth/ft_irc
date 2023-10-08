@@ -373,7 +373,7 @@ std::vector<ChannelMode> parseModeArguments(std::vector<std::string>& args)
 			current.add = args[index][0] == '+';
 			current.mode = args[index][1];
 			
-			if (takesParam(current.mode))
+			if (takesParam(current.mode) && current.add)
 			{
 				if (index + 1 < args.size())
 				{
